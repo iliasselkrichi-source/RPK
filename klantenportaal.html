@@ -376,7 +376,10 @@
     const loggedInEmail = sessionStorage.getItem('loggedInEmail');
 
     if (!loggedInEmail) {
-        window.location.href = 'index.html';
+        // Toon een melding op de pagina en verberg de functionaliteit
+        document.body.innerHTML = '<div style="text-align:center; margin-top:100px; font-family: sans-serif;"><i class="fas fa-sign-out-alt" style="font-size:48px; color:#b91c1c;"></i><h2>U bent uitgelogd</h2><p>Log opnieuw in via de inlogpagina.</p><button onclick="sessionStorage.clear(); window.location.reload();" style="background:#0066cc; color:white; border:none; padding:10px 20px; border-radius:40px; cursor:pointer;">Opnieuw laden</button></div>';
+        // Stop verdere uitvoering van scripts
+        throw new Error('Niet ingelogd');
     }
 
     function generateCustomerId(email) {
@@ -412,7 +415,8 @@
 
     function logout() {
         sessionStorage.removeItem('loggedInEmail');
-        window.location.href = 'index.html';
+        // Herlaad dezelfde pagina, dan wordt de check bij het laden uitgevoerd
+        window.location.reload();
     }
     document.querySelectorAll('.logout-action').forEach(btn => btn.addEventListener('click', logout));
     document.getElementById('logoutTabBtn')?.addEventListener('click', logout);
