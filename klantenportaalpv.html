@@ -452,7 +452,7 @@
 
     // DASHBOARD (grotendeels ongewijzigd, maar met roundtrip ondersteuning voor weergave)
     async function loadUserBookings() {
-        const { data } = await supabase.from('bookings').select('*').order('datetime', { ascending: false });
+        const { data } = await supabase.from('bookings').select('*').eq('customer_id', currentUser.id).order('datetime', { ascending: false });
         if (data && data.length) userBookings = data;
         else {
             userBookings = [
@@ -785,7 +785,7 @@
             payment: paymentMethod,
             status: "pending",
             customer_id: generateCustomerId(emailRaw),
-            form_data: buildFormData()
+            // form_data: buildFormData()  // weggelaten omdat kolom niet bestaat
         };
     }
 

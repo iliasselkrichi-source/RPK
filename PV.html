@@ -584,8 +584,9 @@
         const pickupRaw = document.getElementById('pickupInput').value;
         const destRaw = document.getElementById('dropoffInput').value;
         const flightNumberRaw = document.getElementById('flightNumber').value.trim();
-        const vehicleRaw = selectedVehicle;
+        const vehicleRaw = selectedVehicle || "Standaard";
         const extrasRaw = getExtrasString();
+
         let datePart = "", timePart = "";
         if (isReturnTrip && currentReturnDateTime) {
             const parts = currentReturnDateTime.split(' ');
@@ -599,18 +600,30 @@
                 timePart = parts[1] || "";
             }
         }
+
         let bookingId;
         if (isReturnTrip && baseId) {
-            bookingId = `${baseId}/B`;
+            bookingId = baseId.includes('/B') ? baseId : `${baseId}/B`;
         } else {
             bookingId = generateBookingId();
         }
+
         return {
-            id: bookingId, datetime: datePart, time: timePart, name: fullName, email: emailRaw, phone: phoneRaw,
-            pickup: pickupRaw, destination: destRaw, flight_number: flightNumberRaw, vehicle: vehicleRaw,
-            extras: extrasRaw, amount: parseFloat(finalAmount), payment: paymentMethod, status: "pending",
-            customer_id: generateCustomerId(emailRaw),
-            form_data: buildFormData()
+            id: bookingId,
+            datetime: datePart,
+            time: timePart,
+            name: fullName,
+            email: emailRaw,
+            phone: phoneRaw,
+            pickup: pickupRaw,
+            destination: destRaw,
+            flight_number: flightNumberRaw,
+            vehicle: vehicleRaw,
+            extras: extrasRaw,
+            amount: parseFloat(finalAmount),
+            payment: paymentMethod,
+            status: "pending",
+            customer_id: generateCustomerId(emailRaw)
         };
     }
     
@@ -641,45 +654,32 @@
     
     async function createRoundTripBookings(paymentMethod, totalAmount) {
         const halfAmount = totalAmount / 2;
-        const baseId = generateBookingId();
-        const nameRaw = document.getElementById('firstName').value.trim();
-        const lastNameRaw = document.getElementById('lastName').value.trim();
-        const fullName = `${nameRaw} ${lastNameRaw}`;
-        const emailRaw = document.getElementById('email').value.trim();
-        const phoneRaw = document.getElementById('phone').value.trim();
-        const pickupRaw = document.getElementById('pickupInput').value;
-        const destRaw = document.getElementById('dropoffInput').value;
-        const flightNumberRaw = document.getElementById('flightNumber').value.trim();
-        const vehicleRaw = selectedVehicle;
-        const extrasRaw = getExtrasString();
-        const heenDateTime = document.getElementById('datetime').value;
-        const heenDatePart = heenDateTime ? heenDateTime.split(' ')[0] : "";
-        const heenTimePart = heenDateTime ? (heenDateTime.split(' ')[1] || "") : "";
-        const terugDateTime = currentReturnDateTime;
-        const terugDatePart = terugDateTime ? terugDateTime.split(' ')[0] : "";
-        const terugTimePart = terugDateTime ? (terugDateTime.split(' ')[1] || "") : "";
-        const commonData = {
-            name: fullName, email: emailRaw, phone: phoneRaw,
-            pickup: pickupRaw, destination: destRaw, flight_number: flightNumberRaw, vehicle: vehicleRaw, extras: extrasRaw,
-            amount: halfAmount, payment: paymentMethod, status: "pending",
-            customer_id: generateCustomerId(emailRaw),
-            form_data: buildFormData()
-        };
-        const heenRecord = {
-            id: baseId, datetime: heenDatePart, time: heenTimePart, ...commonData
-        };
-        const terugRecord = {
-            id: `${baseId}/B`, datetime: terugDatePart, time: terugTimePart, ...commonData
-        };
+        const heenRecord = buildSupabaseRecord(paymentMethod, halfAmount, false, null);
+        const terugRecord = buildSupabaseRecord(paymentMethod, halfAmount, true, heenRecord.id);
+
         console.log('📦 Verzenden heen rit:', heenRecord);
         console.log('📦 Verzenden terug rit:', terugRecord);
+
         try {
-            const res1 = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Prefer': 'return=minimal' }, body: JSON.stringify(heenRecord) });
-            const res2 = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Prefer': 'return=minimal' }, body: JSON.stringify(terugRecord) });
+            const res1 = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Prefer': 'return=minimal' },
+                body: JSON.stringify(heenRecord)
+            });
+            const res2 = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Prefer': 'return=minimal' },
+                body: JSON.stringify(terugRecord)
+            });
+
             if (!res1.ok || !res2.ok) throw new Error('Fout bij opslaan roundtrip');
+
             await sendEmailNotification(heenRecord, true, currentReturnDateTime);
             return true;
-        } catch (error) { alert(`❌ Fout: ${error.message}`); return false; }
+        } catch (error) {
+            alert(`❌ Fout: ${error.message}`);
+            return false;
+        }
     }
     
     // ========== 5. KAART EN ROUTE FUNCTIES ==========
