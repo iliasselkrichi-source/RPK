@@ -216,8 +216,13 @@
             <a href="#" data-nav="home"><i class="fas fa-home"></i> Home</a>
             <a href="#" data-nav="portal"><i class="fas fa-user-circle"></i> Mijn Portaal</a>
             <a href="#" data-nav="contact"><i class="fas fa-envelope"></i> Contact</a>
-            <a href="#" id="logoutBtnSidebar"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
+            <a href="#" class="logout-action"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
         </div>
+    </div>
+
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; align-items: center; gap: 15px;">
+        <span id="userDisplay" style="font-size: 0.85rem; font-weight: 600; color: var(--header-dark); background: rgba(255,255,255,0.8); padding: 6px 14px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"></span>
+        <button class="logout-action" style="background: #b91c1c; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: 0.2s;"><i class="fas fa-sign-out-alt"></i> Uitloggen</button>
     </div>
 
     <section class="hero" style="padding: 60px 0 40px; text-align: center;">
@@ -367,12 +372,36 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentUser = { id: 'demo-user', full_name: 'Demo Gebruiker', email: 'demo@fleetconnect.be', phone: '+32 470 12 34 56', default_pickup_address: '' };
+    // AUTH & SESSION
+    const loggedInEmail = sessionStorage.getItem('loggedInEmail');
+
+    if (!loggedInEmail) {
+        window.location.href = 'index.html';
+    }
+
+    function generateCustomerId(email) {
+        return "CUST-" + email.toLowerCase().replace(/[^a-z0-9]/g, "");
+    }
+
+    let currentUser = {
+        id: loggedInEmail ? generateCustomerId(loggedInEmail) : 'demo-user',
+        full_name: 'Gebruiker',
+        email: loggedInEmail || 'demo@fleetconnect.be',
+        phone: '',
+        default_pickup_address: ''
+    };
+
     let userBookings = [];
     let bookingMap, pickupCoord = null, dropoffCoord = null, routeLayer, currentRouteData = null, currentRoundTrip = false, currentReturnDateTime = "";
     let selectedVehicle = 'Standaard', selectedVehicleExtra = 0, currentPage = 1;
     let returnFlatpickr = null;
     let debounceTimer;
+
+    // UI Updates
+    document.addEventListener('DOMContentLoaded', () => {
+        const display = document.getElementById('userDisplay');
+        if(display && loggedInEmail) display.innerText = `Ingelogd als: ${loggedInEmail}`;
+    });
 
     // Achtergrondkaart
     var bgMap = L.map('background-map').setView([50.8503, 4.3517], 8);
@@ -381,9 +410,11 @@
     setTimeout(function() { bgMap.invalidateSize(); }, 100);
     window.addEventListener('resize', function() { bgMap.invalidateSize(); });
 
-    // LOGOUT
-    function logout() { location.reload(); }
-    document.getElementById('logoutBtnSidebar')?.addEventListener('click', logout);
+    function logout() {
+        sessionStorage.removeItem('loggedInEmail');
+        window.location.href = 'index.html';
+    }
+    document.querySelectorAll('.logout-action').forEach(btn => btn.addEventListener('click', logout));
     document.getElementById('logoutTabBtn')?.addEventListener('click', logout);
 
     // PROFIEL
@@ -681,10 +712,6 @@
         let c = parseInt(localStorage.getItem('bookingCounter') || '0') + 1;
         localStorage.setItem('bookingCounter', c);
         return `T-PZ-${y}${m}${dd}-${String(c).padStart(3,'0')}`;
-    }
-
-    function generateCustomerId(email) {
-        return "CUST-" + email.toLowerCase().replace(/[^a-z0-9]/g, "");
     }
 
     function buildFormData() {
