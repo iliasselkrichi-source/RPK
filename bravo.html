@@ -1245,7 +1245,6 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
 
 <script>
     // Soepele scroll
@@ -1283,6 +1282,15 @@
         tbSelect.addEventListener('change', updatePriceDisplay);
         updatePriceDisplay();
     }
+
+    function setMinDatesBravo() {
+        const vandaag = new Date().toISOString().split('T')[0];
+        const checkIn = document.getElementById('tbCheckIn');
+        const checkOut = document.getElementById('tbCheckOut');
+        if (checkIn) checkIn.setAttribute('min', vandaag);
+        if (checkOut) checkOut.setAttribute('min', vandaag);
+    }
+    setMinDatesBravo();
 
     // ========== MULTIVENSTER LOGICA ==========
     let geselecteerdeDiensten = [];
@@ -1373,6 +1381,112 @@
         if (event.target === modal) {
             modal.style.display = 'none';
         }
+    }
+</script>
+
+<script>
+    // Supabase configuratie (gebruik dezelfde URL en key als elders in het project)
+    const SUPABASE_URL = "https://orgbdqaxxkwtpvaxxuep.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZ2JkcWF4eGt3dHB2YXh4dWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTU0NzksImV4cCI6MjA5MTIzMTQ3OX0.TY6hWwzG3q_waVDJhxvuLfFFg5qy0HOxMjcTM0YcJ3Q";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Functie om uniek boekingsnummer te genereren (formaat: TB-P1-20260511-001)
+    async function genereerBoekingsnummer(team, unitCode) {
+        const vandaag = new Date();
+        const jaar = vandaag.getFullYear();
+        const maand = String(vandaag.getMonth() + 1).padStart(2, '0');
+        const dag = String(vandaag.getDate()).padStart(2, '0');
+        const datumStr = `${jaar}${maand}${dag}`;
+
+        const { data, error } = await supabaseClient
+            .from('boekingen')
+            .select('boekingsnummer')
+            .like('boekingsnummer', `${team}-${unitCode}-${datumStr}-%`);
+
+        const aantal = error ? 0 : data.length;
+        const volgnr = String(aantal + 1).padStart(3, '0');
+        return `${team}-${unitCode}-${datumStr}-${volgnr}`;
+    }
+
+    // Hoofdfunctie voor het verwerken van de boeking
+    async function handleBravoBooking() {
+        // 1. Velden ophalen
+        const checkIn = document.getElementById('tbCheckIn').value;
+        const checkOut = document.getElementById('tbCheckOut').value;
+        const guestName = document.getElementById('tbGuestName').value.trim();
+        const guestEmail = document.getElementById('tbGuestEmail').value.trim();
+        const guestPhone = document.getElementById('tbGuestPhone').value.trim();
+
+        // 2. Validatie
+        if (!checkIn || !checkOut) {
+            alert("❌ Selecteer zowel check-in als check-out datum.");
+            return;
+        }
+        if (new Date(checkIn) >= new Date(checkOut)) {
+            alert("❌ Check-out moet na check-in liggen.");
+            return;
+        }
+        if (!guestName || !guestEmail || !guestPhone) {
+            alert("❌ Vul alle gastgegevens in (naam, e-mail, telefoon).");
+            return;
+        }
+
+        // 3. Pakketgegevens ophalen
+        const select = document.getElementById('tbPackageSelect');
+        const selectedOption = select.selectedOptions[0];
+        const unitCode = selectedOption.value;
+        const resourceId = selectedOption.dataset.resource;
+        const woningType = selectedOption.dataset.type;
+        const pakketPrijs = parseFloat(selectedOption.dataset.price);
+
+        // 4. Gekozen diensten & activiteiten uit het multivenster (window variabelen)
+        const extraDiensten = window.geselecteerdeDiensten || [];
+        const activiteiten = window.geselecteerdeActiviteiten || [];
+
+        // 5. Boekingsnummer genereren
+        const boekingsnummer = await genereerBoekingsnummer('TB', unitCode);
+
+        // 6. Record opbouwen (metadata gebruikt 'extra_diensten' i.p.v. 'diensten')
+        const record = {
+            boekingsnummer: boekingsnummer,
+            team: "TB",
+            unit_code: unitCode,
+            resource_id: resourceId,
+            gast_naam: guestName,
+            gast_contact: {
+                email: guestEmail,
+                telefoon: guestPhone
+            },
+            check_in: checkIn,
+            check_out: checkOut,
+            metadata: {
+                transfer: document.getElementById('tbTransfer').checked,
+                speciaal: document.getElementById('tbSpeciaal').value,
+                woning_type: woningType,
+                extra_diensten: extraDiensten,   // ← Cruciaal: naam gelijk aan Alpha
+                activiteiten: activiteiten
+            },
+            totaalprijs: pakketPrijs,   // let op: extra diensten worden niet meegeteld in totaal (offerte)
+            status: "NIEUW"
+        };
+
+        // 7. Versturen naar Supabase
+        const { error } = await supabaseClient.from('boekingen').insert([record]);
+
+        if (error) {
+            console.error("Supabase fout:", error);
+            alert("❌ Er is een fout opgetreden: " + error.message);
+        } else {
+            alert(`✅ Boeking succesvol!\n📌 Uw boekingsnummer: ${boekingsnummer}\nWij nemen spoedig contact op voor de offerte van de geselecteerde diensten en activiteiten.`);
+            // Optioneel: herlaad de pagina of leeg formulier
+            location.reload();
+        }
+    }
+
+    // Koppel de functie aan de knop
+    const bookBtn = document.getElementById('tbBookBtn');
+    if (bookBtn) {
+        bookBtn.addEventListener('click', handleBravoBooking);
     }
 </script>
 </body>
