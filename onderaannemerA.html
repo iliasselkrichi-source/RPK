@@ -293,13 +293,12 @@
                 let todayStr = this.formatDate(new Date());
                 let todayRides = this.getRidesByDate(todayStr);
                 let todayCompleted = todayRides.filter(r => r.status === 'completed');
+                let todayTotal = todayRides.reduce((sum, r) => sum + (r.amount || 0), 0);
                 let todayCash = todayRides.filter(r => r.payment === 'Cash').reduce((sum, r) => sum + (r.amount || 0), 0);
-                let todayFactuur = todayRides.filter(r => r.payment === 'Factuur').reduce((sum, r) => sum + (r.amount || 0), 0);
-                let todayTotal = todayCash + todayFactuur;
                 let commission = todayTotal * 0.10;
                 let nowTime = `${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`;
                 let futureRidesToday = todayRides.filter(r => r.status !== 'completed' && r.status !== 'cancelled' && r.time > nowTime);
-                return { total: todayTotal, cash: todayCash, factuur: todayFactuur, commission: commission, completed: todayCompleted.length, canceled: todayRides.filter(r => r.status === 'cancelled').length, futureRides: futureRidesToday.length };
+                return { total: todayTotal, cash: todayCash, commission: commission, completed: todayCompleted.length, canceled: todayRides.filter(r => r.status === 'cancelled').length, futureRides: futureRidesToday.length };
             },
             
             toggleFlipCard(cardName) { this.flipStates[cardName] = !this.flipStates[cardName]; if(this.currentTab === 'agenda') this.renderAgenda(); },
@@ -314,10 +313,9 @@
                                 <div class="mini-flip-back"><i class="fas fa-percent" style="font-size:1.5rem;"></i><div class="value">€ ${stats.commission.toFixed(2)}</div><div class="label">10% Commissie</div></div>
                             </div></div>
                         </div>
-                        <div class="info-card" onclick="app.toggleFlipCard('cash')">
-                            <div class="mini-flip-container"><div class="mini-flip-card ${this.flipStates.cash ? 'flipped' : ''}">
+                        <div class="info-card">
+                            <div class="mini-flip-container"><div class="mini-flip-card">
                                 <div class="mini-flip-front"><i class="fas fa-money-bill-wave" style="font-size:1.5rem;"></i><div class="value">€ ${stats.cash.toFixed(2)}</div><div class="label">Cash Betalingen</div></div>
-                                <div class="mini-flip-back"><i class="fas fa-file-invoice" style="font-size:1.5rem;"></i><div class="value">€ ${stats.factuur.toFixed(2)}</div><div class="label">Factuur Betalingen</div></div>
                             </div></div>
                         </div>
                         <div class="info-card" onclick="app.toggleFlipCard('orders')">
@@ -366,7 +364,7 @@
                     <div class="planning-item">
                         <div class="planning-time"><i class="fas fa-clock"></i> ${r.time} uur ${r.status === 'completed' ? '✓ Uitgevoerd' : (r.status === 'cancelled' ? '✗ Geannuleerd' : '')}</div>
                         <div class="planning-ride"><strong>${this.escapeHtml(r.name)}</strong> - ${this.escapeHtml(r.pickup)} → ${this.escapeHtml(r.destination)}</div>
-                        <div class="planning-ride"><i class="fas fa-car"></i> ${r.vehicle} | Uitvoerder: ${r.assigned_to_name || 'Niet toegewezen'}</div>
+                        <div class="planning-ride"><i class="fas fa-car"></i> ${r.vehicle}</div>
                         ${r.assigned_driver ? `<div class="planning-ride"><i class="fas fa-user-check"></i> Chauffeur: ${r.assigned_driver.name} (${r.assigned_driver.voertuig})</div>` : '<div class="planning-ride"><i class="fas fa-user-clock"></i> Nog geen chauffeur</div>'}
                     </div>
                 `).join('');
@@ -377,10 +375,10 @@
             changeMonth(delta) { this.currentMonth.setMonth(this.currentMonth.getMonth() + delta); if(this.currentTab === 'agenda') this.renderAgenda(); },
             goToToday() { this.currentMonth = new Date(); this.selectedDate = new Date(); if(this.currentTab === 'agenda') this.renderAgenda(); },
             
-            renderEmptyTable(message) { return `<div class="alert-no-data"><i class="fas fa-database"></i> ${message}<br><small>Data wordt getoond zodra Supabase is gekoppeld</small></div>`; },
+            renderEmptyTable() { return `<div class="alert-no-data"><i class="fas fa-database"></i> Geen ritten gevonden</div>`; },
             
             renderNewOrders() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderNew" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameNew" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersNew()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersNew()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Uitvoerder</th><th>Actie</th></tr></thead><tbody id="newOrdersTable"></tbody>}</div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderNew" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameNew" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersNew()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersNew()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Actie</th></tr></thead><tbody id="newOrdersTable"></tbody></table></div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderNewOrdersTable(this.newOrders);
                 document.getElementById('pageTitle').innerHTML = `New Orders <span class="order-count">${this.newOrders.length}</span>`;
@@ -390,25 +388,24 @@
                 let tbody = document.getElementById('newOrdersTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable("Geen nieuwe orders")} </span></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => `
                         <tr>
-                            <td><strong>${o.id}</strong><br><span class="template-tag template-${o.template}">${o.template}</span></span></td>
-                            <td>${o.datetime} ${o.time}</span></td>
-                            <td>${this.escapeHtml(o.name)}</span></td>
-                            <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</span></td>
-                            <td>${o.vehicle}</span></td>
-                            <td>€${(o.amount || 0).toFixed(2)}</span></td>
-                            <td><small>${o.assigned_to_name || 'Niet toegewezen'}</small></span></td>
-                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></span></td>
+                            <td><strong>${o.id}</strong></td>
+                            <td>${o.datetime} ${o.time}</td>
+                            <td>${this.escapeHtml(o.name)}</td>
+                            <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
+                            <td>${o.vehicle}</td>
+                            <td>€${(o.amount || 0).toFixed(2)}</td>
+                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></td>
                         </tr>
                     `).join('');
                 }
             },
             
             renderOrders() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderOrders" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameOrders" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersOrders()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersOrders()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Chauffeur</th><th>Actie</th></tr></thead><tbody id="ordersTable"></tbody>}</div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderOrders" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameOrders" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersOrders()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersOrders()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Chauffeur</th><th>Actie</th></tr></thead><tbody id="ordersTable"></tbody></table></div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderOrdersTable(this.ordersList);
                 document.getElementById('pageTitle').innerHTML = `Orders <span class="order-count">${this.ordersList.length}</span>`;
@@ -418,25 +415,25 @@
                 let tbody = document.getElementById('ordersTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable("Geen actieve orders")} </span></td>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => `
                         <tr>
-                            <td><strong>${o.id}</strong><br><span class="template-tag template-${o.template}">${o.template}</span></span></td>
-                            <td>${o.datetime} ${o.time}</span></td>
-                            <td>${this.escapeHtml(o.name)}</span></td>
-                            <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</span></td>
-                            <td>${o.vehicle}</span></td>
-                            <td>€${(o.amount || 0).toFixed(2)}</span></td>
-                            <td>${o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>'}</span></td>
-                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></span></td>
+                            <td><strong>${o.id}</strong></td>
+                            <td>${o.datetime} ${o.time}</td>
+                            <td>${this.escapeHtml(o.name)}</td>
+                            <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
+                            <td>${o.vehicle}</td>
+                            <td>€${(o.amount || 0).toFixed(2)}</td>
+                            <td>${o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>'}</td>
+                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></td>
                         </tr>
                     `).join('');
                 }
             },
             
             renderHistory() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th></tr></thead><tbody id="historyTable"></tbody>}</div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th></tr></thead><tbody id="historyTable"></tbody></table></div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderHistoryTable(this.historyOrders);
                 document.getElementById('pageTitle').innerHTML = `History <span class="order-count">${this.historyOrders.length}</span>`;
@@ -446,18 +443,18 @@
                 let tbody = document.getElementById('historyTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<td><td colspan="7" class="empty-planning">${this.renderEmptyTable("Geen historische ritten")} </span></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
                         let statusText = o.status === 'completed' ? '✅ Uitgevoerd' : (o.status === 'cancelled' ? '❌ Geannuleerd' : '📋 Gepasseerd');
                         return `<tr>
-                            <td><strong>${o.id}</strong><br><span class="template-tag template-${o.template}">${o.template}</span></span></td>
-                            <td>${o.datetime} ${o.time}</span></td>
-                            <td>${this.escapeHtml(o.name)}</span></td>
-                            <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</span></td>
-                            <td>${o.vehicle}</span></td>
-                            <td>€${(o.amount || 0).toFixed(2)}</span></td>
-                            <td>${statusText}</span></td>
+                            <td><strong>${o.id}</strong></td>
+                            <td>${o.datetime} ${o.time}</td>
+                            <td>${this.escapeHtml(o.name)}</td>
+                            <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
+                            <td>${o.vehicle}</td>
+                            <td>€${(o.amount || 0).toFixed(2)}</td>
+                            <td>${statusText}</td>
                         </tr>`;
                     }).join('');
                 }
@@ -686,7 +683,6 @@
                 ficheBody.innerHTML = `
                     <div class="fiche-section"><h4>Boekingsinformatie</h4>
                         <div class="fiche-row"><span class="fiche-label">Boekingsnummer:</span><span class="fiche-value"><strong>${booking.id}</strong></span></div>
-                        <div class="fiche-row"><span class="fiche-label">Template:</span><span class="fiche-value">${booking.template || '-'}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Datum & Tijd:</span><span class="fiche-value">${booking.datetime} om ${booking.time} uur</span></div>
                         ${booking.flight_number ? `<div class="fiche-row"><span class="fiche-label">✈️ Vluchtnummer:</span><span class="fiche-value">${booking.flight_number}</span></div>` : ''}
                     </div>
@@ -700,7 +696,6 @@
                         <div class="fiche-row"><span class="fiche-label">Destination:</span><span class="fiche-value">${this.escapeHtml(booking.destination)}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Voertuig:</span><span class="fiche-value">${booking.vehicle}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Extra's:</span><span class="fiche-value">${booking.extras || '-'}</span></div>
-                        <div class="fiche-row"><span class="fiche-label">Uitvoerder:</span><span class="fiche-value">${booking.assigned_to_name || '-'}</span></div>
                     </div>
                     ${booking.status === 'accepted' ? `<div class="fiche-section"><h4>Chauffeur Toewijzen</h4><select id="driverSelect">${driverOptions}</select></div>` : ''}
                     <div class="fiche-total"><div class="amount">€ ${(booking.amount || 0).toFixed(2)}</div><div>Betaling: ${booking.payment || 'Onbekend'}</div></div>
@@ -760,8 +755,8 @@
             },
             
             downloadCSV() {
-                let headers = ["ID","Template","Datum","Tijd","Naam","Pickup","Destination","Bedrag","Betaling","Status"];
-                let rows = this.historyOrders.map(b => [b.id, b.template, b.datetime, b.time, b.name, b.pickup, b.destination, b.amount, b.payment, b.status]);
+                let headers = ["ID","Datum","Tijd","Naam","Pickup","Destination","Bedrag","Betaling","Status"];
+                let rows = this.historyOrders.map(b => [b.id, b.datetime, b.time, b.name, b.pickup, b.destination, b.amount, b.payment, b.status]);
                 let csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell || ''}"`).join(";")).join("\n");
                 let blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
                 let link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `fleet_history_${new Date().toISOString().slice(0,10)}.csv`; link.click();
@@ -807,19 +802,25 @@
             logout() { if(confirm('Weet u zeker dat u wilt uitloggen?')) window.location.href = 'index.html'; },
             
             async init() {
-                // Laad ritten uit Supabase
-                const bookings = await this.fetchBookingsFromSupabase();
-                this.allBookings = bookings;
-                this.filterAndSortData();
+                try {
+                    // Laad ritten uit Supabase
+                    const bookings = await this.fetchBookingsFromSupabase();
+                    this.allBookings = bookings;
+                    this.filterAndSortData();
 
-                // Laad partners en chauffeurs uit localStorage (die blijven lokaal voor nu)
-                const storedPartners = localStorage.getItem('fc_partners');
-                const storedChauffeurs = localStorage.getItem('fc_chauffeurs');
-                if (storedPartners) this.partners = JSON.parse(storedPartners);
-                if (storedChauffeurs) this.chauffeurs = JSON.parse(storedChauffeurs);
+                    // Laad partners en chauffeurs uit localStorage (die blijven lokaal voor nu)
+                    const storedPartners = localStorage.getItem('fc_partners');
+                    const storedChauffeurs = localStorage.getItem('fc_chauffeurs');
+                    if (storedPartners) this.partners = JSON.parse(storedPartners);
+                    if (storedChauffeurs) this.chauffeurs = JSON.parse(storedChauffeurs);
 
-                // Start met de juiste tab
-                this.switchTab('neworders');
+                    // Start met de juiste tab
+                    this.switchTab('neworders');
+                } catch (err) {
+                    console.error('Initialisatie fout:', err);
+                    document.getElementById('errorMsg').textContent = 'Fout bij het laden van de applicatie. Controleer de console.';
+                    document.getElementById('errorMsg').classList.remove('hidden');
+                }
             }
         };
         
