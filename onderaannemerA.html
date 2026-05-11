@@ -140,10 +140,10 @@
         .partner-card { border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 16px; background: #f8fafc; }
         .partner-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
         .partner-name { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
-        .chauffeur-list { margin-top: 12px; padding-left: 16px; border-left: 2px solid #2dd4bf; }
-        .chauffeur-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
-        .add-chauffeur-form { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-        .add-chauffeur-form input { padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.8rem; flex: 1; min-width: 120px; }
+        .driver-list { margin-top: 12px; padding-left: 16px; border-left: 2px solid #2dd4bf; }
+        .driver-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+        .add-driver-form { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .add-driver-form input { padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.8rem; flex: 1; min-width: 120px; }
         select { padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif; }
         
         .alert-no-data { background: #fef3c7; color: #92400e; padding: 20px; border-radius: 16px; text-align: center; margin: 20px; }
@@ -172,7 +172,7 @@
                 <div class="nav-item" data-tab="agenda" onclick="app.switchTab('agenda')"><i class="fas fa-calendar-alt"></i> Agenda</div>
             </div>
             <div class="nav-section"><div class="nav-section-title">👥 BEHEER</div>
-                <div class="nav-item" data-tab="drivers" onclick="app.switchTab('drivers')"><i class="fas fa-id-card"></i> Mijn Chauffeurs</div>
+                <div class="nav-item" data-tab="drivers" onclick="app.switchTab('drivers')"><i class="fas fa-id-card"></i> Drivers</div>
                 <div class="nav-item" data-tab="partners" onclick="app.switchTab('partners')"><i class="fas fa-handshake"></i> Mijn Partners</div>
             </div>
             <div class="nav-section"><div class="nav-section-title">💰 FINANCIËN</div>
@@ -231,7 +231,7 @@
             ordersList: [],
             historyOrders: [],
             partners: [],
-            chauffeurs: [],
+            drivers: [],
             currentTab: 'neworders',
             selectedDate: new Date(),
             currentMonth: new Date(),
@@ -368,7 +368,7 @@
                         <div class="planning-time"><i class="fas fa-clock"></i> ${r.time} uur ${r.status === 'completed' ? '✓ Uitgevoerd' : (r.status === 'cancelled' ? '✗ Geannuleerd' : '')}</div>
                         <div class="planning-ride"><strong>${this.escapeHtml(r.name)}</strong> - ${this.escapeHtml(r.pickup)} → ${this.escapeHtml(r.destination)}</div>
                         <div class="planning-ride"><i class="fas fa-car"></i> ${r.vehicle}</div>
-                        ${r.assigned_driver ? `<div class="planning-ride"><i class="fas fa-user-check"></i> Chauffeur: ${r.assigned_driver.name} (${r.assigned_driver.voertuig})</div>` : '<div class="planning-ride"><i class="fas fa-user-clock"></i> Nog geen chauffeur</div>'}
+                        ${r.assigned_driver ? `<div class="planning-ride"><i class="fas fa-user-check"></i> Driver: ${r.assigned_driver.name} (ID: ${r.assigned_driver.id}) (${r.assigned_driver.voertuig})</div>` : '<div class="planning-ride"><i class="fas fa-user-clock"></i> Nog geen driver</div>'}
                     </div>
                 `).join('');
                 return `<div class="planning-container"><h3><i class="fas fa-calendar-day"></i> ${formattedDate}</h3><div class="planning-list">${ridesHtml}</div></div>`;
@@ -408,7 +408,7 @@
             },
             
             renderOrders() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderOrders" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameOrders" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersOrders()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersOrders()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Chauffeur</th><th>Actie</th></tr></thead><tbody id="ordersTable"></tbody></table></div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderOrders" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameOrders" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersOrders()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersOrders()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="ordersTable"></tbody></table></div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderOrdersTable(this.ordersList);
                 document.getElementById('pageTitle').innerHTML = `Orders <span class="order-count">${this.ordersList.length}</span>`;
@@ -428,7 +428,7 @@
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
                             <td>${o.vehicle}</td>
                             <td>€${(o.amount || 0).toFixed(2)}</td>
-                            <td>${o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>'}</td>
+                            <td>${o.assigned_driver ? o.assigned_driver.name + ' (ID: ' + o.assigned_driver.id + ')' : '<span style="color:#f59e0b;">Niet toegewezen</span>'}</td>
                             <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></td>
                         </tr>
                     `).join('');
@@ -436,7 +436,7 @@
             },
             
             renderHistory() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th></tr></thead><tbody id="historyTable"></tbody></table></div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Status</th></tr></thead><tbody id="historyTable"></tbody></table></div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderHistoryTable(this.historyOrders);
                 document.getElementById('pageTitle').innerHTML = `History <span class="order-count">${this.historyOrders.length}</span>`;
@@ -446,7 +446,7 @@
                 let tbody = document.getElementById('historyTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
                         let statusText = o.status === 'completed' ? '✅ Uitgevoerd' : (o.status === 'cancelled' ? '❌ Geannuleerd' : '📋 Gepasseerd');
@@ -457,6 +457,7 @@
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
                             <td>${o.vehicle}</td>
                             <td>€${(o.amount || 0).toFixed(2)}</td>
+                            <td>${o.assigned_driver ? o.assigned_driver.name + ' (ID: ' + o.assigned_driver.id + ')' : 'Niet toegewezen'}</td>
                             <td>${statusText}</td>
                         </tr>`;
                     }).join('');
@@ -469,33 +470,33 @@
             },
             
             renderDrivers() {
-                let myChauffeurs = this.chauffeurs.filter(c => c.subcontractor_id === this.subcontractorId);
-                let html = `<div class="people-card"><h3><i class="fas fa-id-card"></i> Mijn Chauffeurs</h3><button class="add-btn" onclick="app.showAddChauffeurForm(${this.subcontractorId})">➕ Nieuwe Chauffeur</button><div style="margin-top:20px;">`;
-                if (myChauffeurs.length === 0) html += `<div class="empty-planning">${this.renderEmptyTable("Geen chauffeurs gevonden")}</div>`;
-                else myChauffeurs.forEach(c => {
+                let myDrivers = this.drivers.filter(c => c.subcontractor_id === this.subcontractorId);
+                let html = `<div class="people-card"><h3><i class="fas fa-id-card"></i> Drivers</h3><button class="add-btn" onclick="app.showAddDriverForm(${this.subcontractorId})">➕ Nieuwe Driver</button><div style="margin-top:20px;">`;
+                if (myDrivers.length === 0) html += `<div class="empty-planning">${this.renderEmptyTable("Geen drivers gevonden")}</div>`;
+                else myDrivers.forEach(c => {
                     html += `<div style="border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-                        <div><strong>${c.driver_code}</strong> – ${this.escapeHtml(c.name)}<br><small>🚗 ${c.vehicle} | ${c.license_plate}</small></div>
-                        <button class="delete-btn" onclick="app.deleteChauffeur(${c.id})">Verwijder</button>
+                        <div><strong>${c.driver_code} (ID: ${c.id})</strong> – ${this.escapeHtml(c.name)}<br><small>🚗 ${c.vehicle} | ${c.license_plate}</small></div>
+                        <button class="delete-btn" onclick="app.deleteDriver(${c.id})">Verwijder</button>
                     </div>`;
                 });
                 html += `</div></div>`;
                 document.getElementById('contentArea').innerHTML = html;
-                document.getElementById('pageTitle').innerHTML = `Mijn Chauffeurs`;
+                document.getElementById('pageTitle').innerHTML = `Drivers`;
             },
             
             renderPartners() {
                 let html = `<div class="people-card"><h3><i class="fas fa-handshake"></i> Mijn Partners</h3><button class="add-btn" onclick="app.showAddPartnerForm()">➕ Nieuwe Partner</button><div style="margin-top:20px;">`;
                 if (this.partners.length === 0) html += `<div class="empty-planning">${this.renderEmptyTable("Geen partners gevonden")}</div>`;
                 else this.partners.forEach(p => {
-                    let partnerChauffeurs = this.chauffeurs.filter(c => c.subcontractor_id === p.id);
+                    let partnerDrivers = this.drivers.filter(c => c.subcontractor_id === p.id);
                     html += `<div class="partner-card">
                         <div class="partner-header"><div class="partner-name">${this.escapeHtml(p.name)}</div><button class="delete-btn" onclick="app.deletePartner(${p.id})">Verwijder Partner</button></div>
                         <div><small>Contact: ${this.escapeHtml(p.contact)} | ${p.email} | ${p.phone}</small></div>
-                        <div class="chauffeur-list"><strong>Chauffeurs:</strong>
-                            ${partnerChauffeurs.length === 0 ? '<div><small>Geen chauffeurs</small></div>' : partnerChauffeurs.map(c => `
-                                <div class="chauffeur-item"><span>${c.driver_code} – ${this.escapeHtml(c.name)} (${c.vehicle})</span><button class="delete-btn" style="padding:2px 8px;" onclick="app.deleteChauffeur(${c.id})">✖</button></div>
+                        <div class="driver-list"><strong>Drivers:</strong>
+                            ${partnerDrivers.length === 0 ? '<div><small>Geen drivers</small></div>' : partnerDrivers.map(c => `
+                                <div class="driver-item"><span>${c.driver_code} (ID: ${c.id}) – ${this.escapeHtml(c.name)} (${c.vehicle})</span><button class="delete-btn" style="padding:2px 8px;" onclick="app.deleteDriver(${c.id})">✖</button></div>
                             `).join('')}
-                            <div class="add-chauffeur-form"><input type="text" id="chauffeurName_${p.id}" placeholder="Naam"><input type="text" id="chauffeurVoertuig_${p.id}" placeholder="Voertuig"><input type="text" id="chauffeurPlaat_${p.id}" placeholder="Nummerplaat"><button class="action-btn" onclick="app.addChauffeurForPartner(${p.id})">+ Chauffeur</button></div>
+                            <div class="add-driver-form"><input type="text" id="driverName_${p.id}" placeholder="Naam"><input type="text" id="driverVoertuig_${p.id}" placeholder="Voertuig"><input type="text" id="driverPlaat_${p.id}" placeholder="Nummerplaat"><button class="action-btn" onclick="app.addDriverForPartner(${p.id})">+ Driver</button></div>
                         </div>
                     </div>`;
                 });
@@ -504,32 +505,32 @@
                 document.getElementById('pageTitle').innerHTML = `Mijn Partners`;
             },
             
-            addChauffeurForPartner(partnerId) {
-                let name = document.getElementById(`chauffeurName_${partnerId}`)?.value;
-                let vehicle = document.getElementById(`chauffeurVoertuig_${partnerId}`)?.value;
-                let plate = document.getElementById(`chauffeurPlaat_${partnerId}`)?.value;
+            addDriverForPartner(partnerId) {
+                let name = document.getElementById(`driverName_${partnerId}`)?.value;
+                let vehicle = document.getElementById(`driverVoertuig_${partnerId}`)?.value;
+                let plate = document.getElementById(`driverPlaat_${partnerId}`)?.value;
                 if (!name) { this.showToast('Vul een naam in', true); return; }
-                let existingCount = this.chauffeurs.filter(c => c.subcontractor_id === partnerId).length;
+                let existingCount = this.drivers.filter(c => c.subcontractor_id === partnerId).length;
                 let partner = this.partners.find(p => p.id === partnerId);
                 let prefix = partner?.prefix || 'PR';
                 let driverCode = `${prefix}-${String(existingCount + 1).padStart(2,'0')}`;
-                let newChauffeur = { id: Date.now(), subcontractor_id: partnerId, driver_code: driverCode, name: name, vehicle: vehicle || 'Standaard', license_plate: plate || 'Onbekend', partner_name: partner?.name || null };
-                this.chauffeurs.push(newChauffeur);
-                this.showToast(`Chauffeur ${name} toegevoegd`);
+                let newDriver = { id: Date.now(), subcontractor_id: partnerId, driver_code: driverCode, name: name, vehicle: vehicle || 'Standaard', license_plate: plate || 'Onbekend', partner_name: partner?.name || null };
+                this.drivers.push(newDriver);
+                this.showToast(`Driver ${name} toegevoegd`);
                 this.saveToStorage();
                 this.renderPartners();
             },
             
-            showAddChauffeurForm(subcontractorId) {
-                let name = prompt('Naam chauffeur:');
+            showAddDriverForm(subcontractorId) {
+                let name = prompt('Naam driver:');
                 if (!name) return;
                 let vehicle = prompt('Type voertuig:') || 'Standaard';
                 let plate = prompt('Nummerplaat:') || 'Onbekend';
-                let existingCount = this.chauffeurs.filter(c => c.subcontractor_id === subcontractorId).length;
+                let existingCount = this.drivers.filter(c => c.subcontractor_id === subcontractorId).length;
                 let driverCode = `A-${String(existingCount + 1).padStart(2,'0')}`;
-                let newChauffeur = { id: Date.now(), subcontractor_id: subcontractorId, driver_code: driverCode, name: name, vehicle: vehicle, license_plate: plate, partner_name: null };
-                this.chauffeurs.push(newChauffeur);
-                this.showToast(`Chauffeur ${name} toegevoegd`);
+                let newDriver = { id: Date.now(), subcontractor_id: subcontractorId, driver_code: driverCode, name: name, vehicle: vehicle, license_plate: plate, partner_name: null };
+                this.drivers.push(newDriver);
+                this.showToast(`Driver ${name} toegevoegd`);
                 this.saveToStorage();
                 if (this.currentTab === 'drivers') this.renderDrivers();
                 if (this.currentTab === 'partners') this.renderPartners();
@@ -541,7 +542,7 @@
                 let contact = prompt('Contactpersoon:') || '';
                 let email = prompt('Email:') || '';
                 let phone = prompt('Telefoon:') || '';
-                let prefix = prompt('Prefix voor chauffeur ID (2 letters):') || name.slice(0,2).toUpperCase();
+                let prefix = prompt('Prefix voor driver ID (2 letters):') || name.slice(0,2).toUpperCase();
                 let newPartner = { id: Date.now(), name: name, contact: contact, email: email, phone: phone, prefix: prefix.slice(0,2).toUpperCase() };
                 this.partners.push(newPartner);
                 this.showToast(`Partner ${name} toegevoegd`);
@@ -549,10 +550,10 @@
                 this.renderPartners();
             },
             
-            deleteChauffeur(chauffeurId) {
-                if (confirm('Weet u zeker dat u deze chauffeur wilt verwijderen?')) {
-                    this.chauffeurs = this.chauffeurs.filter(c => c.id !== chauffeurId);
-                    this.showToast('Chauffeur verwijderd');
+            deleteDriver(driverId) {
+                if (confirm('Weet u zeker dat u deze driver wilt verwijderen?')) {
+                    this.drivers = this.drivers.filter(c => c.id !== driverId);
+                    this.showToast('Driver verwijderd');
                     this.saveToStorage();
                     if (this.currentTab === 'drivers' || this.currentTab === 'partners') this.refreshCurrentTab();
                 }
@@ -561,7 +562,7 @@
             deletePartner(partnerId) {
                 if (confirm('Weet u zeker dat u deze partner wilt verwijderen?')) {
                     this.partners = this.partners.filter(p => p.id !== partnerId);
-                    this.chauffeurs = this.chauffeurs.filter(c => c.subcontractor_id !== partnerId);
+                    this.drivers = this.drivers.filter(c => c.subcontractor_id !== partnerId);
                     this.showToast('Partner verwijderd');
                     this.saveToStorage();
                     if (this.currentTab === 'partners') this.refreshCurrentTab();
@@ -642,11 +643,11 @@
                             <h2><i class="fas fa-robot"></i> Wiki Agent - Gebruikershandleiding</h2>
                             <p>Welkom bij het <strong>Fleet Connect Onderaannemer Paneel</strong>.</p>
                             <h3>📋 1. Nieuwe Orders</h3><p>Hier verschijnen ritten met status 'pending' of 'new'. U kunt een rit accepteren.</p>
-                            <h3>📦 2. Orders</h3><p>Geaccepteerde ritten die nog in de toekomst liggen. U kunt hier een chauffeur toewijzen.</p>
+                            <h3>📦 2. Orders</h3><p>Geaccepteerde ritten die nog in de toekomst liggen. U kunt hier een driver toewijzen.</p>
                             <h3>📜 3. History</h3><p>Voltooide, geannuleerde of verlopen ritten. U kunt exporteren naar CSV of JSON.</p>
                             <h3>📅 4. Agenda</h3><p>Kalender met flipcard dashboard. Klik op een dag voor de planning.</p>
-                            <h3>👥 5. Mijn Chauffeurs</h3><p>Beheer uw eigen chauffeurs: toevoegen en verwijderen.</p>
-                            <h3>🤝 6. Mijn Partners</h3><p>Beheer partners (onderaannemers onder u). U kunt partners toevoegen, verwijderen en voor hen chauffeurs aanmaken.</p>
+                            <h3>👥 5. Mijn Drivers</h3><p>Beheer uw eigen drivers: toevoegen en verwijderen.</p>
+                            <h3>🤝 6. Mijn Partners</h3><p>Beheer partners (onderaannemers onder u). U kunt partners toevoegen, verwijderen en voor hen drivers aanmaken.</p>
                             <h3>💰 7. Financieel Overzicht</h3><p>Filters: Vandaag / Deze Maand / Dit Jaar. Toont omzet, cash/factuur, aantal ritten, commissie en grafiek.</p>
                             <h3>🔄 Switch naar Auto Dealer</h3><p>Gebruik de switch knop om naar het andere paneel te gaan.</p>
                             <hr><p style="text-align:center;"><i class="fas fa-code-branch"></i> Fleet Connect - Klaar voor Supabase aansluiting</p>
@@ -679,9 +680,9 @@
             resetFiltersHistory() { let o = document.getElementById("filterOrderHistory"); let n = document.getElementById("filterNameHistory"); if(o) o.value = ""; if(n) n.value = ""; this.renderHistoryTable(this.historyOrders); },
             
             showBookingFiche(booking) {
-                let driverOptions = '<option value="">-- Selecteer Chauffeur --</option>';
-                let availableDrivers = this.chauffeurs.filter(c => c.subcontractor_id === booking.subcontractor_id);
-                availableDrivers.forEach(d => { driverOptions += `<option value="${d.id}">${this.escapeHtml(d.name)} (${d.vehicle})</option>`; });
+                let driverOptions = '<option value="">-- Selecteer Driver --</option>';
+                let availableDrivers = this.drivers.filter(c => c.subcontractor_id === booking.subcontractor_id);
+                availableDrivers.forEach(d => { driverOptions += `<option value="${d.id}">${d.driver_code} (ID: ${d.id}) – ${this.escapeHtml(d.name)} (${d.vehicle})</option>`; });
                 let ficheBody = document.getElementById('ficheBody');
                 ficheBody.innerHTML = `
                     <div class="fiche-section"><h4>Boekingsinformatie</h4>
@@ -700,11 +701,12 @@
                         <div class="fiche-row"><span class="fiche-label">Voertuig:</span><span class="fiche-value">${booking.vehicle}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Extra's:</span><span class="fiche-value">${booking.extras || '-'}</span></div>
                     </div>
-                    ${booking.status === 'accepted' ? `<div class="fiche-section"><h4>Chauffeur Toewijzen</h4><select id="driverSelect">${driverOptions}</select></div>` : ''}
+                    ${booking.assigned_driver ? `<div class="fiche-section"><h4>Toegewezen Driver</h4><div class="fiche-row"><span class="fiche-label">Driver:</span><span class="fiche-value">${booking.assigned_driver.name} (ID: ${booking.assigned_driver.id})</span></div></div>` : ''}
+                    ${booking.status === 'accepted' ? `<div class="fiche-section"><h4>Driver Toewijzen</h4><select id="driverSelect">${driverOptions}</select></div>` : ''}
                     <div class="fiche-total"><div class="amount">€ ${(booking.amount || 0).toFixed(2)}</div><div>Betaling: ${booking.payment || 'Onbekend'}</div></div>
                     <div class="fiche-actions">
                         ${booking.status === 'pending' ? `<button class="fiche-btn confirm" onclick="app.confirmBooking('${booking.id}')">Accepteren</button>` : ''}
-                        ${booking.status === 'accepted' ? `<button class="fiche-btn assign" onclick="app.assignDriverToBooking('${booking.id}')">Chauffeur Toewijzen</button>` : ''}
+                        ${booking.status === 'accepted' ? `<button class="fiche-btn assign" onclick="app.assignDriverToBooking('${booking.id}')">Driver Toewijzen</button>` : ''}
                         <button class="fiche-btn close" onclick="app.closeModal()">Sluiten</button>
                     </div>
                 `;
@@ -744,15 +746,15 @@
             assignDriverToBooking(bookingId) {
                 const select = document.getElementById('driverSelect');
                 const driverId = select?.value;
-                if (!driverId) { this.showToast('Selecteer een chauffeur', true); return; }
-                const driver = this.chauffeurs.find(c => c.id == driverId);
+                if (!driverId) { this.showToast('Selecteer een driver', true); return; }
+                const driver = this.drivers.find(c => c.id == driverId);
                 const booking = this.allBookings.find(b => b.id === bookingId);
                 if (booking && driver) {
                     booking.assigned_driver = { id: driver.id, name: driver.name, voertuig: driver.vehicle };
                     // Toewijzing is tijdelijk in het geheugen voor deze sessie
                     this.filterAndSortData();
                     this.refreshCurrentTab();
-                    this.showToast(`Chauffeur ${driver.name} toegewezen`);
+                    this.showToast(`Driver ${driver.name} toegewezen`);
                 }
                 this.closeModal();
             },
@@ -774,7 +776,7 @@
             
             saveToStorage() {
                 localStorage.setItem('fc_partners', JSON.stringify(this.partners));
-                localStorage.setItem('fc_chauffeurs', JSON.stringify(this.chauffeurs));
+                localStorage.setItem('fc_drivers', JSON.stringify(this.drivers));
             },
             
             refreshCurrentTab() {
@@ -811,11 +813,11 @@
                     this.allBookings = bookings;
                     this.filterAndSortData();
 
-                    // Laad partners en chauffeurs uit localStorage (die blijven lokaal voor nu)
+                    // Laad partners en drivers uit localStorage (die blijven lokaal voor nu)
                     const storedPartners = localStorage.getItem('fc_partners');
-                    const storedChauffeurs = localStorage.getItem('fc_chauffeurs');
+                    const storedDrivers = localStorage.getItem('fc_drivers');
                     if (storedPartners) this.partners = JSON.parse(storedPartners);
-                    if (storedChauffeurs) this.chauffeurs = JSON.parse(storedChauffeurs);
+                    if (storedDrivers) this.drivers = JSON.parse(storedDrivers);
 
                     // Start met de juiste tab
                     this.switchTab('neworders');
@@ -846,10 +848,10 @@
         window.selectDate = app.selectDate.bind(app);
         window.changeMonth = app.changeMonth.bind(app);
         window.goToToday = app.goToToday.bind(app);
-        window.deleteChauffeur = app.deleteChauffeur.bind(app);
-        window.addChauffeurForPartner = app.addChauffeurForPartner.bind(app);
+        window.deleteDriver = app.deleteDriver.bind(app);
+        window.addDriverForPartner = app.addDriverForPartner.bind(app);
         window.deletePartner = app.deletePartner.bind(app);
-        window.showAddChauffeurForm = app.showAddChauffeurForm.bind(app);
+        window.showAddDriverForm = app.showAddDriverForm.bind(app);
         window.showAddPartnerForm = app.showAddPartnerForm.bind(app);
         window.setFinancePeriod = app.setFinancePeriod.bind(app);
         window.toggleFlipCard = app.toggleFlipCard.bind(app);
