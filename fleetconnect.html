@@ -301,6 +301,9 @@
 <body>
 <div id="background-map"></div>
 <div class="content-overlay">
+    <div style="position: absolute; top: 20px; right: 80px; z-index: 100;">
+        <a href="loginfleetconnect.html" class="btn-primary" style="background: #2c7da0; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"><i class="fas fa-user-circle"></i> Inloggen</a>
+    </div>
     <div class="sidebar-trigger"></div>
     <div class="sidebar-wrapper">
         <div class="sidebar">
@@ -476,8 +479,8 @@
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     
-    const SUPABASE_URL = 'https://kwsuqzbqzsmgkjaslwkz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c3VxemJxenNtZ2tqYXNsd2t6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTUwMDQsImV4cCI6MjA5MjY5MTAwNH0.DBgx2oq0LbXwUlPQv3cmYMvGEjYA6bhy-2hejvgtERE';
+    const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     let bookingMap, pickupCoord = null, dropoffCoord = null, routeLayer = null, pickupMarker = null, dropoffMarker = null;
@@ -495,6 +498,34 @@
     
     function getExtrasString() { const extras = []; if (document.getElementById('meetGreet').checked) extras.push("Meet & Greet"); if (document.getElementById('kissRide').checked) extras.push("Kiss & Ride"); if (document.getElementById('waterBottle').checked) extras.push("Waterfles"); if (document.getElementById('wifi').checked) extras.push("WiFi"); return extras.join(", ") || "Geen"; }
     
+    function generateCustomerId(email) {
+        return "CUST-" + email.toLowerCase().replace(/[^a-z0-9]/g, "");
+    }
+
+    function buildFormData() {
+        return {
+            passengers: parseInt(document.getElementById('passengers')?.value) || 1,
+            luggage: parseInt(document.getElementById('luggage')?.value) || 0,
+            special_wishes: document.getElementById('specialWishes')?.value || "",
+            vat: document.getElementById('vat')?.value || "",
+            distance_km: currentRouteData ? parseFloat(currentRouteData.distanceKm) : null,
+            duration_min: currentRouteData ? currentRouteData.durationMin : null,
+            pickup_lat: pickupCoord ? pickupCoord.lat : null,
+            pickup_lon: pickupCoord ? pickupCoord.lon : null,
+            destination_lat: dropoffCoord ? dropoffCoord.lat : null,
+            destination_lon: dropoffCoord ? dropoffCoord.lon : null,
+            flight_number: document.getElementById('flightNumber')?.value || "",
+            return_datetime: currentReturnDateTime || null,
+            is_roundtrip: currentRoundTrip || false,
+            meet_greet: document.getElementById('meetGreet')?.checked || false,
+            kiss_ride: document.getElementById('kissRide')?.checked || false,
+            water: document.getElementById('waterBottle')?.checked || false,
+            wifi: document.getElementById('wifi')?.checked || false,
+            vehicle: selectedVehicle || "Standaard",
+            vehicle_extra_price: selectedVehicleExtra || 0
+        };
+    }
+
     function buildSupabaseRecord(paymentMethod, finalAmount, isReturnTrip = false, baseId = null) {
         const nameRaw = document.getElementById('firstName').value.trim();
         const lastNameRaw = document.getElementById('lastName').value.trim();
@@ -539,7 +570,9 @@
             extras: extrasRaw,
             amount: parseFloat(finalAmount),
             payment: paymentMethod,
-            status: "pending"
+            status: "pending",
+            customer_id: generateCustomerId(emailRaw),
+            form_data: buildFormData()
         };
     }
     
@@ -591,12 +624,16 @@
         const heenRecord = {
             id: baseId, datetime: heenDatePart, time: heenTimePart, name: fullName, email: emailRaw, phone: phoneRaw,
             pickup: pickupRaw, destination: destRaw, flight_number: flightNumberRaw, vehicle: vehicleRaw, extras: extrasRaw,
-            amount: halfAmount, payment: paymentMethod, status: "pending"
+            amount: halfAmount, payment: paymentMethod, status: "pending",
+            customer_id: generateCustomerId(emailRaw),
+            form_data: buildFormData()
         };
         const terugRecord = {
             id: `${baseId}/B`, datetime: terugDatePart, time: terugTimePart, name: fullName, email: emailRaw, phone: phoneRaw,
             pickup: pickupRaw, destination: destRaw, flight_number: flightNumberRaw, vehicle: vehicleRaw, extras: extrasRaw,
-            amount: halfAmount, payment: paymentMethod, status: "pending"
+            amount: halfAmount, payment: paymentMethod, status: "pending",
+            customer_id: generateCustomerId(emailRaw),
+            form_data: buildFormData()
         };
         console.log('📦 Verzenden heen rit:', heenRecord);
         console.log('📦 Verzenden terug rit:', terugRecord);
