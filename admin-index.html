@@ -57,6 +57,29 @@
             margin-bottom: 2rem;
             font-size: 0.85rem;
         }
+
+        /* Nieuwe login form stijlen */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-form input {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            color: white;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .login-form input:focus {
+            border-color: #f59e0b;
+        }
         
         .login-btn {
             background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -69,11 +92,18 @@
             cursor: pointer;
             width: 100%;
             transition: transform 0.2s;
+            margin-top: 0.5rem;
         }
         
         .login-btn:hover {
             transform: translateY(-2px);
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not_allowed;
+            transform: none;
         }
         
         .panel-select {
@@ -160,9 +190,15 @@
             Dealership Management Platform
         </div>
         
-        <button class="login-btn" id="loginBtn">
-            <i class="fas fa-arrow-right"></i> Inloggen bij Ryzen
-        </button>
+        <div id="loginSection">
+            <div class="login-form">
+                <input type="email" id="email" placeholder="E-mailadres" required>
+                <input type="password" id="password" placeholder="Wachtwoord" required>
+            </div>
+            <button class="login-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Inloggen bij Ryzen
+            </button>
+        </div>
         
         <div class="panel-select" id="panelSelect">
             <p style="color: #f59e0b; font-size: 0.85rem;">
@@ -200,17 +236,70 @@
         </div>
     </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         /**
          * Ryzen Admin Index - Navigatie Hub
-         * Beheert de toegang tot de verschillende werkpanelen.
+         * Beheert de toegang tot de verschillende werkpanelen via Supabase Auth.
          */
-        // Login knop - toont keuze panelen
-        document.getElementById('loginBtn').addEventListener('click', function(e) {
+
+        // Supabase configuratie
+        const SB_URL = "https://orgbdqaxxkwtpvaxxuep.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZ2JkcWF4eGt3dHB2YXh4dWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTU0NzksImV4cCI6MjA5MTIzMTQ3OX0.TY6hWwzG3q_waVDJhxvuLfFFg5qy0HOxMjcTM0YcJ3Q";
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        const loginBtn = document.getElementById('loginBtn');
+        const loginSection = document.getElementById('loginSection');
+        const panelSelect = document.getElementById('panelSelect');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        // Check voor bestaande sessie bij laden
+        async function checkSession() {
+            const { data, error } = await supabaseClient.auth.getSession();
+            if (data.session) {
+                showPanels();
+            }
+        }
+        checkSession();
+
+        function showPanels() {
+            loginSection.style.display = 'none';
+            panelSelect.classList.add('show');
+        }
+
+        // Login logica
+        loginBtn.addEventListener('click', async function(e) {
             e.preventDefault();
-            document.getElementById('panelSelect').classList.add('show');
-            this.style.opacity = '0.5';
-            this.disabled = true;
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                alert("❌ Vul a.u.b. zowel e-mail als wachtwoord in.");
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Bezig met inloggen...';
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                if (data.user) {
+                    showPanels();
+                }
+            } catch (err) {
+                console.error("Login fout:", err.message);
+                alert("❌ Inloggen mislukt: " + err.message);
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Inloggen bij Ryzen';
+            }
         });
         
         // Auto Dealer keuze - naar autodealerpaneel.html
