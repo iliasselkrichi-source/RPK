@@ -238,7 +238,7 @@
             financePeriod: 'month',
             revenueChart: null,
             flipStates: { omzet: false, cash: false, orders: false },
-            subcontractorId: 1001,
+            subcontractorId: '11111111-1111-1111-1111-111111111111',
             
             showToast(msg, isError) {
                 const toast = document.getElementById('toast');
@@ -420,14 +420,17 @@
                 let dateStr = `${this.selectedDate.getDate().toString().padStart(2,'0')}-${(this.selectedDate.getMonth()+1).toString().padStart(2,'0')}-${this.selectedDate.getFullYear()}`;
                 let rides = this.getRidesByDate(dateStr).sort((a,b) => a.time.localeCompare(b.time));
                 let formattedDate = this.selectedDate.toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                let ridesHtml = rides.length === 0 ? '<div class="empty-planning">Geen ritten op deze dag</div>' : rides.map(r => `
+                let ridesHtml = rides.length === 0 ? '<div class="empty-planning">Geen ritten op deze dag</div>' : rides.map(r => {
+                    const driver = this.drivers.find(d => d.id === r.assigned_driver_id);
+                    const driverInfo = driver ? `<div class="planning-ride"><i class="fas fa-user-check"></i> Driver: ${driver.naam} (ID: ${driver.id}) (${driver.voertuig})</div>` : '<div class="planning-ride"><i class="fas fa-user-clock"></i> Nog geen driver</div>';
+                    return `
                     <div class="planning-item">
                         <div class="planning-time"><i class="fas fa-clock"></i> ${r.time} uur ${r.status === 'completed' ? '✓ Uitgevoerd' : (r.status === 'cancelled' ? '✗ Geannuleerd' : '')}</div>
                         <div class="planning-ride"><strong>${this.escapeHtml(r.name)}</strong> - ${this.escapeHtml(r.pickup)} → ${this.escapeHtml(r.destination)}</div>
                         <div class="planning-ride"><i class="fas fa-car"></i> ${r.vehicle}</div>
-                        ${r.assigned_driver ? `<div class="planning-ride"><i class="fas fa-user-check"></i> Driver: ${r.assigned_driver.name} (ID: ${r.assigned_driver.id}) (${r.assigned_driver.voertuig})</div>` : '<div class="planning-ride"><i class="fas fa-user-clock"></i> Nog geen driver</div>'}
+                        ${driverInfo}
                     </div>
-                `).join('');
+                `;}).join('');
                 return `<div class="planning-container"><h3><i class="fas fa-calendar-day"></i> ${formattedDate}</h3><div class="planning-list">${ridesHtml}</div></div>`;
             },
             
@@ -477,7 +480,10 @@
                 if (orders.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
-                    tbody.innerHTML = orders.map(o => `
+                    tbody.innerHTML = orders.map(o => {
+                        const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
+                        const driverText = driver ? `${driver.naam} (ID: ${driver.id})` : '<span style="color:#f59e0b;">Niet toegewezen</span>';
+                        return `
                         <tr>
                             <td><strong>${o.id}</strong></td>
                             <td>${o.datetime} ${o.time}</td>
@@ -485,10 +491,10 @@
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
                             <td>${o.vehicle}</td>
                             <td>€${(o.amount || 0).toFixed(2)}</td>
-                            <td>${o.assigned_driver ? o.assigned_driver.name + ' (ID: ' + o.assigned_driver.id + ')' : '<span style="color:#f59e0b;">Niet toegewezen</span>'}</td>
+                            <td>${driverText}</td>
                             <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></td>
                         </tr>
-                    `).join('');
+                    `;}).join('');
                 }
             },
             
@@ -506,6 +512,8 @@
                     tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
+                        const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
+                        const driverName = driver ? driver.naam : (o.assigned_driver_id ? 'ID: ' + o.assigned_driver_id : 'Niet toegewezen');
                         let statusText = o.status === 'completed' ? '✅ Uitgevoerd' : (o.status === 'cancelled' ? '❌ Geannuleerd' : '📋 Gepasseerd');
                         return `<tr>
                             <td><strong>${o.id}</strong></td>
@@ -514,7 +522,7 @@
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
                             <td>${o.vehicle}</td>
                             <td>€${(o.amount || 0).toFixed(2)}</td>
-                            <td>${o.assigned_driver ? o.assigned_driver.name + ' (ID: ' + o.assigned_driver.id + ')' : 'Niet toegewezen'}</td>
+                            <td>${driverName}</td>
                             <td>${statusText}</td>
                         </tr>`;
                     }).join('');
@@ -528,10 +536,10 @@
             
             renderDrivers() {
                 let myDrivers = this.drivers;   // alle drivers tonen (zowel eigen als van partners)
-                let html = `<div class="people-card"><h3><i class="fas fa-id-card"></i> Drivers</h3><button class="add-btn" onclick="app.showAddDriverForm(${this.subcontractorId})">➕ Nieuwe Driver</button><div style="margin-top:20px;">`;
+                let html = `<div class="people-card"><h3><i class="fas fa-id-card"></i> Drivers</h3><button class="add-btn" onclick="app.showAddDriverForm('${this.subcontractorId}')">➕ Nieuwe Driver</button><div style="margin-top:20px;">`;
                 if (!myDrivers || myDrivers.length === 0) html += `<div class="empty-planning">${this.renderEmptyTable("Geen drivers gevonden")}</div>`;
                 else myDrivers.forEach(c => {
-                    let eigenaar = c.partner_name ? `Partner: ${c.partner_name}` : 'Mijn vloot';
+                    let eigenaar = (c.onderaannemer_id === this.hoofdOnderaannemer?.id) ? 'Mijn vloot' : 'Partner';
                     html += `<div style="border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
                         <div>
                             <strong>${c.driver_code} (ID: ${c.id})</strong> – ${this.escapeHtml(c.naam || c.name)}<br>
@@ -583,8 +591,7 @@
                     naam: name,
                     voertuig: vehicle || 'Standaard',
                     kenteken: plate || 'Onbekend',
-                    actief: true,
-                    partner_name: partner?.naam || null
+                    actief: true
                 };
                 await this.upsertDriver(newDriver);
                 this.showToast(`Driver ${name} toegevoegd`);
@@ -596,7 +603,8 @@
                 let vehicle = prompt('Type voertuig:') || 'Standaard';
                 let plate = prompt('Nummerplaat:') || 'Onbekend';
                 let existingCount = this.drivers.filter(c => c.onderaannemer_id === subcontractorId).length;
-                let driverCode = `A-${String(existingCount + 1).padStart(2,'0')}`;
+                let prefix = this.hoofdOnderaannemer?.prefix || 'DFC';
+                let driverCode = `${prefix}-${String(existingCount + 1).padStart(2,'0')}`;
                 let newDriver = {
                     id: crypto.randomUUID(),
                     onderaannemer_id: subcontractorId,
@@ -604,8 +612,7 @@
                     naam: name,
                     voertuig: vehicle,
                     kenteken: plate,
-                    actief: true,
-                    partner_name: null
+                    actief: true
                 };
                 await this.upsertDriver(newDriver);
                 this.showToast(`Driver ${name} toegevoegd`);
@@ -757,8 +764,8 @@
             
             showBookingFiche(booking) {
                 let driverOptions = '<option value="">-- Selecteer Driver --</option>';
-                let availableDrivers = this.drivers.filter(c => (c.onderaannemer_id === booking.subcontractor_id || c.subcontractor_id === booking.subcontractor_id));
-                availableDrivers.forEach(d => { driverOptions += `<option value="${d.id}">${d.driver_code} (ID: ${d.id}) – ${this.escapeHtml(d.naam || d.name)} (${d.voertuig || d.vehicle})</option>`; });
+                // Toon alle drivers voor de selectie (onafhankelijk van onderaannemer)
+                this.drivers.forEach(d => { driverOptions += `<option value="${d.id}">${d.driver_code} (ID: ${d.id}) – ${this.escapeHtml(d.naam || d.name)} (${d.voertuig || d.vehicle})</option>`; });
                 let ficheBody = document.getElementById('ficheBody');
                 ficheBody.innerHTML = `
                     <div class="fiche-section"><h4>Boekingsinformatie</h4>
@@ -777,7 +784,7 @@
                         <div class="fiche-row"><span class="fiche-label">Voertuig:</span><span class="fiche-value">${booking.vehicle}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Extra's:</span><span class="fiche-value">${booking.extras || '-'}</span></div>
                     </div>
-                    ${booking.assigned_driver ? `<div class="fiche-section"><h4>Toegewezen Driver</h4><div class="fiche-row"><span class="fiche-label">Driver:</span><span class="fiche-value">${booking.assigned_driver.name} (ID: ${booking.assigned_driver.id})</span></div></div>` : ''}
+                    ${booking.assigned_driver_id ? `<div class="fiche-section"><h4>Toegewezen Driver</h4><div class="fiche-row"><span class="fiche-label">Driver:</span><span class="fiche-value">${this.drivers.find(d => d.id === booking.assigned_driver_id)?.naam || 'Onbekend (ID: ' + booking.assigned_driver_id + ')'}</span></div></div>` : ''}
                     ${booking.status === 'accepted' ? `<div class="fiche-section"><h4>Driver Toewijzen</h4><select id="driverSelect">${driverOptions}</select></div>` : ''}
                     <div class="fiche-total"><div class="amount">€ ${(booking.amount || 0).toFixed(2)}</div><div>Betaling: ${booking.payment || 'Onbekend'}</div></div>
                     <div class="fiche-actions">
@@ -819,18 +826,27 @@
                 this.closeModal();
             },
             
-            assignDriverToBooking(bookingId) {
+            async assignDriverToBooking(bookingId) {
                 const select = document.getElementById('driverSelect');
                 const driverId = select?.value;
                 if (!driverId) { this.showToast('Selecteer een driver', true); return; }
+
                 const driver = this.drivers.find(c => c.id == driverId);
-                const booking = this.allBookings.find(b => b.id === bookingId);
-                if (booking && driver) {
-                    booking.assigned_driver = { id: driver.id, name: driver.naam || driver.name, voertuig: driver.voertuig || driver.vehicle };
-                    // Toewijzing is tijdelijk in het geheugen voor deze sessie
+                if (!driver) { this.showToast('Driver niet gevonden', true); return; }
+
+                const { error } = await supabase
+                    .from('bookings')
+                    .update({ assigned_driver_id: driverId })
+                    .eq('id', bookingId);
+
+                if (error) {
+                    this.showToast('Fout bij toewijzen driver: ' + error.message, true);
+                } else {
+                    this.showToast(`Driver ${driver.naam || driver.name} toegewezen`);
+                    // Herlaad de data om de wijziging direct te tonen
+                    this.allBookings = await this.fetchBookingsFromSupabase();
                     this.filterAndSortData();
                     this.refreshCurrentTab();
-                    this.showToast(`Driver ${driver.naam || driver.name} toegewezen`);
                 }
                 this.closeModal();
             },
