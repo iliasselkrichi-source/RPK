@@ -337,7 +337,6 @@
                     <div class="field"><label>Volledige naam</label><input type="text" id="fullName" required></div>
                     <div class="field"><label>E-mail</label><input type="email" id="profileEmail" required></div>
                     <div class="field"><label>Telefoon</label><input type="tel" id="profilePhone" required></div>
-                    <div class="field"><label>Standaard ophaallocatie</label><input type="text" id="defaultPickup" placeholder="bv. thuisadres"></div>
                     <button type="submit" class="btn-primary">Opslaan</button>
                 </form>
             </div>
@@ -390,8 +389,7 @@
         id: loggedInEmail ? generateCustomerId(loggedInEmail) : 'demo-user',
         full_name: 'Gebruiker',
         email: loggedInEmail || 'demo@fleetconnect.be',
-        phone: '',
-        default_pickup_address: ''
+        phone: ''
     };
 
     let userBookings = [];
@@ -423,34 +421,39 @@
 
     // PROFIEL
     async function loadUserProfile() {
-        const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+        const { data } = await supabase.from('customers').select('id, email, name, phone').eq('id', currentUser.id).maybeSingle();
         if (data) {
-            currentUser.full_name = data.full_name;
+            currentUser.full_name = data.name;
             currentUser.email = data.email;
             currentUser.phone = data.phone;
-            currentUser.default_pickup_address = data.default_pickup_address || '';
-        } else {
-            await supabase.from('profiles').upsert({ id: currentUser.id, full_name: currentUser.full_name, email: currentUser.email, phone: currentUser.phone, default_pickup_address: '', updated_at: new Date() });
         }
-        document.getElementById('fullName').value = currentUser.full_name;
-        document.getElementById('profileEmail').value = currentUser.email;
-        document.getElementById('profilePhone').value = currentUser.phone;
-        document.getElementById('defaultPickup').value = currentUser.default_pickup_address;
-        document.getElementById('firstName').value = currentUser.full_name.split(' ')[0] || '';
-        document.getElementById('lastName').value = currentUser.full_name.split(' ').slice(1).join(' ') || '';
-        document.getElementById('phone').value = currentUser.phone;
-        document.getElementById('email').value = currentUser.email;
+        document.getElementById('fullName').value = currentUser.full_name || '';
+        document.getElementById('profileEmail').value = currentUser.email || '';
+        document.getElementById('profilePhone').value = currentUser.phone || '';
+
+        const nameParts = (currentUser.full_name || '').split(' ');
+        document.getElementById('firstName').value = nameParts[0] || '';
+        document.getElementById('lastName').value = nameParts.slice(1).join(' ') || '';
+        document.getElementById('phone').value = currentUser.phone || '';
+        document.getElementById('email').value = currentUser.email || '';
     }
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const full_name = document.getElementById('fullName').value;
+        const name = document.getElementById('fullName').value;
         const email = document.getElementById('profileEmail').value;
         const phone = document.getElementById('profilePhone').value;
-        const default_pickup_address = document.getElementById('defaultPickup').value;
-        await supabase.from('profiles').upsert({ id: currentUser.id, full_name, email, phone, default_pickup_address, updated_at: new Date() });
-        currentUser = { ...currentUser, full_name, email, phone, default_pickup_address };
-        alert('Profiel opgeslagen');
-        loadUserProfile();
+
+        const { error } = await supabase.from('customers').update({ name, email, phone }).eq('id', currentUser.id);
+
+        if (error) {
+            alert('Fout bij opslaan: ' + error.message);
+        } else {
+            currentUser.full_name = name;
+            currentUser.email = email;
+            currentUser.phone = phone;
+            alert('Profiel opgeslagen');
+            loadUserProfile();
+        }
     });
 
     // DASHBOARD (grotendeels ongewijzigd, maar met roundtrip ondersteuning voor weergave)
