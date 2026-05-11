@@ -160,7 +160,7 @@
         try {
             const { data, error } = await supabase
                 .from('customers')
-                .select('email, password')
+                .select('email, password_hash')   // kolomnaam aangepast
                 .eq('email', email)
                 .single();
 
@@ -169,7 +169,7 @@
                 return;
             }
 
-            if (data.password === password) {
+            if (data.password_hash === password) {   // vergelijking met password_hash
                 sessionStorage.setItem('loggedInEmail', email);
                 window.location.href = 'klantenportaal.html';
             } else {
