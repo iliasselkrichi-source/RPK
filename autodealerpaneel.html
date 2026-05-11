@@ -35,6 +35,8 @@
         .switch-woningen-btn:hover { background: #059669; }
         .refresh-btn { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .refresh-btn:hover { background: #2563eb; }
+        .back-btn { background: #64748b; color: white; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #475569; }
         .content { padding: 32px; }
         
         .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
@@ -115,7 +117,7 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo">
+        <div class="logo" onclick="window.location.href='admin-index.html'" style="cursor: pointer;">
             <i class="fas fa-car"></i> Auto Dealer Pro
             <br><small>Ryzen - Dealership Management</small>
         </div>
@@ -149,6 +151,7 @@
         <div class="header">
             <h1 id="pageTitle">Dashboard</h1>
             <div class="header-right">
+                <button class="back-btn" onclick="window.location.href='admin-index.html'"><i class="fas fa-home"></i> Terug naar overzicht</button>
                 <!-- TOEGEVOEGD: Woningen Paneel knop -->
                 <button class="switch-woningen-btn" onclick="app.switchToWoningen()"><i class="fas fa-home"></i> Woningen Paneel</button>
                 <button class="switch-btn" onclick="app.switchToOnderaannemer()"><i class="fas fa-exchange-alt"></i> Switch naar Taxi Paneel</button>
