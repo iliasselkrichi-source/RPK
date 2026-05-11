@@ -470,12 +470,17 @@
             },
             
             renderDrivers() {
-                let myDrivers = this.drivers.filter(c => c.subcontractor_id === this.subcontractorId);
+                let myDrivers = this.drivers;   // alle drivers tonen (zowel eigen als van partners)
                 let html = `<div class="people-card"><h3><i class="fas fa-id-card"></i> Drivers</h3><button class="add-btn" onclick="app.showAddDriverForm(${this.subcontractorId})">➕ Nieuwe Driver</button><div style="margin-top:20px;">`;
                 if (myDrivers.length === 0) html += `<div class="empty-planning">${this.renderEmptyTable("Geen drivers gevonden")}</div>`;
                 else myDrivers.forEach(c => {
+                    let eigenaar = c.partner_name ? `Partner: ${c.partner_name}` : 'Mijn vloot';
                     html += `<div style="border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-                        <div><strong>${c.driver_code} (ID: ${c.id})</strong> – ${this.escapeHtml(c.name)}<br><small>🚗 ${c.vehicle} | ${c.license_plate}</small></div>
+                        <div>
+                            <strong>${c.driver_code} (ID: ${c.id})</strong> – ${this.escapeHtml(c.name)}<br>
+                            <small>🚗 ${c.vehicle} | ${c.license_plate}</small><br>
+                            <small><i class="fas fa-user-tag"></i> ${eigenaar}</small>
+                        </div>
                         <button class="delete-btn" onclick="app.deleteDriver(${c.id})">Verwijder</button>
                     </div>`;
                 });
