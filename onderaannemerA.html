@@ -35,6 +35,8 @@
         .switch-woningen-btn:hover { background: #059669; }
         .refresh-btn { background: #2dd4bf; color: #0f172a; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .refresh-btn:hover { background: #14b8a6; }
+        .back-btn { background: #e2e8f0; color: #0f172a; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #cbd5e1; }
         .user-info { font-size: 0.8rem; color: #64748b; }
         .content { padding: 32px; }
         
@@ -158,7 +160,7 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo" onclick="window.location.href='index.html'">
+        <div class="logo" onclick="window.location.href='admin-index.html'" style="cursor: pointer;">
             <i class="fas fa-taxi"></i> Fleet Connect
             <br><small>Onderaannemer Paneel</small>
         </div>
@@ -190,6 +192,7 @@
         <div class="header">
             <h1 id="pageTitle">New Orders</h1>
             <div class="header-right">
+                <button class="back-btn" onclick="window.location.href='admin-index.html'"><i class="fas fa-home"></i> Terug naar overzicht</button>
                 <!-- TOEGEVOEGD: Woningen Paneel knop -->
                 <button class="switch-woningen-btn" onclick="app.switchToWoningen()"><i class="fas fa-home"></i> Woningen Paneel</button>
                 <button class="switch-btn" onclick="app.switchToAutoDealer()"><i class="fas fa-exchange-alt"></i> Switch naar Auto Dealer</button>

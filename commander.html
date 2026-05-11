@@ -39,6 +39,8 @@
         .switch-taxi-btn:hover { background: #14b8a6; }
         .refresh-btn { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .refresh-btn:hover { background: #059669; }
+        .back-btn { background: #e2e8f0; color: #0f172a; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #cbd5e1; }
         .export-btn { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .export-btn:hover { background: #2563eb; }
         .content { padding: 32px; }
@@ -155,7 +157,7 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo">
+        <div class="logo" onclick="window.location.href='admin-index.html'" style="cursor: pointer;">
             <i class="fas fa-home"></i> Horizon C2
             <br><small>Commander - Property Management</small>
         </div>
@@ -190,6 +192,7 @@
         <div class="header">
             <h1 id="pageTitle">Dashboard</h1>
             <div class="header-right">
+                <button class="back-btn" onclick="window.location.href='admin-index.html'"><i class="fas fa-home"></i> Terug naar overzicht</button>
                 <button class="switch-btn" onclick="app.switchToAuto()"><i class="fas fa-car"></i> Auto Dealer</button>
                 <button class="switch-taxi-btn" onclick="app.switchToTaxi()"><i class="fas fa-taxi"></i> Taxi Paneel</button>
                 <button class="export-btn" onclick="app.exportToCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
