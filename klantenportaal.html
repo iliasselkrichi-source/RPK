@@ -421,12 +421,17 @@
 
     // PROFIEL
     async function loadUserProfile() {
-        const { data } = await supabase.from('customers').select('id, email, name, phone').eq('id', currentUser.id).maybeSingle();
+        const { data } = await supabase.from('customers').select('name, email, phone').eq('id', currentUser.id).maybeSingle();
         if (data) {
-            currentUser.full_name = data.name;
+            currentUser.full_name = data.name;   // let op: kolom 'name' wordt 'full_name' in de front-end
             currentUser.email = data.email;
             currentUser.phone = data.phone;
+        } else {
+            // Klant niet gevonden – dit hoort niet te gebeuren, want de klant bestaat al in customers (via login).
+            // Toon een error in de console, maar doe geen upsert.
+            console.error('Klant niet gevonden in customers tabel');
         }
+
         document.getElementById('fullName').value = currentUser.full_name || '';
         document.getElementById('profileEmail').value = currentUser.email || '';
         document.getElementById('profilePhone').value = currentUser.phone || '';
@@ -437,12 +442,14 @@
         document.getElementById('phone').value = currentUser.phone || '';
         document.getElementById('email').value = currentUser.email || '';
     }
+
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name = document.getElementById('fullName').value;
+        const name = document.getElementById('fullName').value;   // noem het 'name' voor de database
         const email = document.getElementById('profileEmail').value;
         const phone = document.getElementById('profilePhone').value;
 
+        // Gebruik update, geen upsert (record bestaat gegarandeerd)
         const { error } = await supabase.from('customers').update({ name, email, phone }).eq('id', currentUser.id);
 
         if (error) {
@@ -452,7 +459,7 @@
             currentUser.email = email;
             currentUser.phone = phone;
             alert('Profiel opgeslagen');
-            loadUserProfile();
+            await loadUserProfile();
         }
     });
 
