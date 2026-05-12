@@ -365,7 +365,7 @@
                 let formattedDate = this.selectedDate.toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 let ridesHtml = rides.length === 0 ? '<div class="empty-planning">Geen ritten op deze dag</div>' : rides.map(r => {
                     const driver = this.drivers.find(d => d.id === r.assigned_driver_id);
-                    const driverText = driver ? `${driver.naam || driver.name} (${driver.voertuig})` : (r.assigned_driver ? `${r.assigned_driver.name} (${r.assigned_driver.voertuig})` : null);
+                    const driverText = driver ? `${driver.name} (${driver.vehicle})` : (r.assigned_driver ? `${r.assigned_driver.name} (${r.assigned_driver.voertuig})` : null);
                     return `
                     <div class="planning-item">
                         <div class="planning-time"><i class="fas fa-clock"></i> ${r.time} uur ${r.status === 'completed' ? '✓ Uitgevoerd' : (r.status === 'cancelled' ? '✗ Geannuleerd' : '')}</div>
@@ -394,7 +394,7 @@
                 let tbody = document.getElementById('newOrdersTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></table>`;
                 } else {
                     tbody.innerHTML = orders.map(o => `
                         <tr>
@@ -425,7 +425,7 @@
                 } else {
                     tbody.innerHTML = orders.map(o => {
                         const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
-                        const driverText = driver ? driver.naam || driver.name : (o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>');
+                        const driverText = driver ? driver.name : (o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>');
                         return `
                         <tr>
                             <td><strong>${o.id}</strong></td>
@@ -457,7 +457,7 @@
                     tbody.innerHTML = orders.map(o => {
                         let statusText = o.status === 'completed' ? '✅ Uitgevoerd' : (o.status === 'cancelled' ? '❌ Geannuleerd' : '📋 Gepasseerd');
                         const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
-                        const driverText = driver ? driver.naam || driver.name : (o.assigned_driver ? o.assigned_driver.name : 'Niet toegewezen');
+                        const driverText = driver ? driver.name : (o.assigned_driver ? o.assigned_driver.name : 'Niet toegewezen');
                         return `<tr>
                             <td><strong>${o.id}</strong></td>
                             <td>${o.datetime} ${o.time}</td>
@@ -757,7 +757,8 @@
                 const driver = this.drivers.find(c => c.id == driverId);
                 const booking = this.allBookings.find(b => b.id === bookingId);
                 if (booking && driver) {
-                    booking.assigned_driver = { id: driver.id, name: driver.name, voertuig: driver.vehicle };
+                    // AANGEPAST: voertuig -> vehicle
+                    booking.assigned_driver = { id: driver.id, name: driver.name, vehicle: driver.vehicle };
                     // Toewijzing is tijdelijk in het geheugen voor deze sessie
                     this.filterAndSortData();
                     this.refreshCurrentTab();
@@ -821,11 +822,20 @@
                     this.filterAndSortData();
 
                     // Laad partners en drivers uit localStorage (die blijven lokaal voor nu)
-                    // Migreer oude drivers naar nieuwe sleutel (eenmalig)
+                    // Migreer oude drivers naar nieuwe sleutel met correcte property mapping
                     if (!localStorage.getItem('fc_drivers') && localStorage.getItem('fc_chauffeurs')) {
                         try {
                             const oldData = JSON.parse(localStorage.getItem('fc_chauffeurs'));
-                            localStorage.setItem('fc_drivers', JSON.stringify(oldData));
+                            const mappedData = oldData.map(item => ({
+                                id: item.id,
+                                subcontractor_id: item.subcontractor_id,
+                                driver_code: item.chauffeur_code || item.driver_code,
+                                name: item.naam || item.name,
+                                vehicle: item.voertuig || item.vehicle,
+                                license_plate: item.license_plate || item.kenteken || '',
+                                partner_name: item.partner_name || null
+                            }));
+                            localStorage.setItem('fc_drivers', JSON.stringify(mappedData));
                             localStorage.removeItem('fc_chauffeurs');
                         } catch (e) {
                             console.warn('Oude driverdata kon niet worden geparset');
