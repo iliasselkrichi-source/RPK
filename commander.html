@@ -271,9 +271,9 @@
     <div id="toast" class="toast"></div>
     
     <script>
-        // ========== SUPABASE CONFIGURATIE ==========
-        const SB_URL = "https://orgbdqaxxkwtpvaxxuep.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZ2JkcWF4eGt3dHB2YXh4dWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTU0NzksImV4cCI6MjA5MTIzMTQ3OX0.TY6hWwzG3q_waVDJhxvuLfFFg5qy0HOxMjcTM0YcJ3Q";
+        // ========== SUPABASE CONFIGURATIE - GEWIJZIGD naar zelfde project als admin-index.html ==========
+        const SB_URL = "https://rreqjjrmvytnwnsidmqi.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA";
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
         
         // ========== APP OBJECT ==========
@@ -435,7 +435,7 @@
                         <div class="chart-card"><h3>📊 Boekingen per status</h3><canvas id="statusChart"></canvas></div>
                         <div class="chart-card"><h3>💰 Omzet per maand</h3><canvas id="omzetChart"></canvas></div>
                     </div>
-                    <div class="table-wrapper"><h3>📋 Recente boekingen</h3><table class="data-table"><thead><tr><th>Boekingsnr</th><th>Gast</th><th>Check-in</th><th>Team</th><th>Prijs</th><th>Status</th><th>Actie</th></td></thead><tbody id="recentTable"></tbody></table></div>
+                    <div class="table-wrapper"><h3>📋 Recente boekingen</h3><table class="data-table"><thead><tr><th>Boekingsnr</th><th>Gast</th><th>Check-in</th><th>Team</th><th>Prijs</th><th>Status</th><th>Actie</th></table></thead><tbody id="recentTable"></tbody></table></div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
                 document.getElementById('pageTitle').innerHTML = `Dashboard`;
@@ -513,7 +513,7 @@
                         <button class="btn-primary" onclick="app.applyFilter()">Zoek</button>
                         <button class="btn-secondary" onclick="app.resetFilter()">Reset</button>
                     </div>
-                    <div class="table-wrapper"><table class="data-table"><thead><tr><th>Boekingsnr</th><th>Gast</th><th>Check-in</th><th>Check-out</th><th>Team</th><th>Prijs</th><th>Deadline</th><th>Actie</th></tr></thead><tbody id="bevestigdTable"></tbody></table></div>
+                    <div class="table-wrapper"><table class="data-table"><thead><tr><th>Boekingsnr</th><th>Gast</th><th>Check-in</th><th>Check-out</th><th>Team</th><th>Prijs</th><th>Deadline</th><th>Actie</th></tr></thead><tbody id="bevestigdTable"></tbody><tr></div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
                 document.getElementById('pageTitle').innerHTML = `Bevestigde Boekingen (${bevestigd.length})`;
@@ -566,7 +566,7 @@
                 const tbody = document.getElementById(tableId);
                 if (!tbody) return;
                 if (bookings.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">📭 Geen gegevens</span></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">📭 Geen gegevens</span><tr>';
                     return;
                 }
                 tbody.innerHTML = bookings.map(b => `
@@ -1025,7 +1025,7 @@
                     tbody.innerHTML = filtered.map(b => `
                         <tr>
                             <td><strong>${this.escapeHtml(b.boekingsnummer || '-')}</strong></td>
-                            <td>${this.escapeHtml(b.gast_naam)}</span></td>
+                            <td>${this.escapeHtml(b.gast_naam)}</span></span></td>
                             <td><span class="badge ${b.team === 'TA' ? 'badge-ta' : 'badge-tb'}">${b.team || '-'}</span></span></td>
                             <td>${b.check_in || '-'}</span></td>
                             <td>${b.check_out || '-'}</span></td>
