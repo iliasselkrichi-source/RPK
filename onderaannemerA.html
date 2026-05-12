@@ -460,7 +460,7 @@
                 let tbody = document.getElementById('historyTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}<table></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
                         let statusText = o.status === 'completed' ? '✅ Uitgevoerd' : (o.status === 'cancelled' ? '❌ Geannuleerd' : '📋 Gepasseerd');
@@ -791,7 +791,8 @@
             
             showBookingFiche(booking) {
                 let driverOptions = '<option value="">-- Selecteer Driver --</option>';
-                let availableDrivers = this.drivers.filter(c => c.subcontractor_id === booking.subcontractor_id);
+                // GEWIJZIGD: subcontractor_id -> partner_id
+                let availableDrivers = this.drivers.filter(c => c.partner_id === booking.partner_id);
                 availableDrivers.forEach(d => { driverOptions += `<option value="${d.id}">${this.escapeHtml(d.name)} (${d.vehicle})</option>`; });
                 let ficheBody = document.getElementById('ficheBody');
                 ficheBody.innerHTML = `
@@ -906,7 +907,7 @@
             
             refreshAllData() { this.refreshCurrentTab(); this.showToast('Data ververst'); },
             
-            logout() { if(confirm('Weet u zeker dat u wilt uitloggen?')) window.location.href = 'admin-index.html'; },
+            async logout() { if(confirm('Weet u zeker dat u wilt uitloggen?')) { await supabase.auth.signOut(); window.location.href = 'admin-index.html'; } },
             
             async init() {
                 try {
