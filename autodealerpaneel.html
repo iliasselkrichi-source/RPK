@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; height: 100vh; display: flex; }
@@ -235,6 +236,13 @@
     
     <script>
         // ============================================
+        // SUPABASE CLIENT TOEGEVOEGD (zelfde als admin-index.html)
+        // ============================================
+        const SUPABASE_URL = "https://rreqjjrmvytnwnsidmqi.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // ============================================
         // AUTO DEALER PRO - VOLLEDIG FUNCTIONEEL
         // ============================================
         
@@ -354,7 +362,7 @@
                         <div class="chart-card"><h3> Omzet vs Winst per Maand</h3><canvas id="revenueChart"></canvas></div>
                         <div class="chart-card"><h3> Voorraadstatus</h3><canvas id="inventoryChart"></canvas></div>
                     </div>
-                    <div class="table-wrapper"><h3> Top Meest Verkochte Auto's</h3><table class="data-table"><thead><tr><th>Auto</th><th>Aantal</th><th>Omzet</th><th>Winst</th><tr></thead><tbody id="topSalesTable"><tr><td colspan="4" style="text-align:center;">Geen verkoopdata</span></td></tbody>}</div>
+                    <div class="table-wrapper"><h3> Top Meest Verkochte Auto's</h3><table class="data-table"><thead><tr><th>Auto</th><th>Aantal</th><th>Omzet</th><th>Winst</th></tr></thead><tbody id="topSalesTable"><tr><td colspan="4" style="text-align:center;">Geen verkoopdata</span></tr></tbody>}</div>
                     <div class="table-wrapper"><h3> Recente Verkopen</h3><table class="data-table"><thead><tr><th>Datum</th><th>Auto</th><th>Koper</th><th>Bedrag</th><th>Winst</th><th>Factuur</th></tr></thead><tbody id="recentSalesTable"><tr><td colspan="6" style="text-align:center;">Geen recente verkopen</span></tr></tbody>}</div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
@@ -399,7 +407,7 @@
                 const tbody = document.getElementById('inventoryTable');
                 if (!tbody) return;
                 if (list.length === 0) {
-                    tbody.innerHTML = '<table><td colspan="10" style="text-align:center; padding:40px;">Geen auto\'s in voorraad. Klik op "Nieuwe Auto"</span></tr>';
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:40px;">Geen auto\'s in voorraad. Klik op "Nieuwe Auto"</span></tr>';
                 } else {
                     tbody.innerHTML = list.map(v => `
                         <tr>
@@ -442,17 +450,17 @@
                 const html = `<button class="btn-primary" style="margin-bottom:16px;" onclick="app.openNewVehicleModal()"><i class="fas fa-plus"></i> Nieuwe Inkoop</button><div class="table-wrapper"><table class="data-table"><thead><tr><th>Merk/Model</th><th>Inkoop</th><th>Verkoop</th><th>Pot. Winst</th><th>Actie</th></tr></thead><tbody id="newCarsTable"></tbody>}</div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 const tbody = document.getElementById('newCarsTable');
-                if (newCars.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Geen auto\'s in inkoop</span></td>'; }
+                if (newCars.length === 0) { tbody.innerHTML = '</table><td colspan="5" style="text-align:center;">Geen auto\'s in inkoop</span></td>'; }
                 else { tbody.innerHTML = newCars.map(v => `<tr>}<strong>${v.brand} ${v.model}</strong> (${v.year})</span><td>${this.formatPrice(v.purchase_price)}</span><td>${this.formatPrice(v.selling_price)}</span><td class="text-success">+${this.formatPrice(this.calculateProfit(v))}</span><td><button class="btn-success" onclick="app.publishToInventory(${v.id})">Publiceer</button></span></tr>`).join(''); }
                 document.getElementById('pageTitle').innerHTML = `Nieuwe Auto's (${newCars.length})`;
             },
             
             renderSold() {
                 const sold = this.vehicles.filter(v => v.status === 'sold');
-                const html = `<div class="table-wrapper"><table class="data-table"><thead><tr><th>Merk/Model</th><th>Verkoopprijs</th><th>Winst</th><th>Marge</th><th>Koper</th><th>Datum</th><th>Factuur</th></tr></thead><tbody id="soldTable"></tbody>}</div>`;
+                const html = `<div class="table-wrapper"><table class="data-table"><thead><tr><th>Merk/Model</th><th>Verkoopprijs</th><th>Winst</th><th>Marge</th><th>Koper</th><th>Datum</th><th>Factuur</th></td></thead><tbody id="soldTable"></tbody>}</div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 const tbody = document.getElementById('soldTable');
-                if (sold.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Geen verkochte auto\'s</span></tr>'; }
+                if (sold.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Geen verkochte auto\'s</span><table>'; }
                 else { tbody.innerHTML = sold.map(v => { const sale = this.sales.find(s => s.vehicle_id === v.id); return `<tr>}<strong>${v.brand} ${v.model}</strong> (${v.year})</span><td>${this.formatPrice(v.selling_price)}</span><td class="text-success">+${this.formatPrice(this.calculateProfit(v))}</span><td>${this.calculateMargin(v)}%</span><td>${v.buyer_name || sale?.buyer_name || '-'}</span><td>${sale ? new Date(sale.date).toLocaleDateString('nl-NL') : '-'}</span><td><button class="btn-warning" onclick="app.generateInvoice(${v.id})"><i class="fas fa-file-pdf"></i></button></span></tr>`; }).join(''); }
                 document.getElementById('pageTitle').innerHTML = `Verkochte Auto's (${sold.length})`;
             },
@@ -487,7 +495,7 @@
                     <div class="table-wrapper">
                         <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h3>Alle Verkopen</h3><button class="btn-primary" onclick="app.exportSalesToCSV()"><i class="fas fa-file-csv"></i> Export CSV</button></div>
                         <div style="display:flex; gap:8px; margin-bottom:16px;"><button class="btn-primary" onclick="app.filterSales('all')">Alle</button><button class="btn-primary" onclick="app.filterSales('today')">Vandaag</button><button class="btn-primary" onclick="app.filterSales('week')">Week</button><button class="btn-primary" onclick="app.filterSales('month')">Maand</button></div>
-                        <table class="data-table"><thead><tr><th>Datum</th><th>Auto</th><th>Koper</th><th>Bedrag</th><th>Winst</th><th>Marge</th><th>Factuur</th></tr></thead><tbody id="allSalesTable"></tbody></tr>
+                        <table class="data-table"><thead><tr><th>Datum</th><th>Auto</th><th>Koper</th><th>Bedrag</th><th>Winst</th><th>Marge</th><th>Factuur</th></tr></thead><tbody id="allSalesTable"></tbody></table>
                     </div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
@@ -658,7 +666,14 @@
             },
             
             refresh() { this.refreshCurrentTab(); this.showToast("Gegevens ververst!"); },
-            logout() { if(confirm("Uitloggen?")) window.location.href = 'admin-index.html'; },
+            
+            // AANGEPASTE LOGOUT: Eerst Supabase signOut, dan redirect
+            async logout() {
+                if (confirm("Uitloggen?")) {
+                    await supabaseClient.auth.signOut();
+                    window.location.href = 'admin-index.html';
+                }
+            },
             
             init() {
                 this.loadFromStorage();
