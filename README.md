@@ -1,358 +1,139 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ryzen Ecosystem - README</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+markdown
+# 🚖 Ryzen Ecosystem – Multi-Platform Bedrijfssoftware
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: #f6f8fa;
-            color: #1f2328;
-            line-height: 1.5;
-            padding: 40px 20px;
-        }
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Status](https://img.shields.io/badge/status-production-green)
+![Supabase](https://img.shields.io/badge/supabase-integrated-orange)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 40px 48px;
-        }
+**Drie complete bedrijfsplatforms – één codebase.**  
+Ryzen is een modulair ecosysteem voor taxi bedrijven, vakantieverhuur en autodealers. Alles draait op Supabase met realtime functionaliteit.
 
-        /* Typografie */
-        h1 {
-            font-size: 2rem;
-            border-bottom: 1px solid #d0d7de;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-        }
+---
 
-        h2 {
-            font-size: 1.5rem;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.3rem;
-            border-bottom: 1px solid #d0d7de;
-        }
+## 📋 Inhoudsopgave
 
-        h3 {
-            font-size: 1.2rem;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-        }
+- [Overzicht](#overzicht)
+- [Modules](#modules)
+- [Features](#features)
+- [Installatie](#installatie)
+- [Configuratie](#configuratie)
+- [Database Schema](#database-schema)
+- [Bestandsstructuur](#bestandsstructuur)
+- [Bekende beperkingen](#bekende-beperkingen)
+- [Licentie](#licentie)
 
-        p {
-            margin-bottom: 1rem;
-        }
+---
 
-        /* Badges */
-        .badges {
-            margin-bottom: 1.5rem;
-        }
+## 🎯 Overzicht
 
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-right: 8px;
-            margin-bottom: 8px;
-        }
+Ryzen is ontstaan uit de behoefte aan **geïntegreerde bedrijfssoftware** voor drie sectoren. In plaats van drie aparte systemen, is er één ecosysteem gebouwd met gedeelde database.
 
-        .badge-blue { background: #1f883d; color: white; }
-        .badge-green { background: #2da44e; color: white; }
-        .badge-orange { background: #d97917; color: white; }
-        .badge-gray { background: #57606a; color: white; }
+| Probleem | Oplossing |
+|----------|-----------|
+| Dure losse abonnementen | Alles-in-één platform |
+| Geen realtime updates | Supabase Realtime |
+| Tijdrovende admin | Geautomatiseerde workflows |
+| Beperkte schaalbaarheid | Supabase backend |
 
-        /* Tabellen */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
+---
 
-        th, td {
-            border: 1px solid #d0d7de;
-            padding: 10px 12px;
-            text-align: left;
-        }
+## 📦 Modules
 
-        th {
-            background: #f6f8fa;
-            font-weight: 600;
-        }
+### 1. Fleetconnect Taxi 🚖
+**Voor:** Taxibedrijven met 5-50 wagens
 
-        /* Code blokken */
-        pre {
-            background: #f6f8fa;
-            border-radius: 8px;
-            padding: 16px;
-            overflow-x: auto;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            font-size: 0.85rem;
-            margin: 1rem 0;
-            border: 1px solid #d0d7de;
-        }
+- ✅ Boekingswebsite (5 stappen met routeberekening)
+- ✅ Klantportaal met ritgeschiedenis en PDF facturen
+- ✅ Dispatch paneel voor ritten, chauffeurs en partners
+- ✅ Financieel dashboard met omzetgrafieken
+- ✅ CSV/JSON export
 
-        code {
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 0.85rem;
-            background: #f6f8fa;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-        }
+### 2. Horizon C2 (Woningen) 🏠
+**Voor:** Vakantieparken, makelaars, vastgoedbeheerders
 
-        pre code {
-            background: none;
-            padding: 0;
-        }
+- ✅ Boekingswebsite voor 10+ woningen/units
+- ✅ Commander beheerpaneel met status workflow
+- ✅ Taakverdeling aan teamleden (Host, Concierge, Housekeeping)
+- ✅ Agenda met kalender en afspraken
+- ✅ Financieel overzicht per team
 
-        /* Lijsten */
-        ul, ol {
-            margin: 1rem 0;
-            padding-left: 2rem;
-        }
+### 3. Auto Dealer Pro 🚗
+**Voor:** Occasion dealers
 
-        li {
-            margin: 0.25rem 0;
-        }
+- ✅ Voorraadbeheer met status (Nieuw/Beschikbaar/Verkocht)
+- ✅ Verkoopregistratie met winst & marge berekening
+- ✅ PDF factuur generatie met BTW
+- ✅ WhatsApp delen van auto's
+- ✅ CSV export
 
-        /* Boxes */
-        .note-box {
-            background: #fff8c5;
-            border-left: 4px solid #d4a72c;
-            padding: 16px;
-            margin: 1rem 0;
-            border-radius: 6px;
-        }
+---
 
-        .warning-box {
-            background: #ffe3e3;
-            border-left: 4px solid #cf222e;
-            padding: 16px;
-            margin: 1rem 0;
-            border-radius: 6px;
-        }
+## ✨ Features per module
 
-        /* HR */
-        hr {
-            border: none;
-            border-top: 1px solid #d0d7de;
-            margin: 2rem 0;
-        }
+### 🚖 Taxi Module
 
-        /* Footer */
-        .footer {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #656d76;
-            border-top: 1px solid #d0d7de;
-        }
+| Functionaliteit | Status |
+|----------------|--------|
+| Boekingswebsite (5 stappen) | ✅ |
+| Adres autocomplete (Nominatim) | ✅ |
+| Routeberekening (OSRM/GraphHopper) | ✅ |
+| Prijsberekening: €1,50/km | ✅ |
+| Heen/terug rit (2x prijs) | ✅ |
+| Voertuigkeuze (4 types) | ✅ |
+| Extra opties (Meet & Greet, WiFi, etc.) | ✅ |
+| Klantportaal met ritgeschiedenis | ✅ |
+| PDF factuur download | ✅ |
+| Dispatch paneel | ✅ |
+| Chauffeurs & Partners beheer | ✅ |
+| Financieel dashboard | ✅ |
 
-        /* Screenshot placeholder */
-        .screenshot-placeholder {
-            background: #f6f8fa;
-            border: 2px dashed #d0d7de;
-            border-radius: 8px;
-            padding: 40px;
-            text-align: center;
-            color: #656d76;
-            margin: 1rem 0;
-        }
+### 🏠 Woningen Module
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            table, th, td {
-                font-size: 0.8rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Badges -->
-        <div class="badges">
-            <span class="badge badge-blue">version 1.0.0</span>
-            <span class="badge badge-green">production-ready</span>
-            <span class="badge badge-orange">supabase</span>
-            <span class="badge badge-gray">MIT License</span>
-        </div>
+| Functionaliteit | Status |
+|----------------|--------|
+| Boekingswebsite met 10+ units | ✅ |
+| Check-in / Check-out datum | ✅ |
+| Prijs per nacht | ✅ |
+| Extra diensten (Housekeeping, Ontbijt, Chef) | ✅ |
+| Commander beheerpaneel | ✅ |
+| Status workflow (Nieuw/Bevestigd/Uitgevoerd) | ✅ |
+| Taakverdeling aan teamleden | ✅ |
+| Agenda met kalender | ✅ |
+| Team beheer | ✅ |
+| Financieel per team | ✅ |
 
-        <!-- Titel -->
-        <h1>🚖 Ryzen Ecosystem – Multi-Platform Bedrijfssoftware</h1>
+### 🚗 Auto Dealer Module
 
-        <p>
-            <strong>Drie complete bedrijfsplatforms – één codebase.</strong><br>
-            Ryzen is een modulair ecosysteem voor taxi bedrijven, vakantieverhuur en autodealers. 
-            Alles draait op Supabase met realtime functionaliteit.
-        </p>
+| Functionaliteit | Status |
+|----------------|--------|
+| Voorraadbeheer | ✅ |
+| Verkoopregistratie | ✅ |
+| PDF factuur met BTW | ✅ |
+| Winst & marge berekening | ✅ |
+| WhatsApp delen | ✅ |
+| CSV export | ✅ |
+| Verkopers & Leveranciers beheer | ✅ |
 
-        <hr>
+---
 
-        <!-- Inhoudsopgave -->
-        <h2>📋 Inhoudsopgave</h2>
-        <ul>
-            <li><a href="#overzicht">Overzicht</a></li>
-            <li><a href="#modules">Modules</a></li>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#installatie">Installatie</a></li>
-            <li><a href="#configuratie">Configuratie</a></li>
-            <li><a href="#database">Database Schema</a></li>
-            <li><a href="#bestanden">Bestandsstructuur</a></li>
-            <li><a href="#beperkingen">Bekende beperkingen</a></li>
-            <li><a href="#licentie">Licentie</a></li>
-        </ul>
+## 📥 Installatie
 
-        <hr>
+### Vereisten
+- Supabase account (gratis tier)
+- Basiskennis HTML/JavaScript
+- Webserver (Netlify/Vercel/GitHub Pages of eigen server)
 
-        <!-- Overzicht -->
-        <h2 id="overzicht">🎯 Overzicht</h2>
-        <p>
-            Ryzen is ontstaan uit de behoefte aan <strong>geïntegreerde bedrijfssoftware</strong> voor drie sectoren. 
-            In plaats van drie aparte systemen, is er één ecosysteem gebouwd met gedeelde database.
-        </p>
+### Stap 1: Supabase project aanmaken
+1. Ga naar [supabase.com](https://supabase.com)
+2. Maak een nieuw project aan
+3. Noteer je `Project URL` en `anon key`
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Probleem</th>
-                    <th>Oplossing</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>Dure losse abonnementen</td><td>Alles-in-één platform</td></tr>
-                <tr><td>Geen realtime updates</td><td>Supabase Realtime</td></tr>
-                <tr><td>Tijdrovende admin</td><td>Geautomatiseerde workflows</td></tr>
-                <tr><td>Beperkte schaalbaarheid</td><td>Supabase backend</td></tr>
-            </tbody>
-        </table>
+### Stap 2: Database tabellen aanmaken
+Open de SQL editor in Supabase en voer uit:
 
-        <hr>
-
-        <!-- Modules -->
-        <h2 id="modules">📦 Modules</h2>
-
-        <h3>1. Fleetconnect Taxi 🚖</h3>
-        <p><strong>Voor:</strong> Taxibedrijven met 5-50 wagens</p>
-        <ul>
-            <li>✅ Boekingswebsite (5 stappen met routeberekening)</li>
-            <li>✅ Klantportaal met ritgeschiedenis en PDF facturen</li>
-            <li>✅ Dispatch paneel voor ritten, chauffeurs en partners</li>
-            <li>✅ Financieel dashboard met omzetgrafieken</li>
-            <li>✅ CSV/JSON export</li>
-        </ul>
-
-        <h3>2. Horizon C2 (Woningen) 🏠</h3>
-        <p><strong>Voor:</strong> Vakantieparken, makelaars, vastgoedbeheerders</p>
-        <ul>
-            <li>✅ Boekingswebsite voor 10+ woningen/units</li>
-            <li>✅ Commander beheerpaneel met status workflow</li>
-            <li>✅ Taakverdeling aan teamleden (Host, Concierge, Housekeeping)</li>
-            <li>✅ Agenda met kalender en afspraken</li>
-            <li>✅ Financieel overzicht per team</li>
-        </ul>
-
-        <h3>3. Auto Dealer Pro 🚗</h3>
-        <p><strong>Voor:</strong> Occasion dealers</p>
-        <ul>
-            <li>✅ Voorraadbeheer met status (Nieuw/Beschikbaar/Verkocht)</li>
-            <li>✅ Verkoopregistratie met winst &amp; marge berekening</li>
-            <li>✅ PDF factuur generatie met BTW</li>
-            <li>✅ WhatsApp delen van auto's</li>
-            <li>✅ CSV export</li>
-        </ul>
-
-        <hr>
-
-        <!-- Features (uitgebreid) -->
-        <h2 id="features">✨ Features per module</h2>
-
-        <h3>🚖 Taxi Module</h3>
-        <table>
-            <thead><tr><th>Functionaliteit</th><th>Status</th></tr></thead>
-            <tbody>
-                <tr><td>Boekingswebsite (5 stappen)</td><td>✅</td></tr>
-                <tr><td>Adres autocomplete (Nominatim)</td><td>✅</td></tr>
-                <tr><td>Routeberekening (OSRM/GraphHopper)</td><td>✅</td></tr>
-                <tr><td>Prijsberekening: €1,50/km</td><td>✅</td></tr>
-                <tr><td>Heen/terug rit (2x prijs)</td><td>✅</td></tr>
-                <tr><td>Voertuigkeuze (4 types)</td><td>✅</td></tr>
-                <tr><td>Extra opties (Meet & Greet, WiFi, etc.)</td><td>✅</td></tr>
-                <tr><td>Klantportaal met ritgeschiedenis</td><td>✅</td></tr>
-                <tr><td>PDF factuur download</td><td>✅</td></tr>
-                <tr><td>Dispatch paneel</td><td>✅</td></tr>
-                <tr><td>Chauffeurs & Partners beheer</td><td>✅</td></tr>
-                <tr><td>Financieel dashboard</td><td>✅</td></tr>
-            </tbody>
-        </table>
-
-        <h3>🏠 Woningen Module</h3>
-        <table>
-            <thead><tr><th>Functionaliteit</th><th>Status</th></tr></thead>
-            <tbody>
-                <tr><td>Boekingswebsite met 10+ units</td><td>✅</td></tr>
-                <tr><td>Check-in / Check-out datum</td><td>✅</td></tr>
-                <tr><td>Prijs per nacht</td><td>✅</td></tr>
-                <tr><td>Extra diensten (Housekeeping, Ontbijt, Chef)</td><td>✅</td></tr>
-                <tr><td>Commander beheerpaneel</td><td>✅</td></tr>
-                <tr><td>Status workflow (Nieuw/Bevestigd/Uitgevoerd)</td><td>✅</td></tr>
-                <tr><td>Taakverdeling aan teamleden</td><td>✅</td></tr>
-                <tr><td>Agenda met kalender</td><td>✅</td></tr>
-                <tr><td>Team beheer</td><td>✅</td></tr>
-                <tr><td>Financieel per team</td><td>✅</td></tr>
-            </tbody>
-        </table>
-
-        <h3>🚗 Auto Dealer Module</h3>
-        <table>
-            <thead><tr><th>Functionaliteit</th><th>Status</th></tr></thead>
-            <tbody>
-                <tr><td>Voorraadbeheer</td><td>✅</td></tr>
-                <tr><td>Verkoopregistratie</td><td>✅</td></tr>
-                <tr><td>PDF factuur met BTW</td><td>✅</td></tr>
-                <tr><td>Winst &amp; marge berekening</td><td>✅</td></tr>
-                <tr><td>WhatsApp delen</td><td>✅</td></tr>
-                <tr><td>CSV export</td><td>✅</td></tr>
-                <tr><td>Verkopers &amp; Leveranciers beheer</td><td>✅</td></tr>
-            </tbody>
-        </table>
-
-        <hr>
-
-        <!-- Installatie -->
-        <h2 id="installatie">📥 Installatie</h2>
-
-        <h3>Vereisten</h3>
-        <ul>
-            <li>Supabase account (gratis tier)</li>
-            <li>Basiskennis HTML/JavaScript</li>
-            <li>Webserver (Netlify/Vercel/GitHub Pages of eigen server)</li>
-        </ul>
-
-        <h3>Stap 1: Supabase project aanmaken</h3>
-        <ol>
-            <li>Ga naar <a href="https://supabase.com">supabase.com</a></li>
-            <li>Maak een nieuw project aan</li>
-            <li>Noteer je <code>Project URL</code> en <code>anon key</code></li>
-        </ol>
-
-        <h3>Stap 2: Database tabellen aanmaken</h3>
-        <p>Open de SQL editor in Supabase en voer uit:</p>
-        <pre><code>-- Bookings tabel (centraal voor alle modules)
+```sql
+-- Bookings tabel (centraal voor alle modules)
 CREATE TABLE bookings (
     id TEXT PRIMARY KEY,
     datetime DATE,
@@ -429,58 +210,59 @@ CREATE TABLE kalender_afspraken (
     eind_datum TIMESTAMPTZ,
     type TEXT,
     memo TEXT
-);</code></pre>
+);
+Stap 3: Configuratie aanpassen
+Open elk HTML bestand en vervang de Supabase gegevens:
 
-        <h3>Stap 3: Configuratie aanpassen</h3>
-        <p>Open elk HTML bestand en vervang de Supabase gegevens:</p>
-        <pre><code>const SUPABASE_URL = 'jouw-project-url';
-const SUPABASE_ANON_KEY = 'jouw-anon-key';</code></pre>
+javascript
+const SUPABASE_URL = 'jouw-project-url';
+const SUPABASE_ANON_KEY = 'jouw-anon-key';
+Bestanden die je moet aanpassen:
 
-        <h3>Stap 4: Bestanden uploaden</h3>
-        <p>Upload alle bestanden naar je webserver:</p>
-        <ul>
-            <li><strong>Netlify:</strong> Drag & drop de map naar <code>netlify.com/drop</code></li>
-            <li><strong>Vercel:</strong> <code>vercel --prod</code></li>
-            <li><strong>GitHub Pages:</strong> Zet bestanden in <code>docs/</code> folder en enable in settings</li>
-        </ul>
+fleetconnect.html
 
-        <div class="note-box">
-            <strong>💡 Tip:</strong> Start met Netlify – dit is de makkelijkste optie. Je hebt alleen een gratis account nodig.
-        </div>
+index.html / klantenportaal.html
 
-        <hr>
+onderaannemerA.html
 
-        <!-- Configuratie -->
-        <h2 id="configuratie">⚙️ Configuratie</h2>
+commander.html
 
-        <h3>Supabase Auth instellen</h3>
-        <ol>
-            <li>Ga naar Supabase Dashboard → Authentication → Settings</li>
-            <li>Zet "Email" provider aan</li>
-            <li>Zet "Auto confirm email" aan (voor testing)</li>
-            <li>Voeg redirect URLs toe: <code>https://jouwdomein.be/*</code></li>
-        </ol>
+autodealerpaneel.html
 
-        <h3>Bestanden die configuratie nodig hebben</h3>
-        <ul>
-            <li><code>fleetconnect.html</code> - Taxi boeking</li>
-            <li><code>index.html</code> / <code>klantenportaal.html</code> - Klant login/portaal</li>
-            <li><code>onderaannemerA.html</code> - Taxi dispatch paneel</li>
-            <li><code>commander.html</code> - Woningen beheerpaneel</li>
-            <li><code>autodealerpaneel.html</code> - Auto dealer software</li>
-            <li><code>admin-index.html</code> - Centrale login hub</li>
-            <li><code>Horizon.html</code> / <code>bravo.html</code> - Woningen boekingen</li>
-            <li><code>PV.html</code> - Royal Velvet (luxe taxi)</li>
-            <li><code>loginfleetconnect.html</code> - Taxi admin login</li>
-            <li><code>klantenportaalpv.html</code> - Royal Velvet klantportaal</li>
-        </ul>
+admin-index.html
 
-        <hr>
+Horizon.html / bravo.html
 
-        <!-- Database Schema -->
-        <h2 id="database">📊 Database Schema Diagram</h2>
+PV.html
 
-        <pre><code>┌─────────────────────────────────────────────────────────────────┐
+loginfleetconnect.html
+
+klantenportaalpv.html
+
+Stap 4: Bestanden uploaden
+Upload alle bestanden naar je webserver:
+
+Netlify: Drag & drop de map naar netlify.com/drop
+
+Vercel: vercel --prod
+
+GitHub Pages: Zet bestanden in docs/ folder en enable in settings
+
+💡 Tip: Start met Netlify – dit is de makkelijkste optie.
+
+⚙️ Configuratie
+Supabase Auth instellen
+Ga naar Supabase Dashboard → Authentication → Settings
+
+Zet "Email" provider aan
+
+Zet "Auto confirm email" aan (voor testing)
+
+Voeg redirect URLs toe: https://jouwdomein.be/*
+
+📊 Database Schema Diagram
+text
+┌─────────────────────────────────────────────────────────────────┐
 │                      DATABASE SCHEMA                             │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
@@ -518,14 +300,10 @@ const SUPABASE_ANON_KEY = 'jouw-anon-key';</code></pre>
 │   │ functies     │                                              │
 │   └──────────────┘                                              │
 │                                                                  │
-└─────────────────────────────────────────────────────────────────┘</code></pre>
-
-        <hr>
-
-        <!-- Bestandsstructuur -->
-        <h2 id="bestanden">📁 Bestandsstructuur</h2>
-
-        <pre><code>ryzen-ecosysteem/
+└─────────────────────────────────────────────────────────────────┘
+📁 Bestandsstructuur
+text
+ryzen-ecosysteem/
 ├── admin-index.html        # Centrale login hub
 ├── fleetconnect.html       # Taxi boeking
 ├── onderaannemerA.html     # Taxi dispatch paneel
@@ -538,95 +316,50 @@ const SUPABASE_ANON_KEY = 'jouw-anon-key';</code></pre>
 ├── PV.html                 # Royal Velvet (Luxe taxi)
 ├── autodealerpaneel.html   # Auto dealer software
 ├── klantenportaalpv.html   # Royal Velvet klantportaal
-├── README.html             # Deze documentatie
-└── README.md               # Markdown versie</code></pre>
+└── README.md               # Deze documentatie
+⚠️ Bekende beperkingen
+Beperking	Impact	Fix gepland
+Chauffeurs/partners in localStorage	Data is niet gedeeld tussen browsers	Q3 2026
+Geen online betalingen	Klanten kunnen niet online betalen	Q3 2026
+Eenvoudige authenticatie	Alleen email check, geen wachtwoord	Q3 2026
+Geen live tracking	Chauffeurs kunnen niet gevolgd worden	Q4 2026
+Geen mobiele apps	Alleen web beschikbaar	Q4 2026
+🚀 Snel starten
+Actie	Bestand
+Taxi boeking	fleetconnect.html
+Admin login	admin-index.html
+Dispatch paneel	Login → Kies "Onderaannemer"
+Woningen beheer	Login → Kies "Woningen Verhuur"
+Auto dealer	Login → Kies "Auto Dealer"
+Klantportaal taxi	index.html → inloggen
+Klantportaal Royal Velvet	loginfleetconnect.html → inloggen
+📄 Licentie
+MIT License
 
-        <hr>
+Copyright (c) 2026 Ryzen Development
 
-        <!-- Bekende beperkingen -->
-        <h2 id="beperkingen">⚠️ Bekende beperkingen</h2>
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-        <div class="warning-box">
-            <strong>Belangrijk:</strong> Deze beperkingen worden aangepakt in toekomstige versies.
-        </div>
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Beperking</th>
-                    <th>Impact</th>
-                    <th>Fix gepland</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>Chauffeurs/partners in localStorage</td><td>Data is niet gedeeld tussen browsers</td><td>Q3 2026</td></tr>
-                <tr><td>Geen online betalingen</td><td>Klanten kunnen niet online betalen</td><td>Q3 2026</td></tr>
-                <tr><td>Eenvoudige authenticatie</td><td>Alleen email check, geen wachtwoord</td><td>Q3 2026</td></tr>
-                <tr><td>Geen live tracking</td><td>Chauffeurs kunnen niet gevolgd worden</td><td>Q4 2026</td></tr>
-                <tr><td>Geen mobiele apps</td><td>Alleen web beschikbaar</td><td>Q4 2026</td></tr>
-            </tbody>
-        </table>
+📞 Contact
+Vraag	Contact
+Technische vragen	GitHub Issues
+Zakelijke vragen	jouw@email.com
+Made with ❤️ by Ryzen Development
 
-        <hr>
+text
 
-        <!-- Snel starten -->
-        <h2>🚀 Snel starten</h2>
+### Optie 2 (extra) – Bewaar de HTML als apart bestand
+Als je de mooie HTML-pagina wilt behouden:
+1. Maak een nieuwe map `docs/` aan.
+2. Zet de HTML-code die ik eerder gaf in een bestand `docs/readme.html`.
+3. Voeg in `README.md` een link toe:  
+   `📘 [Bekijk de uitgebreide documentatie (HTML)](docs/readme.html)`
 
-        <table>
-            <thead><tr><th>Actie</th><th>Bestand</th></tr></thead>
-            <tbody>
-                <tr><td>Taxi boeking</td><td><code>fleetconnect.html</code></td></tr>
-                <tr><td>Admin login</td><td><code>admin-index.html</code></td></tr>
-                <tr><td>Dispatch paneel</td><td>Login → Kies "Onderaannemer"</td></tr>
-                <tr><td>Woningen beheer</td><td>Login → Kies "Woningen Verhuur"</td></tr>
-                <tr><td>Auto dealer</td><td>Login → Kies "Auto Dealer"</td></tr>
-                <tr><td>Klantportaal taxi</td><td><code>index.html</code> → inloggen</td></tr>
-                <tr><td>Klantportaal Royal Velvet</td><td><code>loginfleetconnect.html</code> → inloggen</td></tr>
-            </tbody>
-        </table>
+---
 
-        <hr>
+## ▶️ Volgende stap
 
-        <!-- Licentie -->
-        <h2 id="licentie">📄 Licentie</h2>
-
-        <p>
-            <strong>MIT License</strong><br><br>
-            Copyright (c) 2026 Ryzen Development<br><br>
-            Permission is hereby granted, free of charge, to any person obtaining a copy
-            of this software and associated documentation files (the "Software"), to deal
-            in the Software without restriction, including without limitation the rights
-            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-            copies of the Software, and to permit persons to whom the Software is
-            furnished to do so, subject to the following conditions:<br><br>
-            The above copyright notice and this permission notice shall be included in all
-            copies or substantial portions of the Software.
-        </p>
-
-        <hr>
-
-        <!-- Contact -->
-        <h2>📞 Contact</h2>
-
-        <table>
-            <thead><tr><th>Vraag</th><th>Contact</th></tr></thead>
-            <tbody>
-                <tr><td>Technische vragen</td><td><a href="#">[GitHub Issues - vul later in]</a></td></tr>
-                <tr><td>Zakelijke vragen</td><td><a href="#">[jouw@email.com - vul later in]</a></td></tr>
-                <tr><td>Security issues</td><td><a href="#">[security@email.com - vul later in]</a></td></tr>
-            </tbody>
-        </table>
-
-        <div class="note-box">
-            <strong>📝 Let op:</strong> Vul hierboven je eigen contactgegevens in voordat je dit document deelt.
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            Made with ❤️ by Ryzen Development<br>
-            © 2026 - Alle rechten voorbehouden
-        </div>
-
-    </div>
-</body>
-</html>
+**Kopieer de Markdown-tekst hierboven** en plak hem in `README.md` op GitHub.  
+Daarna ziet je README er correct uit. Wil je dat ik ook de HTML-versie voor `docs/readme.html` nog een keer oplever?
