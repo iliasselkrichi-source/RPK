@@ -354,8 +354,8 @@
                         <div class="chart-card"><h3> Omzet vs Winst per Maand</h3><canvas id="revenueChart"></canvas></div>
                         <div class="chart-card"><h3> Voorraadstatus</h3><canvas id="inventoryChart"></canvas></div>
                     </div>
-                    <div class="table-wrapper"><h3> Top Meest Verkochte Auto's</h3><table class="data-table"><thead><tr><th>Auto</th><th>Aantal</th><th>Omzet</th><th>Winst</th></tr></thead><tbody id="topSalesTable"><tr><td colspan="4" style="text-align:center;">Geen verkoopdata</td></tr></tbody></table></div>
-                    <div class="table-wrapper"><h3> Recente Verkopen</h3><table class="data-table"><thead><tr><th>Datum</th><th>Auto</th><th>Koper</th><th>Bedrag</th><th>Winst</th><th>Factuur</th></tr></thead><tbody id="recentSalesTable"><tr><td colspan="6" style="text-align:center;">Geen recente verkopen</td></tr></tbody></table></div>
+                    <div class="table-wrapper"><h3> Top Meest Verkochte Auto's</h3><table class="data-table"><thead><tr><th>Auto</th><th>Aantal</th><th>Omzet</th><th>Winst</th><tr></thead><tbody id="topSalesTable"><tr><td colspan="4" style="text-align:center;">Geen verkoopdata</span></td></tbody>}</div>
+                    <div class="table-wrapper"><h3> Recente Verkopen</h3><table class="data-table"><thead><tr><th>Datum</th><th>Auto</th><th>Koper</th><th>Bedrag</th><th>Winst</th><th>Factuur</th></tr></thead><tbody id="recentSalesTable"><tr><td colspan="6" style="text-align:center;">Geen recente verkopen</span></tr></tbody>}</div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
                 document.getElementById('pageTitle').innerHTML = `Dashboard`;
@@ -370,13 +370,13 @@
                 const topVehicles = Object.entries(salesByVehicle).sort((a,b) => b[1].count - a[1].count).slice(0,3);
                 const topTable = document.getElementById('topSalesTable');
                 if (topTable && topVehicles.length > 0) {
-                    topTable.innerHTML = topVehicles.map(([name, data]) => `<tr><td><strong>${this.escapeHtml(name)}</strong></td><td>${data.count}x</td><td>${this.formatPrice(data.revenue)}</td><td class="text-success">+${this.formatPrice(data.profit)}</td></tr>`).join('');
+                    topTable.innerHTML = topVehicles.map(([name, data]) => `<tr>}<strong>${this.escapeHtml(name)}</strong></td><td>${data.count}x</span><td>${this.formatPrice(data.revenue)}</span><td class="text-success">+${this.formatPrice(data.profit)}</span></tr>`).join('');
                 }
                 
                 const recentTable = document.getElementById('recentSalesTable');
                 if (recentTable && this.sales.length > 0) {
                     const recentSales = [...this.sales].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
-                    recentTable.innerHTML = recentSales.map(sale => `<tr><td>${new Date(sale.date).toLocaleDateString('nl-NL')}</td>}<strong>${this.escapeHtml(sale.vehicle_name)}</strong></td><td>${this.escapeHtml(sale.buyer_name)}</span></td><td>${this.formatPrice(sale.final_price)}</span><td class="text-success">+${this.formatPrice(sale.profit)}</span><td><button class="btn-warning" onclick="app.generateInvoiceFromSale(${sale.id})"><i class="fas fa-file-pdf"></i></button></span></tr>`).join('');
+                    recentTable.innerHTML = recentSales.map(sale => `<tr><td>${new Date(sale.date).toLocaleDateString('nl-NL')}</span>}<strong>${this.escapeHtml(sale.vehicle_name)}</strong></span><td>${this.escapeHtml(sale.buyer_name)}</span><td>${this.formatPrice(sale.final_price)}</span><td class="text-success">+${this.formatPrice(sale.profit)}</span><td><button class="btn-warning" onclick="app.generateInvoiceFromSale(${sale.id})"><i class="fas fa-file-pdf"></i></button></span></tr>`).join('');
                 }
                 this.updateCharts();
             },
@@ -387,7 +387,7 @@
                     <div id="selectionBar" class="selection-bar hidden"><span id="selectionCount">0 geselecteerd</span><div><button class="btn-whatsapp" onclick="app.shareSelectedVehicles()"><i class="fab fa-whatsapp"></i> Deel selectie</button><button class="btn-primary" onclick="app.deselectAll()" style="background:#64748b;">Deselecteer</button></div></div>
                     <button class="btn-primary" style="margin-bottom:16px;" onclick="app.openNewVehicleModal()"><i class="fas fa-plus"></i> Nieuwe Auto</button>
                     <div class="filter-bar"><div class="filter-group"><label>Merk</label><input type="text" id="filterBrand" placeholder="Zoek merk"></div><div class="filter-group"><label>Model</label><input type="text" id="filterModel" placeholder="Zoek model"></div><button class="btn-primary" onclick="app.applyFilters()">Zoek</button><button class="btn-primary" style="background:#64748b;" onclick="app.resetFilters()">Reset</button><button class="btn-primary" onclick="app.selectAll()" style="background:#f59e0b;">Selecteer alles</button></div>
-                    <div class="table-wrapper"><table class="data-table"><thead><tr><th style="width:30px;"></th><th>Merk/Model</th><th>Bouwjaar</th><th>KM</th><th>Brandstof</th><th>Inkoop</th><th>Verkoop</th><th>Pot. Winst</th><th>Status</th><th>Actie</th></tr></thead><tbody id="inventoryTable"></tbody></tr></div>
+                    <div class="table-wrapper"><table class="data-table"><thead><tr><th style="width:30px;"></th><th>Merk/Model</th><th>Bouwjaar</th><th>KM</th><th>Brandstof</th><th>Inkoop</th><th>Verkoop</th><th>Pot. Winst</th><th>Status</th><th>Actie</th></tr></thead><tbody id="inventoryTable"></tbody>}</div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
                 document.getElementById('pageTitle').innerHTML = `Actieve Voorraad (${available.length})`;
@@ -399,7 +399,7 @@
                 const tbody = document.getElementById('inventoryTable');
                 if (!tbody) return;
                 if (list.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:40px;">Geen auto\'s in voorraad. Klik op "Nieuwe Auto"</span></tr>';
+                    tbody.innerHTML = '<table><td colspan="10" style="text-align:center; padding:40px;">Geen auto\'s in voorraad. Klik op "Nieuwe Auto"</span></tr>';
                 } else {
                     tbody.innerHTML = list.map(v => `
                         <tr>
@@ -487,7 +487,7 @@
                     <div class="table-wrapper">
                         <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h3>Alle Verkopen</h3><button class="btn-primary" onclick="app.exportSalesToCSV()"><i class="fas fa-file-csv"></i> Export CSV</button></div>
                         <div style="display:flex; gap:8px; margin-bottom:16px;"><button class="btn-primary" onclick="app.filterSales('all')">Alle</button><button class="btn-primary" onclick="app.filterSales('today')">Vandaag</button><button class="btn-primary" onclick="app.filterSales('week')">Week</button><button class="btn-primary" onclick="app.filterSales('month')">Maand</button></div>
-                        <table class="data-table"><thead><tr><th>Datum</th><th>Auto</th><th>Koper</th><th>Bedrag</th><th>Winst</th><th>Marge</th><th>Factuur</th></tr></thead><tbody id="allSalesTable"></tbody></table>
+                        <table class="data-table"><thead><tr><th>Datum</th><th>Auto</th><th>Koper</th><th>Bedrag</th><th>Winst</th><th>Marge</th><th>Factuur</th></tr></thead><tbody id="allSalesTable"></tbody></tr>
                     </div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
@@ -503,8 +503,8 @@
                 else if (filter === 'month') { const monthAgo = new Date(); monthAgo.setMonth(monthAgo.getMonth() - 1); filtered = filtered.filter(s => new Date(s.date) >= monthAgo); }
                 const tbody = document.getElementById('allSalesTable');
                 if (tbody) {
-                    if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Geen verkopen</span></table>'; }
-                    else { tbody.innerHTML = filtered.map(sale => `<tr>}<td>${new Date(sale.date).toLocaleDateString('nl-NL')}</span><td><strong>${this.escapeHtml(sale.vehicle_name)}</strong></span><td>${this.escapeHtml(sale.buyer_name)}</span><td>${this.formatPrice(sale.final_price)}</span><td class="text-success">+${this.formatPrice(sale.profit)}</span><td>${((sale.profit / sale.final_price) * 100).toFixed(1)}%</span><td><button class="btn-warning" onclick="app.generateInvoiceFromSale(${sale.id})"><i class="fas fa-file-pdf"></i></button></span></tr>`).join(''); }
+                    if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Geen verkopen</span></tr>'; }
+                    else { tbody.innerHTML = filtered.map(sale => `<tr>}<td>${new Date(sale.date).toLocaleDateString('nl-NL')}</span>}<strong>${this.escapeHtml(sale.vehicle_name)}</strong></span><td>${this.escapeHtml(sale.buyer_name)}</span><td>${this.formatPrice(sale.final_price)}</span><td class="text-success">+${this.formatPrice(sale.profit)}</span><td>${((sale.profit / sale.final_price) * 100).toFixed(1)}%</span><td><button class="btn-warning" onclick="app.generateInvoiceFromSale(${sale.id})"><i class="fas fa-file-pdf"></i></button></span></tr>`).join(''); }
                 }
             },
             
@@ -608,7 +608,7 @@
                         <h3>FACTUUR INV-${new Date().getFullYear()}-${String(vehicle.id).slice(-4)}</h3>
                         <p>Datum: ${new Date().toLocaleDateString('nl-NL')}</p>
                         <div><strong>Koper:</strong> ${sale?.buyer_name || vehicle.buyer_name || 'Klant'}</div>
-                        <table style="width:100%; margin:20px 0;"><tr>}<td>${vehicle.brand} ${vehicle.model} (${vehicle.year})</td><td style="text-align:right;">${this.formatPrice(sale?.final_price || vehicle.selling_price)}</td></tr><tr><td>BTW 21%</td><td style="text-align:right;">${this.formatPrice(vatAmount)}</td></tr><tr style="border-top:2px solid black;"><td><strong>Totaal</strong></td><td style="text-align:right;"><strong>${this.formatPrice(totalIncVat)}</strong></td></tr></table>
+                        <table style="width:100%; margin:20px 0;"><tr>}<td>${vehicle.brand} ${vehicle.model} (${vehicle.year})</span><td style="text-align:right;">${this.formatPrice(sale?.final_price || vehicle.selling_price)}</span></tr><tr><td>BTW 21%</span><td style="text-align:right;">${this.formatPrice(vatAmount)}</span></tr><tr style="border-top:2px solid black;"><tr><strong>Totaal</strong></span><td style="text-align:right;"><strong>${this.formatPrice(totalIncVat)}</strong></span></tr></table>
                         <p>IBAN: NL00BANK0123456789</p>
                         <button class="btn-primary" style="width:100%; margin-top:16px;" onclick="app.downloadPDF()">Download PDF</button>
                     </div>
