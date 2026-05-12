@@ -181,7 +181,6 @@
             <div class="nav-section"><div class="nav-section-title">ℹ️ INFORMATIE</div>
                 <div class="nav-item" data-tab="wiki" onclick="app.switchTab('wiki')"><i class="fas fa-robot"></i> Wiki Agent</div>
             </div>
-            <!-- TOEGEVOEGD: Switch naar Woningen -->
             <div class="nav-item switch-item" onclick="app.switchToWoningen()"><i class="fas fa-home"></i> Switch naar Woningen</div>
             <div class="nav-item switch-item" onclick="app.switchToAutoDealer()"><i class="fas fa-exchange-alt"></i> Switch naar Auto Dealer</div>
             <div class="nav-item logout-item" onclick="app.logout()"><i class="fas fa-sign-out-alt"></i> Uitloggen</div>
@@ -193,7 +192,6 @@
             <h1 id="pageTitle">New Orders</h1>
             <div class="header-right">
                 <button class="back-btn" onclick="window.location.href='admin-index.html'"><i class="fas fa-home"></i> Terug naar overzicht</button>
-                <!-- TOEGEVOEGD: Woningen Paneel knop -->
                 <button class="switch-woningen-btn" onclick="app.switchToWoningen()"><i class="fas fa-home"></i> Woningen Paneel</button>
                 <button class="switch-btn" onclick="app.switchToAutoDealer()"><i class="fas fa-exchange-alt"></i> Switch naar Auto Dealer</button>
                 <button class="refresh-btn" onclick="app.refreshAllData()"><i class="fas fa-sync-alt"></i> Vernieuwen</button>
@@ -220,11 +218,6 @@
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ============================================
-        // FLEET CONNECT - ONDERAANNEMER PANEEL
-        // ALLES WERKT - DATA OF GEEN DATA
-        // ============================================
-        
         const app = {
             allBookings: [],
             newOrders: [],
@@ -248,7 +241,29 @@
                 setTimeout(() => toast.classList.remove('show'), 3000);
             },
             
-            // TOEGEVOEGD: Switch naar Woningen
+            async loadPartners() {
+                const { data, error } = await supabase
+                    .from('partners')
+                    .select('*')
+                    .order('is_hoofd', { ascending: false });
+                if (error) {
+                    this.showToast('Fout bij laden partners: ' + error.message, true);
+                    return;
+                }
+                this.partners = data;
+            },
+            
+            async loadDrivers() {
+                const { data, error } = await supabase
+                    .from('drivers')
+                    .select('*');
+                if (error) {
+                    this.showToast('Fout bij laden drivers: ' + error.message, true);
+                    return;
+                }
+                this.drivers = data;
+            },
+            
             switchToWoningen() { window.location.href = 'commander.html'; },
             switchToAutoDealer() { window.location.href = 'autodealerpaneel.html'; },
             
@@ -270,21 +285,14 @@
             
             filterAndSortData() {
                 const now = new Date();
-                // Nieuwe orders: alle ritten met status 'pending'
                 this.newOrders = this.allBookings.filter(b => b.status === 'pending');
-
-                // Orders: ritten die 'pending' zijn en in de toekomst liggen (worden getoond als "actief")
                 this.ordersList = this.allBookings.filter(b =>
                     b.status === 'pending' && this.isFuture(b.datetime, b.time)
                 );
-
-                // History: voltooide, geannuleerde, of verlopen pending ritten
                 this.historyOrders = this.allBookings.filter(b =>
                     b.status === 'completed' || b.status === 'cancelled' ||
                     (b.status === 'pending' && !this.isFuture(b.datetime, b.time))
                 );
-
-                // Sorteren
                 this.ordersList.sort((a,b) => this.parseDate(a.datetime, a.time) - this.parseDate(b.datetime, b.time));
                 this.historyOrders.sort((a,b) => this.parseDate(b.datetime, b.time) - this.parseDate(a.datetime, a.time));
                 this.newOrders.sort((a,b) => this.parseDate(a.datetime, a.time) - this.parseDate(b.datetime, b.time));
@@ -394,7 +402,7 @@
                 let tbody = document.getElementById('newOrdersTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></table>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => `
                         <tr>
@@ -478,9 +486,12 @@
             },
             
             renderDrivers() {
-                let myDrivers = this.drivers.filter(c => c.subcontractor_id === this.subcontractorId);
-                let html = `<div class="people-card"><h3><i class="fas fa-id-card"></i> Drivers</h3><button class="add-btn" onclick="app.showAddDriverForm(${this.subcontractorId})">➕ Nieuwe Driver</button><div style="margin-top:20px;">`;
-                if (myDrivers.length === 0) html += `<div class="empty-planning">${this.renderEmptyTable("Geen drivers gevonden")}</div>`;
+                let myDrivers = this.drivers.filter(c => {
+                    let partner = this.partners.find(p => p.id === c.partner_id);
+                    return partner && partner.is_hoofd === true;
+                });
+                let html = `<div class="people-card"><h3><i class="fas fa-id-card"></i> Drivers</h3><button class="add-btn" onclick="app.showAddDriverForm()">➕ Nieuwe Driver</button><div style="margin-top:20px;">`;
+                if (myDrivers.length === 0) html += `<div class="empty-planning">Geen drivers gevonden</div>`;
                 else myDrivers.forEach(c => {
                     html += `<div style="border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
                         <div><strong>${c.driver_code}</strong> – ${this.escapeHtml(c.name)}<br><small>🚗 ${c.vehicle} | ${c.license_plate}</small></div>
@@ -494,9 +505,9 @@
             
             renderPartners() {
                 let html = `<div class="people-card"><h3><i class="fas fa-handshake"></i> Mijn Partners</h3><button class="add-btn" onclick="app.showAddPartnerForm()">➕ Nieuwe Partner</button><div style="margin-top:20px;">`;
-                if (this.partners.length === 0) html += `<div class="empty-planning">${this.renderEmptyTable("Geen partners gevonden")}</div>`;
+                if (this.partners.length === 0) html += `<div class="empty-planning">Geen partners gevonden</div>`;
                 else this.partners.forEach(p => {
-                    let partnerDrivers = this.drivers.filter(c => c.subcontractor_id === p.id);
+                    let partnerDrivers = this.drivers.filter(c => c.partner_id === p.id);
                     html += `<div class="partner-card">
                         <div class="partner-header"><div class="partner-name">${this.escapeHtml(p.name)}</div><button class="delete-btn" onclick="app.deletePartner(${p.id})">Verwijder Partner</button></div>
                         <div><small>Contact: ${this.escapeHtml(p.contact)} | ${p.email} | ${p.phone}</small></div>
@@ -513,66 +524,157 @@
                 document.getElementById('pageTitle').innerHTML = `Mijn Partners`;
             },
             
-            addDriverForPartner(partnerId) {
+            async addDriverForPartner(partnerId) {
                 let name = document.getElementById(`driverName_${partnerId}`)?.value;
                 let vehicle = document.getElementById(`driverVoertuig_${partnerId}`)?.value;
                 let plate = document.getElementById(`driverPlaat_${partnerId}`)?.value;
                 if (!name) { this.showToast('Vul een naam in', true); return; }
-                let existingCount = this.drivers.filter(c => c.subcontractor_id === partnerId).length;
-                let partner = this.partners.find(p => p.id === partnerId);
-                let prefix = partner?.prefix || 'PR';
-                let driverCode = `${prefix}-${String(existingCount + 1).padStart(2,'0')}`;
-                let newDriver = { id: Date.now(), subcontractor_id: partnerId, driver_code: driverCode, name: name, vehicle: vehicle || 'Standaard', license_plate: plate || 'Onbekend', partner_name: partner?.name || null };
-                this.drivers.push(newDriver);
-                this.showToast(`Driver ${name} toegevoegd`);
-                this.saveToStorage();
+
+                const partner = this.partners.find(p => p.id == partnerId);
+                if (!partner) { this.showToast('Partner niet gevonden', true); return; }
+
+                const { count, error: countError } = await supabase
+                    .from('drivers')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('partner_id', partnerId);
+                if (countError) {
+                    this.showToast('Fout bij tellen drivers', true);
+                    return;
+                }
+                const nextNumber = (count || 0) + 1;
+                const driverCode = `${partner.prefix}-${String(nextNumber).padStart(2, '0')}`;
+
+                const { error } = await supabase
+                    .from('drivers')
+                    .insert({
+                        partner_id: partnerId,
+                        driver_code: driverCode,
+                        name: name,
+                        vehicle: vehicle || 'Standaard',
+                        license_plate: plate || 'Onbekend'
+                    });
+
+                if (error) {
+                    this.showToast('Fout bij toevoegen driver: ' + error.message, true);
+                    return;
+                }
+
+                this.showToast(`Driver ${name} toegevoegd (code: ${driverCode})`);
+                await this.loadDrivers();
                 this.renderPartners();
+
+                document.getElementById(`driverName_${partnerId}`).value = '';
+                document.getElementById(`driverVoertuig_${partnerId}`).value = '';
+                document.getElementById(`driverPlaat_${partnerId}`).value = '';
             },
             
-            showAddDriverForm(subcontractorId) {
+            async showAddDriverForm() {
+                const hoofdPartner = this.partners.find(p => p.is_hoofd === true);
+                if (!hoofdPartner) {
+                    this.showToast('Geen hoofdpartner gevonden', true);
+                    return;
+                }
+                const partnerId = hoofdPartner.id;
+
                 let name = prompt('Naam driver:');
                 if (!name) return;
                 let vehicle = prompt('Type voertuig:') || 'Standaard';
                 let plate = prompt('Nummerplaat:') || 'Onbekend';
-                let existingCount = this.drivers.filter(c => c.subcontractor_id === subcontractorId).length;
-                let driverCode = `A-${String(existingCount + 1).padStart(2,'0')}`;
-                let newDriver = { id: Date.now(), subcontractor_id: subcontractorId, driver_code: driverCode, name: name, vehicle: vehicle, license_plate: plate, partner_name: null };
-                this.drivers.push(newDriver);
-                this.showToast(`Driver ${name} toegevoegd`);
-                this.saveToStorage();
-                if (this.currentTab === 'drivers') this.renderDrivers();
-                if (this.currentTab === 'partners') this.renderPartners();
+
+                const { count, error: countError } = await supabase
+                    .from('drivers')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('partner_id', partnerId);
+                if (countError) {
+                    this.showToast('Fout bij tellen drivers', true);
+                    return;
+                }
+                const nextNumber = (count || 0) + 1;
+                const driverCode = `${hoofdPartner.prefix}-${String(nextNumber).padStart(2, '0')}`;
+
+                const { error } = await supabase
+                    .from('drivers')
+                    .insert({
+                        partner_id: partnerId,
+                        driver_code: driverCode,
+                        name: name,
+                        vehicle: vehicle,
+                        license_plate: plate
+                    });
+
+                if (error) {
+                    this.showToast('Fout bij toevoegen driver: ' + error.message, true);
+                } else {
+                    this.showToast(`Driver ${name} toegevoegd (code: ${driverCode})`);
+                    await this.loadDrivers();
+                    if (this.currentTab === 'drivers') this.renderDrivers();
+                    if (this.currentTab === 'partners') this.renderPartners();
+                }
             },
             
-            showAddPartnerForm() {
+            async showAddPartnerForm() {
                 let name = prompt('Bedrijfsnaam partner:');
                 if (!name) return;
                 let contact = prompt('Contactpersoon:') || '';
                 let email = prompt('Email:') || '';
                 let phone = prompt('Telefoon:') || '';
                 let prefix = prompt('Prefix voor driver ID (2 letters):') || name.slice(0,2).toUpperCase();
-                let newPartner = { id: Date.now(), name: name, contact: contact, email: email, phone: phone, prefix: prefix.slice(0,2).toUpperCase() };
-                this.partners.push(newPartner);
-                this.showToast(`Partner ${name} toegevoegd`);
-                this.saveToStorage();
-                this.renderPartners();
+                prefix = prefix.slice(0,2).toUpperCase();
+
+                const hoofdPartner = this.partners.find(p => p.is_hoofd === true);
+                if (!hoofdPartner) {
+                    this.showToast('Geen hoofdpartner gevonden. Voeg eerst een hoofdpartner toe via SQL.', true);
+                    return;
+                }
+
+                const { error } = await supabase
+                    .from('partners')
+                    .insert({
+                        name: name,
+                        is_hoofd: false,
+                        parent_partner_id: hoofdPartner.id,
+                        prefix: prefix,
+                        contact: contact,
+                        email: email,
+                        phone: phone
+                    });
+
+                if (error) {
+                    this.showToast('Fout bij toevoegen partner: ' + error.message, true);
+                } else {
+                    this.showToast(`Partner ${name} toegevoegd`);
+                    await this.loadPartners();
+                    this.renderPartners();
+                }
             },
             
-            deleteDriver(driverId) {
-                if (confirm('Weet u zeker dat u deze driver wilt verwijderen?')) {
-                    this.drivers = this.drivers.filter(c => c.id !== driverId);
+            async deleteDriver(driverId) {
+                if (!confirm('Weet u zeker dat u deze driver wilt verwijderen?')) return;
+                const { error } = await supabase
+                    .from('drivers')
+                    .delete()
+                    .eq('id', driverId);
+                if (error) {
+                    this.showToast('Fout bij verwijderen driver: ' + error.message, true);
+                } else {
                     this.showToast('Driver verwijderd');
-                    this.saveToStorage();
+                    await this.loadDrivers();
                     if (this.currentTab === 'drivers' || this.currentTab === 'partners') this.refreshCurrentTab();
                 }
             },
             
-            deletePartner(partnerId) {
-                if (confirm('Weet u zeker dat u deze partner wilt verwijderen?')) {
-                    this.partners = this.partners.filter(p => p.id !== partnerId);
-                    this.drivers = this.drivers.filter(c => c.subcontractor_id !== partnerId);
+            async deletePartner(partnerId) {
+                if (!confirm('Weet u zeker dat u deze partner wilt verwijderen? Alle drivers van deze partner worden ook verwijderd.')) return;
+                const { error } = await supabase
+                    .from('partners')
+                    .delete()
+                    .eq('id', partnerId);
+                if (error) {
+                    this.showToast('Fout bij verwijderen partner: ' + error.message, true);
+                } else {
                     this.showToast('Partner verwijderd');
-                    this.saveToStorage();
+                    await this.loadPartners();
+                    await this.loadDrivers();
                     if (this.currentTab === 'partners') this.refreshCurrentTab();
                 }
             },
@@ -742,7 +844,6 @@
                     this.showToast('Fout bij accepteren: ' + error.message, true);
                 } else {
                     this.showToast(`Rit ${bookingId} geaccepteerd`);
-                    // Herlaad de data
                     this.allBookings = await this.fetchBookingsFromSupabase();
                     this.filterAndSortData();
                     this.refreshCurrentTab();
@@ -757,9 +858,7 @@
                 const driver = this.drivers.find(c => c.id == driverId);
                 const booking = this.allBookings.find(b => b.id === bookingId);
                 if (booking && driver) {
-                    // AANGEPAST: voertuig -> vehicle
                     booking.assigned_driver = { id: driver.id, name: driver.name, vehicle: driver.vehicle };
-                    // Toewijzing is tijdelijk in het geheugen voor deze sessie
                     this.filterAndSortData();
                     this.refreshCurrentTab();
                     this.showToast(`Driver ${driver.name} toegewezen`);
@@ -780,11 +879,6 @@
                 let blob = new Blob([JSON.stringify(this.historyOrders, null, 2)], { type: "application/json" });
                 let link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `fleet_history_${new Date().toISOString().slice(0,10)}.json`; link.click();
                 this.showToast("JSON geëxporteerd!");
-            },
-            
-            saveToStorage() {
-                localStorage.setItem('fc_partners', JSON.stringify(this.partners));
-                localStorage.setItem('fc_drivers', JSON.stringify(this.drivers));
             },
             
             refreshCurrentTab() {
@@ -816,41 +910,13 @@
             
             async init() {
                 try {
-                    // Laad ritten uit Supabase
                     const bookings = await this.fetchBookingsFromSupabase();
                     this.allBookings = bookings;
                     this.filterAndSortData();
 
-                    // Laad partners en drivers uit localStorage (die blijven lokaal voor nu)
-                    // Migreer oude drivers naar nieuwe sleutel met correcte property mapping
-                    if (!localStorage.getItem('fc_drivers') && localStorage.getItem('fc_chauffeurs')) {
-                        try {
-                            const oldData = JSON.parse(localStorage.getItem('fc_chauffeurs'));
-                            const mappedData = oldData.map(item => ({
-                                id: item.id,
-                                subcontractor_id: item.subcontractor_id,
-                                driver_code: item.chauffeur_code || item.driver_code,
-                                name: item.naam || item.name,
-                                vehicle: item.voertuig || item.vehicle,
-                                license_plate: item.license_plate || item.kenteken || '',
-                                partner_name: item.partner_name || null
-                            }));
-                            localStorage.setItem('fc_drivers', JSON.stringify(mappedData));
-                            localStorage.removeItem('fc_chauffeurs');
-                        } catch (e) {
-                            console.warn('Oude driverdata kon niet worden geparset');
-                        }
-                    }
+                    await this.loadPartners();
+                    await this.loadDrivers();
 
-                    const storedPartners = localStorage.getItem('fc_partners');
-                    if (storedPartners) this.partners = JSON.parse(storedPartners);
-
-                    const storedDrivers = localStorage.getItem('fc_drivers');
-                    if (storedDrivers) {
-                        try { this.drivers = JSON.parse(storedDrivers); } catch(e) { this.drivers = []; }
-                    } else { this.drivers = []; }
-
-                    // Start met de juiste tab
                     this.switchTab('neworders');
                 } catch (err) {
                     console.error('Initialisatie fout:', err);
