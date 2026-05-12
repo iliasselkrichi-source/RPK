@@ -363,14 +363,17 @@
                 let dateStr = `${this.selectedDate.getDate().toString().padStart(2,'0')}-${(this.selectedDate.getMonth()+1).toString().padStart(2,'0')}-${this.selectedDate.getFullYear()}`;
                 let rides = this.getRidesByDate(dateStr).sort((a,b) => a.time.localeCompare(b.time));
                 let formattedDate = this.selectedDate.toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                let ridesHtml = rides.length === 0 ? '<div class="empty-planning">Geen ritten op deze dag</div>' : rides.map(r => `
+                let ridesHtml = rides.length === 0 ? '<div class="empty-planning">Geen ritten op deze dag</div>' : rides.map(r => {
+                    const driver = this.drivers.find(d => d.id === r.assigned_driver_id);
+                    const driverText = driver ? `${driver.naam || driver.name} (${driver.voertuig})` : (r.assigned_driver ? `${r.assigned_driver.name} (${r.assigned_driver.voertuig})` : null);
+                    return `
                     <div class="planning-item">
                         <div class="planning-time"><i class="fas fa-clock"></i> ${r.time} uur ${r.status === 'completed' ? '✓ Uitgevoerd' : (r.status === 'cancelled' ? '✗ Geannuleerd' : '')}</div>
                         <div class="planning-ride"><strong>${this.escapeHtml(r.name)}</strong> - ${this.escapeHtml(r.pickup)} → ${this.escapeHtml(r.destination)}</div>
                         <div class="planning-ride"><i class="fas fa-car"></i> ${r.vehicle}</div>
-                        ${r.assigned_driver ? `<div class="planning-ride"><i class="fas fa-user-check"></i> Driver: ${r.assigned_driver.name} (${r.assigned_driver.voertuig})</div>` : '<div class="planning-ride"><i class="fas fa-user-clock"></i> Nog geen driver</div>'}
+                        ${driverText ? `<div class="planning-ride"><i class="fas fa-user-check"></i> Driver: ${driverText}</div>` : '<div class="planning-ride"><i class="fas fa-user-clock"></i> Nog geen driver</div>'}
                     </div>
-                `).join('');
+                `;}).join('');
                 return `<div class="planning-container"><h3><i class="fas fa-calendar-day"></i> ${formattedDate}</h3><div class="planning-list">${ridesHtml}</div></div>`;
             },
             
@@ -420,7 +423,10 @@
                 if (orders.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
-                    tbody.innerHTML = orders.map(o => `
+                    tbody.innerHTML = orders.map(o => {
+                        const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
+                        const driverText = driver ? driver.naam || driver.name : (o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>');
+                        return `
                         <tr>
                             <td><strong>${o.id}</strong></td>
                             <td>${o.datetime} ${o.time}</td>
@@ -428,15 +434,15 @@
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
                             <td>${o.vehicle}</td>
                             <td>€${(o.amount || 0).toFixed(2)}</td>
-                            <td>${o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>'}</td>
+                            <td>${driverText}</td>
                             <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></td>
                         </tr>
-                    `).join('');
+                    `;}).join('');
                 }
             },
             
             renderHistory() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th></tr></thead><tbody id="historyTable"></tbody></table></div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Status</th></tr></thead><tbody id="historyTable"></tbody></table></div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderHistoryTable(this.historyOrders);
                 document.getElementById('pageTitle').innerHTML = `History <span class="order-count">${this.historyOrders.length}</span>`;
@@ -446,10 +452,12 @@
                 let tbody = document.getElementById('historyTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
                         let statusText = o.status === 'completed' ? '✅ Uitgevoerd' : (o.status === 'cancelled' ? '❌ Geannuleerd' : '📋 Gepasseerd');
+                        const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
+                        const driverText = driver ? driver.naam || driver.name : (o.assigned_driver ? o.assigned_driver.name : 'Niet toegewezen');
                         return `<tr>
                             <td><strong>${o.id}</strong></td>
                             <td>${o.datetime} ${o.time}</td>
@@ -457,6 +465,7 @@
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</td>
                             <td>${o.vehicle}</td>
                             <td>€${(o.amount || 0).toFixed(2)}</td>
+                            <td>${driverText}</td>
                             <td>${statusText}</td>
                         </tr>`;
                     }).join('');
@@ -812,14 +821,14 @@
                     this.filterAndSortData();
 
                     // Laad partners en drivers uit localStorage (die blijven lokaal voor nu)
-                    // Migreer oude chauffeurs naar nieuwe sleutel (eenmalig)
+                    // Migreer oude drivers naar nieuwe sleutel (eenmalig)
                     if (!localStorage.getItem('fc_drivers') && localStorage.getItem('fc_chauffeurs')) {
                         try {
                             const oldData = JSON.parse(localStorage.getItem('fc_chauffeurs'));
                             localStorage.setItem('fc_drivers', JSON.stringify(oldData));
                             localStorage.removeItem('fc_chauffeurs');
                         } catch (e) {
-                            console.warn('Oude chauffeursdata kon niet worden geparset');
+                            console.warn('Oude driverdata kon niet worden geparset');
                         }
                     }
 
