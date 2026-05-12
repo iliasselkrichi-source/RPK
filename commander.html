@@ -435,7 +435,7 @@
                         <div class="chart-card"><h3>📊 Boekingen per status</h3><canvas id="statusChart"></canvas></div>
                         <div class="chart-card"><h3>💰 Omzet per maand</h3><canvas id="omzetChart"></canvas></div>
                     </div>
-                    <div class="table-wrapper"><h3>📋 Recente boekingen</h3><table class="data-table"><thead><tr><th>Boekingsnr</th><th>Gast</th><th>Check-in</th><th>Team</th><th>Prijs</th><th>Status</th><th>Actie</th></tr></thead><tbody id="recentTable"></tbody></table></div>
+                    <div class="table-wrapper"><h3>📋 Recente boekingen</h3><table class="data-table"><thead><tr><th>Boekingsnr</th><th>Gast</th><th>Check-in</th><th>Team</th><th>Prijs</th><th>Status</th><th>Actie</th></td></thead><tbody id="recentTable"></tbody></table></div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
                 document.getElementById('pageTitle').innerHTML = `Dashboard`;
@@ -443,15 +443,15 @@
                 const recent = this.bookings.slice(0, 5);
                 const tbody = document.getElementById('recentTable');
                 if (recent.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">✨ Geen recente boekingen</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">✨ Geen recente boekingen</span></tr>';
                 } else {
                     tbody.innerHTML = recent.map(b => `
                         <tr>
                             <td><strong>${this.escapeHtml(b.boekingsnummer || '-')}</strong></td>
-                            <td>${this.escapeHtml(b.gast_naam)}</td>
-                            <td>${b.check_in || '-'}</td>
+                            <td>${this.escapeHtml(b.gast_naam)}</span></td>
+                            <td>${b.check_in || '-'}</span></td>
                             <td><span class="badge ${b.team === 'TA' ? 'badge-ta' : 'badge-tb'}">${b.team || '-'}</span></td>
-                            <td>${this.formatPrice(b.totaalprijs)}</td>
+                            <td>${this.formatPrice(b.totaalprijs)}</span></td>
                             <td><span class="badge ${b.status === 'NIEUW' ? 'badge-nieuw' : (b.status === 'BEVESTIGD' ? 'badge-bevestigd' : 'badge-uitgevoerd')}">${b.status || 'NIEUW'}</span></td>
                             <td><button class="btn-primary btn-small" onclick="app.openFiche('${b.id}')">Bekijk</button></td>
                         </tr>
@@ -524,7 +524,7 @@
                 const tbody = document.getElementById('bevestigdTable');
                 if (!tbody) return;
                 if (bookings.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">✅ Geen bevestigde boekingen</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">✅ Geen bevestigde boekingen</span></tr>';
                     return;
                 }
                 tbody.innerHTML = bookings.map(b => {
@@ -534,13 +534,13 @@
                     return `
                         <tr>
                             <td><strong>${this.escapeHtml(b.boekingsnummer || '-')}</strong></td>
-                            <td>${this.escapeHtml(b.gast_naam)}</td>
-                            <td>${b.check_in || '-'}</td>
-                            <td>${b.check_out || '-'}</td>
+                            <td>${this.escapeHtml(b.gast_naam)}</span></td>
+                            <td>${b.check_in || '-'}</span></td>
+                            <td>${b.check_out || '-'}</span></td>
                             <td><span class="badge ${b.team === 'TA' ? 'badge-ta' : 'badge-tb'}">${b.team || '-'}</span></td>
-                            <td>${this.formatPrice(b.totaalprijs)}</td>
+                            <td>${this.formatPrice(b.totaalprijs)}</span></td>
                             <td><span class="badge ${deadlineClass}">${deadlineText}</span></td>
-                            <td><button class="btn-primary btn-small" style="background:#3b82f6;" onclick="app.openTaakModal('${b.id}')">📋 Taken</button> <button class="btn-primary btn-small" onclick="app.openFiche('${b.id}')">Bekijk</button></td>
+                            <td><button class="btn-primary btn-small" style="background:#3b82f6;" onclick="app.openTaakModal('${b.id}')">📋 Taken</button> <button class="btn-primary btn-small" onclick="app.openFiche('${b.id}')">Bekijk</button></span>
                         </tr>
                     `;
                 }).join('');
@@ -566,19 +566,19 @@
                 const tbody = document.getElementById(tableId);
                 if (!tbody) return;
                 if (bookings.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">📭 Geen gegevens</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">📭 Geen gegevens</span></tr>';
                     return;
                 }
                 tbody.innerHTML = bookings.map(b => `
                     <tr>
                         <td><strong>${this.escapeHtml(b.boekingsnummer || '-')}</strong></td>
-                        <td>${this.escapeHtml(b.gast_naam)}</td>
-                        <td>${b.check_in || '-'}</td>
-                        <td>${b.check_out || '-'}</td>
-                        <td><span class="badge ${b.team === 'TA' ? 'badge-ta' : 'badge-tb'}">${b.team || '-'}</span></td>
-                        <td>${this.formatPrice(b.totaalprijs)}</td>
-                        <td><span class="badge ${b.status === 'NIEUW' ? 'badge-nieuw' : (b.status === 'BEVESTIGD' ? 'badge-bevestigd' : 'badge-uitgevoerd')}">${b.status || 'NIEUW'}</span></td>
-                        <td><button class="btn-primary btn-small" onclick="app.openFiche('${b.id}')">Bekijk</button></td>
+                        <td>${this.escapeHtml(b.gast_naam)}</span></td>
+                        <td>${b.check_in || '-'}</span></td>
+                        <td>${b.check_out || '-'}</span></td>
+                        <td><span class="badge ${b.team === 'TA' ? 'badge-ta' : 'badge-tb'}">${b.team || '-'}</span></span></td>
+                        <td>${this.formatPrice(b.totaalprijs)}</span></td>
+                        <td><span class="badge ${b.status === 'NIEUW' ? 'badge-nieuw' : (b.status === 'BEVESTIGD' ? 'badge-bevestigd' : 'badge-uitgevoerd')}">${b.status || 'NIEUW'}</span></span></td>
+                        <td><button class="btn-primary btn-small" onclick="app.openFiche('${b.id}')">Bekijk</button></span>
                     </tr>
                 `).join('');
             },
@@ -1020,7 +1020,7 @@
                 
                 const tbody = document.getElementById('financeTable');
                 if (filtered.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">💰 Geen bevestigde boekingen</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">💰 Geen bevestigde boekingen</span></tr>';
                 } else {
                     tbody.innerHTML = filtered.map(b => `
                         <tr>
@@ -1097,8 +1097,9 @@
             switchToAuto() { window.location.href = 'autodealerpaneel.html'; },
             switchToTaxi() { window.location.href = 'onderaannemerA.html'; },
             
-            logout() {
+            async logout() {
                 if (confirm('Weet u zeker dat u wilt uitloggen?')) {
+                    await supabaseClient.auth.signOut();
                     window.location.href = 'admin-index.html';
                 }
             },
