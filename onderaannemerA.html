@@ -811,18 +811,25 @@
                     this.allBookings = bookings;
                     this.filterAndSortData();
 
-                    // Migreer oude chauffeurs naar nieuwe drivers sleutel (eenmalig)
+                    // Laad partners en drivers uit localStorage (die blijven lokaal voor nu)
+                    // Migreer oude chauffeurs naar nieuwe sleutel (eenmalig)
                     if (!localStorage.getItem('fc_drivers') && localStorage.getItem('fc_chauffeurs')) {
-                        const oldChauffeurs = JSON.parse(localStorage.getItem('fc_chauffeurs'));
-                        localStorage.setItem('fc_drivers', JSON.stringify(oldChauffeurs));
-                        localStorage.removeItem('fc_chauffeurs');
+                        try {
+                            const oldData = JSON.parse(localStorage.getItem('fc_chauffeurs'));
+                            localStorage.setItem('fc_drivers', JSON.stringify(oldData));
+                            localStorage.removeItem('fc_chauffeurs');
+                        } catch (e) {
+                            console.warn('Oude chauffeursdata kon niet worden geparset');
+                        }
                     }
 
-                    // Laad partners en drivers uit localStorage (die blijven lokaal voor nu)
                     const storedPartners = localStorage.getItem('fc_partners');
-                    const storedDrivers = localStorage.getItem('fc_drivers');
                     if (storedPartners) this.partners = JSON.parse(storedPartners);
-                    if (storedDrivers) this.drivers = JSON.parse(storedDrivers);
+
+                    const storedDrivers = localStorage.getItem('fc_drivers');
+                    if (storedDrivers) {
+                        try { this.drivers = JSON.parse(storedDrivers); } catch(e) { this.drivers = []; }
+                    } else { this.drivers = []; }
 
                     // Start met de juiste tab
                     this.switchTab('neworders');
