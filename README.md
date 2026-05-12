@@ -363,3 +363,35 @@ Als je de mooie HTML-pagina wilt behouden:
 
 **Kopieer de Markdown-tekst hierboven** en plak hem in `README.md` op GitHub.  
 Daarna ziet je README er correct uit. Wil je dat ik ook de HTML-versie voor `docs/readme.html` nog een keer oplever?
+
+## 👥 Partners & Drivers (hiërarchisch model)
+
+Het systeem ondersteunt een **hoofdpartner** (eigen onderneming) met meerdere **subpartners**. Elke partner heeft een eigen prefix voor chauffeurscodes.
+
+### Tabellen
+
+**`partners`**
+- `id` – uniek nummer
+- `name` – bedrijfsnaam
+- `is_hoofd` – `true` voor eigen onderneming, `false` voor subpartner
+- `parent_partner_id` – verwijzing naar hoofdpartner (alleen voor subpartners)
+- `prefix` – unieke code voor chauffeurs, bv. `DFC`, `PAA`, `PAB`
+
+**`drivers`**
+- `id` – uniek nummer
+- `partner_id` – koppeling aan een partner (hoofd of sub)
+- `driver_code` – automatisch gegenereerd, bv. `DFC-01`, `PAA-02`
+- `name` – naam chauffeur
+- `vehicle` – type voertuig (optioneel)
+
+### Voorbeeldhiërarchie
+Eigen onderneming (DFC)
+├── chauffeurs: DFC-01, DFC-02, ...
+├── Partner Jan (PAA)
+│ └── chauffeurs: PAA-01, PAA-02, ...
+└── Partner Piet (PAB)
+└── chauffeurs: PAB-01, ...
+
+text
+
+Deze structuur maakt het mogelijk om per partner aparte chauffeurs te beheren, terwijl alle ritten centraal in de `bookings`‑tabel blijven.
