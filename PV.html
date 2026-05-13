@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Royal Velvet | Home</title>
+    <title>Royal Velvet | Luxe taxivervoer België</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -34,7 +34,7 @@
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; height: 100%; scroll-behavior: smooth; }
+        html, body { margin: 0; padding: 0; height: 100%; }
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-body);
@@ -123,31 +123,6 @@
             text-decoration: none;
         }
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 30px 0 20px;
-            flex-wrap: wrap;
-        }
-        .nav-tab {
-            background: var(--card-bg);
-            backdrop-filter: blur(4px);
-            border: 1px solid var(--border-light);
-            padding: 10px 20px;
-            border-radius: 40px;
-            text-decoration: none;
-            color: var(--text-dark);
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .nav-tab:hover { border-color: var(--primary); transform: translateY(-2px); }
-        .nav-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
         
         .uitleg-grid { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; padding: 40px 0; }
         .uitleg-item {
@@ -281,9 +256,7 @@
         .flatpickr-ok-button { margin-left: 10px; background: #28a745; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; }
         
         .services-grid { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; padding: 50px 0 30px; }
-        .service-card {
-            background: var(--card-bg); backdrop-filter: blur(4px); border: 1px solid var(--border-light); border-radius: 36px; padding: 30px 24px; text-align: center; flex: 1 1 220px; text-decoration: none; color: inherit; transition: 0.2s;
-        }
+        .service-card { background: var(--card-bg); backdrop-filter: blur(4px); border: 1px solid var(--border-light); border-radius: 36px; padding: 30px 24px; text-align: center; flex: 1 1 240px; text-decoration: none; color: inherit; transition: 0.2s; }
         .service-card:hover { transform: translateY(-6px); border-color: var(--primary); }
         .service-icon { font-size: 2.5rem; margin-bottom: 12px; color: var(--primary); }
         .service-card h3 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text-dark); }
@@ -329,14 +302,10 @@
     <div class="sidebar-wrapper">
         <div class="sidebar">
             <div class="sidebar-nav">
-                <a href="PV.html"><i class="fas fa-home"></i><span> Home</span></a>
-                <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
-                <a href="PV_Vaste_Prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
-                <a href="PV_Premium_Vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
-                <a href="PV_Luchthavenvervoer.html"><i class="fas fa-plane-departure"></i><span> Luchthavenvervoer</span></a>
-                <a href="PV_Zakelijk_Vervoer.html"><i class="fas fa-briefcase"></i><span> Zakelijk vervoer</span></a>
-                <a href="PV_Events_Gala.html"><i class="fas fa-glass-cheers"></i><span> Events & Gala</span></a>
-                <a href="PV_Koeriersdienst.html"><i class="fas fa-file-signature"></i><span> Koeriersdienst</span></a>
+                <a href="index.html"><i class="fas fa-home"></i><span> Home</span></a>
+                <a href="exclusieve-service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
+                <a href="vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
+                <a href="premium-vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
                 <a href="#contact"><i class="fas fa-envelope"></i><span> Contact</span></a>
             </div>
         </div>
@@ -354,23 +323,10 @@
     </section>
 
     <div class="container">
-        <div class="nav-tabs">
-            <a href="PV.html" class="nav-tab active"><i class="fas fa-home"></i> Home</a>
-            <a href="PV_Exclusieve_Service.html" class="nav-tab"><i class="fas fa-gem"></i> Exclusieve service</a>
-            <a href="PV_Vaste_Prijzen.html" class="nav-tab"><i class="fas fa-euro-sign"></i> Vaste prijzen</a>
-            <a href="PV_Premium_Vloot.html" class="nav-tab"><i class="fas fa-car-side"></i> Premium vloot</a>
-            <a href="PV_Luchthavenvervoer.html" class="nav-tab"><i class="fas fa-plane-departure"></i> Luchthaven</a>
-            <a href="PV_Zakelijk_Vervoer.html" class="nav-tab"><i class="fas fa-briefcase"></i> Zakelijk</a>
-            <a href="PV_Events_Gala.html" class="nav-tab"><i class="fas fa-glass-cheers"></i> Events</a>
-            <a href="PV_Koeriersdienst.html" class="nav-tab"><i class="fas fa-file-signature"></i> Koerier</a>
-        </div>
-    </div>
-
-    <div class="container">
         <div class="uitleg-grid">
-            <a href="PV_Exclusieve_Service.html" class="uitleg-item"><i class="fas fa-gem"></i><h3>Exclusieve service</h3><p>Persoonlijke chauffeur, altijd op tijd</p></a>
-            <a href="PV_Vaste_Prijzen.html" class="uitleg-item"><i class="fas fa-euro-sign"></i><h3>Vaste prijzen</h3><p>Transparant, geen meters</p></a>
-            <a href="PV_Premium_Vloot.html" class="uitleg-item"><i class="fas fa-car-side"></i><h3>Premium vloot</h3><p>Mercedes, BMW & luxe minivans</p></a>
+            <a href="exclusieve-service.html" class="uitleg-item"><i class="fas fa-gem"></i><h3>Exclusieve service</h3><p>Persoonlijke chauffeur, altijd op tijd</p></a>
+            <a href="vaste-prijzen.html" class="uitleg-item"><i class="fas fa-euro-sign"></i><h3>Vaste prijzen</h3><p>Transparant, geen meters</p></a>
+            <a href="premium-vloot.html" class="uitleg-item"><i class="fas fa-car-side"></i><h3>Premium vloot</h3><p>Mercedes, BMW & luxe minivans</p></a>
         </div>
     </div>
 
@@ -465,10 +421,10 @@
     <div class="container">
         <h2 style="text-align:center; margin-bottom:20px;"><i class="fas fa-concierge-bell"></i> Onze diensten</h2>
         <div class="services-grid">
-            <a href="PV_Luchthavenvervoer.html" class="service-card"><div class="service-icon"><i class="fas fa-plane-departure"></i></div><h3>Luchthavenvervoer</h3><p>Vaste prijs, vluchtmonitoring</p></a>
-            <a href="PV_Zakelijk_Vervoer.html" class="service-card"><div class="service-icon"><i class="fas fa-briefcase"></i></div><h3>Zakelijk vervoer</h3><p>Executive class, facturatie</p></a>
-            <a href="PV_Events_Gala.html" class="service-card"><div class="service-icon"><i class="fas fa-glass-cheers"></i></div><h3>Events & Gala</h3><p>Luxe wagen met chauffeur</p></a>
-            <a href="PV_Koeriersdienst.html" class="service-card"><div class="service-icon"><i class="fas fa-file-signature"></i></div><h3>Koeriersdienst</h3><p>Snelle documentleveringen</p></a>
+            <a href="#" class="service-card"><div class="service-icon"><i class="fas fa-plane-departure"></i></div><h3>Luchthavenvervoer</h3><p>Vaste prijs, vluchtmonitoring</p></a>
+            <a href="#" class="service-card"><div class="service-icon"><i class="fas fa-briefcase"></i></div><h3>Zakelijk vervoer</h3><p>Executive class, facturatie</p></a>
+            <a href="#" class="service-card"><div class="service-icon"><i class="fas fa-glass-cheers"></i></div><h3>Events & Gala</h3><p>Luxe wagen met chauffeur</p></a>
+            <a href="#" class="service-card"><div class="service-icon"><i class="fas fa-file-signature"></i></div><h3>Koeriersdienst</h3><p>Snelle documentleveringen</p></a>
         </div>
     </div>
 
@@ -1014,7 +970,9 @@
     var bgMap = L.map('background-map').setView([50.8503, 4.3517], 7);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attribution">CARTO</a>',
-        subdomains: 'abcd', maxZoom: 19, minZoom: 1
+        subdomains: 'abcd',
+        maxZoom: 19,
+        minZoom: 1
     }).addTo(bgMap);
     bgMap.dragging.disable(); bgMap.touchZoom.disable(); bgMap.doubleClickZoom.disable(); bgMap.scrollWheelZoom.disable(); bgMap.boxZoom.disable(); bgMap.keyboard.disable(); if (bgMap.tap) bgMap.tap.disable();
     setTimeout(() => bgMap.invalidateSize(), 100);
