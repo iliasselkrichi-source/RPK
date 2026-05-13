@@ -6,8 +6,6 @@
     <title>Bravo · Inloggen | Horizon of Infinity</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -134,26 +132,33 @@
             background: var(--turquoise-dark);
             transform: translateY(-2px);
         }
+
         .login-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
         .error-message {
-            margin-top: 1rem;
-            padding: 0.6rem;
-            background: rgba(185, 28, 28, 0.1);
-            border-left: 3px solid #b91c1c;
-            border-radius: 8px;
-            font-size: 0.75rem;
+            background: rgba(220, 38, 38, 0.1);
+            border-left: 3px solid #dc2626;
             color: #b91c1c;
+            font-size: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 1rem;
             text-align: left;
         }
 
-        .info-message {
+        .success-message {
+            background: rgba(59, 169, 177, 0.1);
+            border-left: 3px solid var(--turquoise);
+            color: var(--turquoise-dark);
+            font-size: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
             margin-top: 1rem;
-            font-size: 0.7rem;
-            color: var(--espresso-light);
+            text-align: left;
         }
 
         footer {
@@ -183,102 +188,149 @@
 
     <form id="loginForm">
         <div class="input-group">
-            <label><i class="fas fa-envelope"></i> E-mailadres</label>
-            <input type="email" id="email" class="input-field" placeholder="uw@email.com" autocomplete="email" required>
+            <label><i class="fas fa-user"></i> Gebruikersnaam / E-mail</label>
+            <input type="text" id="username" class="input-field" placeholder="Voer uw e-mailadres in" autocomplete="email">
         </div>
         <div class="input-group">
             <label><i class="fas fa-lock"></i> Wachtwoord</label>
-            <input type="password" id="password" class="input-field" placeholder="Wachtwoord" autocomplete="current-password" required>
+            <input type="password" id="password" class="input-field" placeholder="Wachtwoord">
         </div>
-        <button type="submit" id="loginBtn" class="login-btn">Inloggen <i class="fas fa-arrow-right"></i></button>
-        <div id="errorMsg" class="error-message" style="display: none;"></div>
-        <div class="info-message">
-            <i class="fas fa-shield-alt"></i> Veilige inlog via Supabase Authenticatie
-        </div>
+        <button type="submit" id="loginButton" class="login-btn">Inloggen <i class="fas fa-arrow-right"></i></button>
     </form>
 
+    <div id="messageArea"></div>
     <footer>© 2026 Horizon of Infinity · Klantenportaal</footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // Supabase configuratie (dezelfde keys als uw project)
+    // ============================================================
+    // SUPABASE CONFIGURATIE (exact dezelfde als in uw andere bestanden)
+    // ============================================================
     const SUPABASE_URL = "https://orgbdqaxxkwtpvaxxuep.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZ2JkcWF4eGt3dHB2YXh4dWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTU0NzksImV4cCI6MjA5MTIzMTQ3OX0.TY6hWwzG3q_waVDJhxvuLfFFg5qy0HOxMjcTM0YcJ3Q";
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Initialiseer Supabase client
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // DOM elementen
     const loginForm = document.getElementById('loginForm');
-    const emailInput = document.getElementById('email');
+    const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
-    const loginBtn = document.getElementById('loginBtn');
-    const errorMsgDiv = document.getElementById('errorMsg');
+    const loginButton = document.getElementById('loginButton');
+    const messageArea = document.getElementById('messageArea');
 
+    // Hulp functie voor het tonen van berichten
+    function showMessage(message, type = 'error') {
+        messageArea.innerHTML = `<div class="${type === 'error' ? 'error-message' : 'success-message'}">
+            <i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${message}
+        </div>`;
+        
+        // Automatisch succes bericht verwijderen na 3 seconden (behalve fouten)
+        if (type === 'success') {
+            setTimeout(() => {
+                if (messageArea.innerHTML.includes(message)) {
+                    messageArea.innerHTML = '';
+                }
+            }, 3000);
+        }
+    }
+
+    // Check of er al een actieve sessie is (direct na laden)
+    async function checkExistingSession() {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) throw error;
+            
+            if (session) {
+                // Er is al een actieve sessie -> stuur direct door naar klantenportaal
+                console.log("Actieve sessie gevonden voor:", session.user.email);
+                localStorage.setItem('bravo_profile_email', session.user.email);
+                window.location.href = "bravoklantenportaal.html";
+            }
+        } catch (err) {
+            console.error("Fout bij checken sessie:", err.message);
+        }
+    }
+
+    // Login functie
     async function handleLogin(event) {
         event.preventDefault();
         
-        // Toon loading state
-        loginBtn.disabled = true;
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Bezig met inloggen...';
-        errorMsgDiv.style.display = 'none';
-        
-        const email = emailInput.value.trim();
+        // Input waarden ophalen en opschonen
+        const email = usernameInput.value.trim();
         const password = passwordInput.value;
         
+        // Validatie
         if (!email || !password) {
-            errorMsgDiv.textContent = '❌ Vul zowel e-mailadres als wachtwoord in.';
-            errorMsgDiv.style.display = 'block';
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = 'Inloggen <i class="fas fa-arrow-right"></i>';
+            showMessage("❌ Vul zowel e-mailadres als wachtwoord in.");
             return;
         }
         
+        // Email validatie (basis check)
+        if (!email.includes('@') || !email.includes('.')) {
+            showMessage("❌ Voer een geldig e-mailadres in (bijv. naam@domein.com).");
+            return;
+        }
+        
+        // UI state: disable knop en toon laden
+        loginButton.disabled = true;
+        loginButton.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Bezig met inloggen...';
+        messageArea.innerHTML = ''; // Vorige berichten wissen
+        
         try {
+            // Probeer in te loggen met Supabase
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: password
             });
             
-            if (error) {
-                console.error("Auth error:", error);
-                errorMsgDiv.textContent = `❌ Inloggen mislukt: ${error.message}`;
-                errorMsgDiv.style.display = 'block';
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = 'Inloggen <i class="fas fa-arrow-right"></i>';
-                return;
+            if (error) throw error;
+            
+            // Login succesvol
+            if (data && data.user) {
+                console.log("Login succesvol voor:", data.user.email);
+                
+                // Sla gebruikersemail op in localStorage voor gebruik in klantenportaal
+                localStorage.setItem('bravo_profile_email', data.user.email);
+                
+                // Toon succesbericht
+                showMessage(`✅ Welkom terug, ${data.user.email}! U wordt doorgestuurd...`, 'success');
+                
+                // Korte vertraging zodat gebruiker het bericht ziet, dan doorverwijzen
+                setTimeout(() => {
+                    window.location.href = "bravoklantenportaal.html";
+                }, 1000);
             }
             
-            // Inloggen succesvol - sla eventueel gebruikersinfo op
-            if (data && data.user) {
-                // Bewaar e-mail voor gebruik in het portaal (optioneel)
-                localStorage.setItem('bravo_user_email', data.user.email);
-                localStorage.setItem('bravo_user_id', data.user.id);
-                // Doorverwijzen naar klantenportaal
-                window.location.href = "bravoklantenportaal.html";
+        } catch (error) {
+            console.error("Login fout:", error.message);
+            
+            // Specifieke foutmeldingen op basis van Supabase error
+            if (error.message.includes("Invalid login credentials")) {
+                showMessage("❌ Ongeldige inloggegevens. Controleer uw e-mailadres en wachtwoord.");
+            } else if (error.message.includes("Email not confirmed")) {
+                showMessage("❌ Uw e-mailadres is nog niet bevestigd. Controleer uw inbox voor de bevestigingslink.");
             } else {
-                errorMsgDiv.textContent = '❌ Onbekende fout, probeer opnieuw.';
-                errorMsgDiv.style.display = 'block';
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = 'Inloggen <i class="fas fa-arrow-right"></i>';
+                showMessage(`❌ Fout bij inloggen: ${error.message}`);
             }
-        } catch (err) {
-            console.error("Unexpected error:", err);
-            errorMsgDiv.textContent = '❌ Netwerkfout of server niet bereikbaar.';
-            errorMsgDiv.style.display = 'block';
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = 'Inloggen <i class="fas fa-arrow-right"></i>';
+            
+        } finally {
+            // Herstel knop (maar alleen als we niet al doorgestuurd zijn)
+            if (loginButton.disabled === true) {
+                loginButton.disabled = false;
+                loginButton.innerHTML = 'Inloggen <i class="fas fa-arrow-right"></i>';
+            }
         }
     }
     
+    // Event listener voor het formulier
     loginForm.addEventListener('submit', handleLogin);
     
-    // Check of er al iemand is ingelogd (optioneel) -> stuur door naar portaal
-    async function checkSession() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            // Al ingelogd, stuur direct door
-            window.location.href = "bravoklantenportaal.html";
-        }
-    }
-    checkSession();
+    // Optionele: Enter toets werkt al door form submit
+    
+    // Check voor bestaande sessie bij het laden van de pagina
+    checkExistingSession();
 </script>
 </body>
 </html>
