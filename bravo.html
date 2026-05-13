@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horizon Of Infinity | Team Bravo - Tanger Riad</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* ========== KLEURENPALET - MODERN OOSTERS ========== */
         :root {
@@ -190,6 +191,29 @@
         }
         .book-btn:hover {
             background: var(--turquoise-dark);
+            transform: translateY(-2px);
+        }
+        /* Login knop - discreet maar zichtbaar */
+        .login-btn {
+            border: 1px solid var(--turquoise);
+            background: transparent;
+            color: var(--turquoise) !important;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600 !important;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: var(--transition-luxury);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .login-btn i {
+            font-size: 0.8rem;
+        }
+        .login-btn:hover {
+            background: var(--turquoise);
+            color: white !important;
             transform: translateY(-2px);
         }
 
@@ -940,6 +964,8 @@
         <a href="#woning">Woning</a>
         <a href="#pakketten">Pakketten</a>
         <a href="#boekingsformulier" class="book-btn">Boek nu</a>
+        <!-- Login knop toegevoegd -->
+        <a href="Loginbravo.html" class="login-btn"><i class="fas fa-user"></i> Inloggen</a>
     </div>
 </div>
 
@@ -1387,7 +1413,7 @@
 <script>
     // Supabase configuratie (gebruik dezelfde URL en key als elders in het project)
     const SUPABASE_URL = "https://orgbdqaxxkwtpvaxxuep.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZ2JkcWF4eGt3dHB2YXh4dWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTU0NzksImV4cCI6MjA5MTIzMTQ3OX0.TY6hWwzG3q_waVDJhxvuLfFFg5qy0HOxMjcTM0YcJ3Q";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZ2JkcWF4eGt3dHB2YXh4dWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTU0NzksImV4cCI6MjA5MTIzMTQ3OX0.TY6hWwzG3q_waVDJhxvuLfFFg5qy0HOxMjcTM0YcJ3Q";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Functie om uniek boekingsnummer te genereren (formaat: TB-P1-20260511-001)
@@ -1463,10 +1489,10 @@
                 transfer: document.getElementById('tbTransfer').checked,
                 speciaal: document.getElementById('tbSpeciaal').value,
                 woning_type: woningType,
-                extra_diensten: extraDiensten,   // ← Cruciaal: naam gelijk aan Alpha
+                extra_diensten: extraDiensten,
                 activiteiten: activiteiten
             },
-            totaalprijs: pakketPrijs,   // let op: extra diensten worden niet meegeteld in totaal (offerte)
+            totaalprijs: pakketPrijs,
             status: "NIEUW"
         };
 
@@ -1478,12 +1504,10 @@
             alert("❌ Er is een fout opgetreden: " + error.message);
         } else {
             alert(`✅ Boeking succesvol!\n📌 Uw boekingsnummer: ${boekingsnummer}\nWij nemen spoedig contact op voor de offerte van de geselecteerde diensten en activiteiten.`);
-            // Optioneel: herlaad de pagina of leeg formulier
             location.reload();
         }
     }
 
-    // Koppel de functie aan de knop
     const bookBtn = document.getElementById('tbBookBtn');
     if (bookBtn) {
         bookBtn.addEventListener('click', handleBravoBooking);
