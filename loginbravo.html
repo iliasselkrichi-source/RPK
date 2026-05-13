@@ -5,156 +5,194 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bravo · Inloggen</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .login-box {
-            background: white;
-            padding: 2rem;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F4F2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .login-container {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(20px);
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            width: 350px;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 2rem;
             text-align: center;
         }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 25px;
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #4E342E;
         }
-        button {
+        .logo span { color: #3BA9B1; }
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #6B4C44;
+            margin-bottom: 0.4rem;
+        }
+        .input-field {
+            width: 100%;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+        }
+        .login-btn {
             background: #3BA9B1;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 700;
             cursor: pointer;
             width: 100%;
-            font-size: 16px;
+            margin-top: 0.5rem;
         }
-        button:disabled {
-            background: #ccc;
+        .login-btn:disabled {
+            background: #cccccc;
             cursor: not-allowed;
         }
-        .error {
-            color: red;
-            margin-top: 10px;
-            font-size: 14px;
+        .error-message {
+            background: rgba(220,38,38,0.1);
+            border-left: 3px solid #dc2626;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #b91c1c;
+            text-align: left;
         }
-        .success {
-            color: green;
-            margin-top: 10px;
-            font-size: 14px;
+        .success-message {
+            background: rgba(59,169,177,0.1);
+            border-left: 3px solid #3BA9B1;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #2E8A91;
+            text-align: left;
+        }
+        footer {
+            margin-top: 2rem;
+            font-size: 0.6rem;
+            color: #6B4C44;
         }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2>🔐 Bravo Klantenportaal</h2>
-        <p>Log in met uw e-mail en wachtwoord</p>
-        
-        <input type="email" id="email" placeholder="E-mailadres" value="admin@ryzen.com">
-        <input type="password" id="password" placeholder="Wachtwoord" value="admin@ryzen.com">
-        <button id="loginBtn">Inloggen</button>
-        
-        <div id="message"></div>
-    </div>
+<div class="login-container">
+    <div class="logo">Bravo · <span>Horizon of Infinity</span></div>
+    <div style="font-size:0.7rem; letter-spacing:3px; margin:0.5rem 0;">Customer Portal · KB‑prefix</div>
+    <div style="margin:1rem 0;">❦ ❧ ✦ ❧ ❦</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
+    <div class="input-group">
+        <label>E-mailadres</label>
+        <input type="email" id="email" class="input-field" placeholder="admin@ryzen.com">
+    </div>
+    <div class="input-group">
+        <label>Wachtwoord</label>
+        <input type="password" id="password" class="input-field" placeholder="Wachtwoord">
+    </div>
+    <button id="loginBtn" class="login-btn">Inloggen <span>→</span></button>
+
+    <div id="messageArea"></div>
+    <footer>© 2026 Horizon of Infinity · Klantenportaal</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    (function() {
         // Supabase configuratie
         const SUPABASE_URL = "https://orgbdqaxxkwtpvaxxuep.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZ2JkcWF4eGt3dHB2YXh4dWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTU0NzksImV4cCI6MjA5MTIzMTQ3OX0.TY6hWwzG3q_waVDJhxvuLfFFg5qy0HOxMjcTM0YcJ3Q";
         
-        // Maak Supabase client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        // DOM elementen
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('loginBtn');
-        const messageDiv = document.getElementById('message');
-        
-        // Login functie
-        async function doeLogin() {
-            // Leeg message
-            messageDiv.innerHTML = '';
-            messageDiv.className = '';
-            
-            // Haal waarden op
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            
-            // Controle of velden niet leeg zijn
-            if (!email || !password) {
-                messageDiv.innerHTML = 'Vul zowel e-mail als wachtwoord in.';
-                messageDiv.className = 'error';
+        // Wacht tot Supabase geladen is
+        function startApp() {
+            if (!window.supabase) {
+                setTimeout(startApp, 100);
                 return;
             }
             
-            // Zet knop op "bezig"
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Bezig met inloggen...';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             
-            console.log("Proberen in te loggen met:", email);
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const loginBtn = document.getElementById('loginBtn');
+            const messageArea = document.getElementById('messageArea');
             
-            try {
-                // Doe de login
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+            function showMessage(message, type) {
+                messageArea.innerHTML = `<div class="${type === 'error' ? 'error-message' : 'success-message'}">${message}</div>`;
+            }
+            
+            async function handleLogin() {
+                messageArea.innerHTML = '';
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
                 
-                if (error) {
-                    console.error("Login fout:", error);
-                    messageDiv.innerHTML = 'Fout: ' + error.message;
-                    messageDiv.className = 'error';
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Inloggen';
+                if (!email || !password) {
+                    showMessage('❌ Vul e-mail en wachtwoord in.', 'error');
                     return;
                 }
                 
-                // SUCCES!
-                console.log("Login succesvol!", data.user);
-                messageDiv.innerHTML = '✅ Succes! Ingelogd als ' + data.user.email;
-                messageDiv.className = 'success';
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '⏳ Bezig met inloggen...';
                 
-                // Sla email op voor klantenportaal
-                localStorage.setItem('bravo_profile_email', data.user.email);
-                
-                // Wacht 1 seconde en ga naar klantenportaal
-                setTimeout(function() {
-                    window.location.href = "bravoklantenportaal.html";
-                }, 1000);
-                
-            } catch (err) {
-                console.error("Onverwachte fout:", err);
-                messageDiv.innerHTML = 'Onverwachte fout: ' + err.message;
-                messageDiv.className = 'error';
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Inloggen';
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (error) throw error;
+                    
+                    showMessage(`✅ Welkom ${data.user.email}! U wordt doorgestuurd...`, 'success');
+                    localStorage.setItem('bravo_profile_email', data.user.email);
+                    
+                    setTimeout(() => {
+                        window.location.href = "bravoklantenportaal.html";
+                    }, 1000);
+                    
+                } catch (error) {
+                    let foutMelding = '❌ Inloggen mislukt. ';
+                    if (error.message.includes('Invalid login credentials')) {
+                        foutMelding += 'Ongeldig e-mailadres of wachtwoord.';
+                    } else {
+                        foutMelding += error.message;
+                    }
+                    showMessage(foutMelding, 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Inloggen →';
+                }
             }
+            
+            loginBtn.onclick = handleLogin;
+            emailInput.onkeypress = (e) => { if (e.key === 'Enter') handleLogin(); };
+            passwordInput.onkeypress = (e) => { if (e.key === 'Enter') handleLogin(); };
+            
+            console.log("✅ Login pagina gereed - Supabase verbonden");
         }
         
-        // Koppel de knop aan de functie
-        loginBtn.onclick = doeLogin;
-        
-        // Ook als je op Enter drukt in een veld
-        emailInput.onkeypress = function(e) {
-            if (e.key === 'Enter') doeLogin();
-        };
-        passwordInput.onkeypress = function(e) {
-            if (e.key === 'Enter') doeLogin();
-        };
-        
-        console.log("Pagina geladen, knop werkt");
-    </script>
+        startApp();
+    })();
+</script>
 </body>
 </html>
