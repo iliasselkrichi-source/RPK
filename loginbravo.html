@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Bravo · Inloggen | Horizon of Infinity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dust-grey: #F4F4F2;
+            --espresso: #4E342E;
+            --espresso-light: #6B4C44;
+            --turquoise: #3BA9B1;
+            --turquoise-dark: #2E8A91;
+            --frosted-bg: rgba(255, 255, 255, 0.6);
+            --frosted-border: rgba(255, 255, 255, 0.3);
+            --shadow-espresso: 0 40px 80px rgba(78, 52, 46, 0.12);
+            --shadow-espresso-light: 0 30px 60px rgba(78, 52, 46, 0.08);
+            --border-radius-soft: 15px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dust-grey);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" opacity="0.85"><path fill="none" stroke="%23A8A8A6" stroke-width="1.2" d="M60,10 L65,25 L80,30 L65,35 L60,50 L55,35 L40,30 L55,25 Z M60,70 L65,85 L80,90 L65,95 L60,110 L55,95 L40,90 L55,85 Z"/><path fill="none" stroke="%23A8A8A6" stroke-width="1" d="M10,60 L25,55 L30,40 L35,55 L50,60 L35,65 L30,80 L25,65 Z M70,60 L85,55 L90,40 L95,55 L110,60 L95,65 L90,80 L85,65 Z"/><circle cx="60" cy="60" r="5" fill="none" stroke="%23A8A8A6" stroke-width="1"/></svg>');
+            background-repeat: repeat;
+            background-size: 120px 120px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .login-container {
+            max-width: 480px;
+            width: 100%;
+            background: var(--frosted-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-soft);
+            border: 1px solid var(--frosted-border);
+            box-shadow: var(--shadow-espresso);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .logo-area {
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--espresso);
+            letter-spacing: 3px;
+        }
+
+        .logo span {
+            color: var(--turquoise);
+        }
+
+        .subtitle {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--turquoise);
+            text-transform: uppercase;
+            margin-top: 0.3rem;
+        }
+
+        .arabesk {
+            font-size: 1rem;
+            color: var(--turquoise);
+            margin: 1rem 0;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--espresso-light);
+            letter-spacing: 2px;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid var(--frosted-border);
+            border-radius: 50px;
+            padding: 0.8rem 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--turquoise);
+            box-shadow: 0 0 0 2px rgba(59,169,177,0.2);
+        }
+
+        .login-btn {
+            background: var(--turquoise);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .login-btn:hover {
+            background: var(--turquoise-dark);
+            transform: translateY(-2px);
+        }
+
+        .demo-note {
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: var(--espresso-light);
+            border-top: 1px solid var(--frosted-border);
+            padding-top: 1.5rem;
+        }
+
+        .demo-note i {
+            color: var(--turquoise);
+            margin-right: 6px;
+        }
+
+        footer {
+            margin-top: 2rem;
+            font-size: 0.6rem;
+            color: var(--espresso-light);
+            text-align: center;
+        }
+
+        @media (max-width: 520px) {
+            .login-container {
+                padding: 1.5rem;
+            }
+            .logo {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="logo-area">
+        <div class="logo">Bravo · <span>Horizon of Infinity</span></div>
+        <div class="subtitle">Customer Portal · KB‑prefix</div>
+        <div class="arabesk">❦ ❧ ✦ ❧ ❦</div>
+    </div>
+
+    <form id="loginForm">
+        <div class="input-group">
+            <label><i class="fas fa-user"></i> Gebruikersnaam</label>
+            <input type="text" id="username" class="input-field" placeholder="Voer uw gebruikersnaam in" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label><i class="fas fa-lock"></i> Wachtwoord</label>
+            <input type="password" id="password" class="input-field" placeholder="Wachtwoord">
+        </div>
+        <button type="submit" class="login-btn">Inloggen <i class="fas fa-arrow-right"></i></button>
+    </form>
+
+    <div class="demo-note">
+        <i class="fas fa-info-circle"></i> Demo modus – elke gebruikersnaam & wachtwoord werkt.
+    </div>
+    <footer>© 2026 Horizon of Infinity · Klantenportaal</footer>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();  // Voorkom echt versturen
+        // Simpele demo: altijddoor naar bravoklantenportaal.html
+        window.location.href = "bravoklantenportaal.html";
+    });
+</script>
+</body>
+</html>
