@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Exclusieve service | Royal Velvet</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-body: #f4f7fc;
+            --primary: #2c6e9e;
+            --primary-dark: #1e4a6e;
+            --accent-gold: #c9a03d;
+            --accent-green: #6b8c42;
+            --text-dark: #1a2a3a;
+            --text-light: #4a627a;
+            --white: #ffffff;
+            --card-bg: rgba(255,255,255,0.92);
+            --border-light: #e2edf7;
+            --shadow: 0 8px 20px rgba(0,0,0,0.05);
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #1a2a3a;
+            --sidebar-hover: #eef2fa;
+            --sidebar-width-collapsed: 0px;
+            --sidebar-width-expanded: 280px;
+            --overlay-bg: rgba(0,0,0,0.4);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; height: 100%; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-dark);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        
+        #background-map {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+            filter: brightness(1.05) contrast(1.02);
+        }
+        .content-overlay {
+            position: relative; z-index: 10;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(1px);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container { width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 24px; }
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--overlay-bg);
+            backdrop-filter: blur(2px);
+            z-index: 150;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            pointer-events: none;
+        }
+        .sidebar-wrapper {
+            position: sticky; top: 0; z-index: 200; height: fit-content;
+            display: flex; justify-content: flex-end; pointer-events: none;
+            float: right; clear: right;
+        }
+        .sidebar-trigger {
+            position: fixed; top: 0; right: 0; width: 30px; height: 100%;
+            z-index: 199; pointer-events: auto; cursor: pointer; background: transparent;
+        }
+        .sidebar {
+            width: var(--sidebar-width-collapsed);
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            transition: width 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: -4px 0 20px rgba(0,0,0,0.08);
+            display: flex; flex-direction: column; pointer-events: auto;
+            border-radius: 16px 0 0 16px;
+            border: 1px solid var(--border-light);
+            border-right: none;
+            overflow: hidden; height: auto; min-height: 280px; white-space: nowrap;
+        }
+        .sidebar-trigger:hover ~ .sidebar-wrapper .sidebar,
+        .sidebar-wrapper:hover .sidebar, .sidebar:hover { width: var(--sidebar-width-expanded); }
+        .sidebar-trigger:hover ~ .overlay, .sidebar-wrapper:hover ~ .overlay, .sidebar:hover ~ .overlay {
+            opacity: 1; visibility: visible; pointer-events: auto;
+        }
+        .sidebar-nav { display: flex; flex-direction: column; padding: 24px 16px; gap: 12px; }
+        .sidebar-nav a {
+            color: var(--sidebar-text); text-decoration: none; padding: 14px 16px;
+            border-radius: 14px; transition: 0.2s; font-weight: 500;
+            display: flex; align-items: center; gap: 14px;
+            background: var(--white); border: 1px solid var(--border-light);
+        }
+        .sidebar-nav a i { width: 24px; color: var(--primary); font-size: 1.2rem; }
+        .sidebar-nav a span { opacity: 0; transition: opacity 0.2s ease 0.1s; }
+        .sidebar:hover .sidebar-nav a span,
+        .sidebar-trigger:hover ~ .sidebar-wrapper .sidebar .sidebar-nav a span,
+        .sidebar-wrapper:hover .sidebar .sidebar-nav a span { opacity: 1; }
+        .sidebar-nav a:hover { background: var(--sidebar-hover); transform: translateX(-4px); border-color: var(--primary); }
+        
+        .page-hero {
+            background: linear-gradient(135deg, rgba(44,110,158,0.1) 0%, rgba(201,160,61,0.05) 100%);
+            padding: 60px 0 40px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .breadcrumb {
+            margin-bottom: 30px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .breadcrumb i {
+            margin: 0 8px;
+            font-size: 0.7rem;
+        }
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        .page-title i {
+            color: var(--accent-gold);
+            margin-right: 15px;
+        }
+        .intro-text {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+        
+        .content-section {
+            padding: 60px 0;
+        }
+        .content-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-light);
+            border-radius: 32px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+        .content-card h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-gold);
+            padding-left: 20px;
+        }
+        .content-card h3 {
+            color: var(--text-dark);
+            font-size: 1.3rem;
+            margin: 25px 0 15px 0;
+        }
+        .content-card p {
+            color: var(--text-light);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .feature-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+        .feature-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .feature-list li i {
+            color: var(--accent-green);
+            width: 24px;
+            font-size: 1.2rem;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(44,110,158,0.05) 0%, rgba(107,140,66,0.05) 100%);
+            border-left: 4px solid var(--accent-gold);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 30px 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 25px;
+            background: var(--white);
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        .nav-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-light);
+        }
+        .nav-pagination a {
+            background: var(--primary);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-pagination a:hover {
+            background: var(--primary-dark);
+            transform: translateX(-3px);
+        }
+        .nav-pagination a.next:hover {
+            transform: translateX(3px);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .footer-dark {
+            background: #0d1f2c;
+            color: #e0edf5;
+            padding: 48px 0 24px;
+            margin-top: 60px;
+        }
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        .footer-brand h4, .footer-ryz3n h4, .footer-legal h4, .footer-partners h4 {
+            color: var(--primary);
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+        }
+        .footer-brand p, .footer-ryz3n a, .footer-legal a, .footer-partners a {
+            color: #e0edf5;
+            text-decoration: none;
+            line-height: 1.8;
+            display: block;
+        }
+        .footer-ryz3n a:hover, .footer-legal a:hover, .footer-partners a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid rgba(224,237,245,0.2);
+            padding-top: 24px;
+            font-size: 0.85rem;
+        }
+        .footer-bottom a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-trigger { width: 40px; }
+            .page-title { font-size: 1.8rem; }
+            .content-card { padding: 25px; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="background-map"></div>
+
+<div class="content-overlay">
+    <div class="sidebar-trigger"></div>
+    <div class="sidebar-wrapper">
+        <div class="sidebar">
+            <div class="sidebar-nav">
+                <a href="index.html"><i class="fas fa-home"></i><span> Home</span></a>
+                <a href="exclusieve-service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
+                <a href="vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
+                <a href="premium-vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
+                <a href="index.html#contact"><i class="fas fa-envelope"></i><span> Contact</span></a>
+            </div>
+        </div>
+    </div>
+    <div class="overlay"></div>
+
+    <section class="page-hero">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a> <i class="fas fa-chevron-right"></i> 
+                <span style="color: var(--accent-gold);">Exclusieve service</span>
+            </div>
+            <h1 class="page-title"><i class="fas fa-gem"></i> Exclusieve service</h1>
+            <p class="intro-text">Bij Royal Velvet staat exclusiviteit centraal. Wij bieden meer dan alleen een rit – wij bieden een ervaring van koninklijk comfort, discretie en onvoorwaardelijke service.</p>
+            <a href="index.html#booking" class="btn-primary"><i class="fas fa-calendar-check"></i> Reserveer nu uw rit</a>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="content-section">
+            <div class="content-card">
+                <h2>👑 Wat maakt Royal Velvet exclusief?</h2>
+                <p>In een wereld waar tijd kostbaar is, verdient u een service die niet alleen stipt is, maar ook stijlvol en discreet. Royal Velvet is opgericht met één missie: het herdefiniëren van taxivervoer in België door een ongeëvenaard niveau van luxe en persoonlijke aandacht te bieden.</p>
+                
+                <div class="highlight-box">
+                    <i class="fas fa-star" style="color: var(--accent-gold); font-size: 1.5rem; margin-bottom: 15px; display: inline-block;"></i>
+                    <p style="font-size: 1.1rem; font-weight: 500;">"Elke passagier wordt behandeld als royalty – van het eerste telefoontje tot het uitstappen op uw bestemming."</p>
+                </div>
+
+                <h3>🤵 Persoonlijke chauffeurs – meer dan alleen een bestuurder</h3>
+                <p>Onze chauffeurs zijn niet alleen uitstekende bestuurders; zij zijn professionals in gastvrijheid. Elk van hen ondergaat een intensief trainingsprogramma dat bestaat uit:</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> Defensieve en veilige rijtechnieken</li>
+                    <li><i class="fas fa-check-circle"></i> Etiquette en klantinteractie op hoog niveau</li>
+                    <li><i class="fas fa-check-circle"></i> Discretie en vertrouwelijkheid – wat u bespreekt blijft in de wagen</li>
+                    <li><i class="fas fa-check-circle"></i> Eerste hulp en EHBO-certificering</li>
+                    <li><i class="fas fa-check-circle"></i> Meertalige communicatie (Nederlands, Frans, Engels, Duits)</li>
+                </ul>
+
+                <h3>⏰ Altijd op tijd – gegarandeerd</h3>
+                <p>We begrijpen dat tijd geld is. Daarom hanteren wij een strikt protocol om ervoor te zorgen dat wij altijd te vroeg zijn, nooit te laat. Onze chauffeurs arriveren standaard 10-15 minuten voor de afgesproken tijd, zodat u nooit hoeft te wachten. Bij vertragingen door onvoorziene omstandigheden (files, wegwerkzaamheden) ontvangt u direct een WhatsApp-bericht met een realtime update.</p>
+
+                <h3>🔒 Discretie is onze erecode</h3>
+                <p>Royal Velvet wordt vaak gekozen door topmanagers, beroemdheden en diplomaten die absolute vertrouwelijkheid vereisen. Wij garanderen dat:</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> Uw ritgegevens nooit met derden worden gedeeld</li>
+                    <li><i class="fas fa-check-circle"></i> Gesprekken in de wagen strikt vertrouwelijk blijven</li>
+                    <li><i class="fas fa-check-circle"></i> Uw factuur wordt gediscreet verwerkt</li>
+                    <li><i class="fas fa-check-circle"></i> Herkenning van VIP-passagiers wordt vermeden (indien gewenst)</li>
+                </ul>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Stiptheid score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Beschikbaarheid</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">4.98 ★</div>
+                        <div class="stat-label">Klantbeoordeling</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Jaar ervaring</div>
+                    </div>
+                </div>
+
+                <h3>💎 Extra services die het verschil maken</h3>
+                <p>Wij geloven dat luxe in de details zit. Daarom bieden wij een reeks exclusieve opties die u nergens anders vindt:</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-champagne-glasses"></i> <strong>Champagne service</strong> – Een fles premium champagne bij speciale gelegenheden</li>
+                    <li><i class="fas fa-child"></i> <strong>Kinderzitjes</strong> – Maxi-Cosi en kinderstoelen voor alle leeftijden</li>
+                    <li><i class="fas fa-wheelchair"></i> <strong>Toegankelijk vervoer</strong> – Speciale voertuigen voor mindervaliden</li>
+                    <li><i class="fas fa-map-marked-alt"></i> <strong>Meerdaagse verhuur</strong> – Persoonlijke chauffeur voor uw volledige verblijf</li>
+                    <li><i class="fas fa-snowplow"></i> <strong>Winter service</strong> – Verwarmde stoelen en dekens in koude maanden</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h2>⭐ Wat onze klanten zeggen</h2>
+                <div class="highlight-box">
+                    <i class="fas fa-quote-left" style="color: var(--accent-gold); font-size: 2rem; opacity: 0.5;"></i>
+                    <p style="font-style: italic; margin-top: 10px;">"Royal Velvet is de enige taxidienst die ik gebruik voor mijn zakenreizen. De chauffeurs zijn professioneel, discreet en altijd op tijd. Het voelt alsof ik een persoonlijke butler heb."</p>
+                    <p style="margin-top: 15px;"><strong>– Jan V., CEO van internationaal consultancybureau</strong></p>
+                </div>
+                <div class="highlight-box">
+                    <i class="fas fa-quote-left" style="color: var(--accent-gold); font-size: 2rem; opacity: 0.5;"></i>
+                    <p style="font-style: italic; margin-top: 10px;">"Voor mijn bruiloft heb ik Royal Velvet ingeschakeld voor het vervoer van de gasten. Alles was perfect geregeld, van de champagne tot de timing. Een absolute aanrader!"</p>
+                    <p style="margin-top: 15px;"><strong>– Sophie D.</strong></p>
+                </div>
+            </div>
+
+            <div class="nav-pagination">
+                <a href="index.html" class="prev"><i class="fas fa-arrow-left"></i> Terug naar Home</a>
+                <a href="vaste-prijzen.html" class="next">Volgende: Vaste prijzen <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-dark">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h4><i class="fas fa-crown"></i> Royal Velvet</h4>
+                    <p>Premium taxivervoer in België – Stijl, stiptheid en service.</p>
+                </div>
+                <div class="footer-ryz3n">
+                    <h4>Ryz3n | Digital Supremacy</h4>
+                    <a href="#">Control Panel</a>
+                    <a href="#">Taxi Dispatch</a>
+                    <a href="#">Legal & Privacy</a>
+                </div>
+                <div class="footer-legal">
+                    <h4>Juridisch</h4>
+                    <a href="#">Algemene voorwaarden</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Cookiebeleid</a>
+                </div>
+                <div class="footer-partners">
+                    <h4>Partners</h4>
+                    <a href="#">Horizon Of Infinity</a>
+                </div>
+            </div>
+            <div class="footer-bottom">© 2026 Royal Velvet – <a href="#">Ryz3n</a></div>
+        </div>
+    </footer>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    var bgMap = L.map('background-map').setView([50.8503, 4.3517], 7);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attribution">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+        minZoom: 1
+    }).addTo(bgMap);
+    bgMap.dragging.disable();
+    bgMap.touchZoom.disable();
+    bgMap.doubleClickZoom.disable();
+    bgMap.scrollWheelZoom.disable();
+    bgMap.boxZoom.disable();
+    bgMap.keyboard.disable();
+    if (bgMap.tap) bgMap.tap.disable();
+    setTimeout(() => bgMap.invalidateSize(), 100);
+    window.addEventListener('resize', () => bgMap.invalidateSize());
+</script>
+</body>
+</html>
