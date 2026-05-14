@@ -30,7 +30,20 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { margin: 0; padding: 0; height: 100%; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-dark); line-height: 1.5; overflow-x: hidden; }
-        #background-map { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; filter: brightness(1.05) contrast(1.02); }
+        /* Statische achtergrondkaart - vervangt live Leaflet kaart voor betere performance */
+        #background-map {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background-image: url('/images/background-map-static.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: brightness(1.05) contrast(1.02);
+        }
         .content-overlay { position: relative; z-index: 10; background: rgba(255,255,255,0.85); backdrop-filter: blur(1px); min-height: 100vh; display: flex; flex-direction: column; }
         .container { width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 24px; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay-bg); backdrop-filter: blur(2px); z-index: 150; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; pointer-events: none; }
@@ -90,8 +103,8 @@
             <div class="sidebar-nav">
                 <a href="PV.html"><i class="fas fa-home"></i><span> Home</span></a>
                 <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
-                <a href="PV_Vaste_Prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
-                <a href="PV_Premium_Vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
+                <a href="PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
+                <a href="PV-premium-vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
                 <a href="PV_Luchthavenvervoer.html"><i class="fas fa-plane-departure"></i><span> Luchthavenvervoer</span></a>
                 <a href="PV_Zakelijk_Vervoer.html"><i class="fas fa-briefcase"></i><span> Zakelijk vervoer</span></a>
                 <a href="PV_Events_Gala.html"><i class="fas fa-glass-cheers"></i><span> Events & Gala</span></a>
@@ -114,8 +127,8 @@
         <div class="nav-tabs">
             <a href="PV.html" class="nav-tab"><i class="fas fa-home"></i> Home</a>
             <a href="PV_Exclusieve_Service.html" class="nav-tab"><i class="fas fa-gem"></i> Exclusief</a>
-            <a href="PV_Vaste_Prijzen.html" class="nav-tab"><i class="fas fa-euro-sign"></i> Prijzen</a>
-            <a href="PV_Premium_Vloot.html" class="nav-tab"><i class="fas fa-car-side"></i> Vloot</a>
+            <a href="PV-vaste-prijzen.html" class="nav-tab"><i class="fas fa-euro-sign"></i> Prijzen</a>
+            <a href="PV-premium-vloot.html" class="nav-tab"><i class="fas fa-car-side"></i> Vloot</a>
             <a href="PV_Luchthavenvervoer.html" class="nav-tab"><i class="fas fa-plane-departure"></i> Luchthaven</a>
             <a href="PV_Zakelijk_Vervoer.html" class="nav-tab"><i class="fas fa-briefcase"></i> Zakelijk</a>
             <a href="PV_Events_Gala.html" class="nav-tab active"><i class="fas fa-glass-cheers"></i> Events</a>
@@ -193,16 +206,5 @@
     </footer>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    var bgMap = L.map('background-map').setView([50.8503, 4.3517], 7);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attribution">CARTO</a>',
-        subdomains: 'abcd', maxZoom: 19, minZoom: 1
-    }).addTo(bgMap);
-    bgMap.dragging.disable(); bgMap.touchZoom.disable(); bgMap.doubleClickZoom.disable(); bgMap.scrollWheelZoom.disable(); bgMap.boxZoom.disable(); bgMap.keyboard.disable();
-    if (bgMap.tap) bgMap.tap.disable();
-    setTimeout(() => bgMap.invalidateSize(), 100);
-    window.addEventListener('resize', () => bgMap.invalidateSize());
-</script>
 </body>
 </html>
