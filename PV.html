@@ -43,8 +43,18 @@
             overflow-x: hidden;
         }
         
+        /* Statische achtergrondkaart - vervangt live Leaflet kaart voor betere performance */
         #background-map {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background-image: url('/images/background-map-static.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             filter: brightness(1.05) contrast(1.02);
         }
         .content-overlay {
@@ -980,16 +990,6 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(bookingMap); 
     }
     
-    var bgMap = L.map('background-map').setView([50.8503, 4.3517], 7);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attribution">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19,
-        minZoom: 1
-    }).addTo(bgMap);
-    bgMap.dragging.disable(); bgMap.touchZoom.disable(); bgMap.doubleClickZoom.disable(); bgMap.scrollWheelZoom.disable(); bgMap.boxZoom.disable(); bgMap.keyboard.disable(); if (bgMap.tap) bgMap.tap.disable();
-    setTimeout(() => bgMap.invalidateSize(), 100);
-    window.addEventListener('resize', () => bgMap.invalidateSize());
     
     document.getElementById('roundtripCheckbox').addEventListener('change', (e) => {
         const container = document.getElementById('returnDateContainer');
