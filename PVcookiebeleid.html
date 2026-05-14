@@ -205,18 +205,15 @@
             <p id="p-5">Als u vragen heeft over ons cookiebeleid, kunt u contact met ons opnemen via <a href="mailto:info@fleetconnect.be">info@fleetconnect.be</a>.</p>
             
             <hr>
-            <p id="copyright" style="text-align:center; font-size:0.8rem;">© 2026 Fleetconnect Taxi – DZ Collection</p>
+            <p id="copyright" style="text-align:center; font-size:0.8rem;">© 2026 Fleetconnect Taxi</p>
         </div>
         
         <div class="footer-links" id="footer-links">
-            <a href="PV.html" id="home-link">🏠 Home</a> |
-            <a href="PVfaq.html" id="faq-link">❓ FAQ</a> |
-            <a href="PVprivacy.html" id="privacy-link">🔒 Privacy</a> |
-            <a href="PVcookiebeleid.html" id="cookie-link">🍪 Cookiebeleid</a> |
-            <a href="PValgemene-voorwaarden.html" id="terms-link">📜 Voorwaarden</a>
-            <div style="margin-top: 16px;">
-                <a href="PV.html" class="back-home-btn" id="back-home-btn">← Terug naar hoofdpagina</a>
-            </div>
+            <a href="PV.html">🏠 Home</a> |
+            <a href="PVfaq.html">❓ FAQ</a> |
+            <a href="PVprivacy.html">🔒 Privacy</a> |
+            <a href="PVcookiebeleid.html">🍪 Cookiebeleid</a> |
+            <a href="PValgemene-voorwaarden.html">📜 Algemene voorwaarden</a>
         </div>
     </div>
     
@@ -249,8 +246,7 @@
                 cookieButton: "🍪 Cookie-instellingen aanpassen",
                 h2_5: "5. Vragen?",
                 p_5: "Als u vragen heeft over ons cookiebeleid, kunt u contact met ons opnemen via <a href='mailto:info@fleetconnect.be'>info@fleetconnect.be</a>.",
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Home", faq: "❓ FAQ", privacy: "🔒 Privacy", cookie: "🍪 Cookiebeleid", terms: "📜 Voorwaarden", back: "← Terug naar hoofdpagina" }
+                copyright: "© 2026 Fleetconnect Taxi"
             },
             fr: {
                 title: "Politique des cookies",
@@ -271,8 +267,7 @@
                 cookieButton: "🍒 Modifier les paramètres des cookies",
                 h2_5: "5. Des questions ?",
                 p_5: "Si vous avez des questions sur notre politique des cookies, contactez-nous à <a href='mailto:info@fleetconnect.be'>info@fleetconnect.be</a>.",
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Accueil", faq: "❓ FAQ", privacy: "🔒 Confidentialité", cookie: "🍪 Politique des cookies", terms: "📜 Conditions", back: "← Retour à la page d'accueil" }
+                copyright: "© 2026 Fleetconnect Taxi"
             },
             en: {
                 title: "Cookie Policy",
@@ -293,8 +288,7 @@
                 cookieButton: "🍪 Adjust cookie settings",
                 h2_5: "5. Questions?",
                 p_5: "If you have any questions about our cookie policy, please contact us at <a href='mailto:info@fleetconnect.be'>info@fleetconnect.be</a>.",
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Home", faq: "❓ FAQ", privacy: "🔒 Privacy", cookie: "🍪 Cookie Policy", terms: "📜 Terms", back: "← Back to homepage" }
+                copyright: "© 2026 Fleetconnect Taxi"
             }
         };
         
@@ -325,13 +319,6 @@
             document.getElementById('h2-5').innerText = t.h2_5;
             document.getElementById('p-5').innerHTML = t.p_5;
             document.getElementById('copyright').innerText = t.copyright;
-            // Footer
-            document.getElementById('home-link').innerHTML = t.footer.home;
-            document.getElementById('faq-link').innerHTML = t.footer.faq;
-            document.getElementById('privacy-link').innerHTML = t.footer.privacy;
-            document.getElementById('cookie-link').innerHTML = t.footer.cookie;
-            document.getElementById('terms-link').innerHTML = t.footer.terms;
-            document.getElementById('back-home-btn').innerHTML = t.footer.back;
             // Active class
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 if (btn.getAttribute('data-lang') === lang) btn.classList.add('active');
