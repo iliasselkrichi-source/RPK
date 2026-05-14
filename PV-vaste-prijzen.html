@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Vaste prijzen | Royal Velvet</title>
+    <title data-i18n="nav_prijzen">Vaste prijzen | Royal Velvet</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="translations.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
 /* Statische achtergrondkaart - vast beeld voor alle pagina's */
@@ -283,11 +284,12 @@
     <div class="sidebar-wrapper">
         <div class="sidebar">
             <div class="sidebar-nav">
-                <a href="PV.html"><i class="fas fa-home"></i><span> Home</span></a>
-                <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
-                <a href="PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
-                <a href="PV-premium-vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
-                <a href="#contact"><i class="fas fa-envelope"></i><span> Contact</span></a>
+                <a href="PV.html"><i class="fas fa-home"></i><span data-i18n="nav_home"> Home</span></a>
+                <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span data-i18n="nav_exclusief"> Exclusieve service</span></a>
+                <a href="PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span data-i18n="nav_prijzen"> Vaste prijzen</span></a>
+                <a href="PV-premium-vloot.html"><i class="fas fa-car-side"></i><span data-i18n="nav_vloot"> Premium vloot</span></a>
+                <a href="#contact"><i class="fas fa-envelope"></i><span data-i18n="nav_contact"> Contact</span></a>
+                <a href="javascript:void(0)" onclick="i18n.openLanguageModal()"><i class="fas fa-globe"></i><span data-i18n="nav_language"> Taal / Language</span></a>
             </div>
         </div>
     </div>
@@ -298,31 +300,35 @@
     <div class="sticky-grid">
         <a href="PV_Exclusieve_Service.html" class="sticky-grid-item">
             <i class="fas fa-gem"></i>
-            <span>Exclusieve service</span>
+            <span data-i18n="tab_exclusief">Exclusieve service</span>
         </a>
         <a href="PV-vaste-prijzen.html" class="sticky-grid-item active">
             <i class="fas fa-euro-sign"></i>
-            <span>Vaste prijzen</span>
+            <span data-i18n="tab_prijzen">Vaste prijzen</span>
         </a>
         <a href="PV-premium-vloot.html" class="sticky-grid-item">
             <i class="fas fa-car-side"></i>
-            <span>Premium vloot</span>
+            <span data-i18n="tab_vloot">Premium vloot</span>
         </a>
         <a href="PV_Luchthavenvervoer.html" class="sticky-grid-item">
             <i class="fas fa-plane-departure"></i>
-            <span>Luchthavenvervoer</span>
+            <span data-i18n="tab_luchthaven">Luchthavenvervoer</span>
         </a>
         <a href="PV_Zakelijk_Vervoer.html" class="sticky-grid-item">
             <i class="fas fa-briefcase"></i>
-            <span>Zakelijk vervoer</span>
+            <span data-i18n="tab_zakelijk">Zakelijk vervoer</span>
         </a>
         <a href="PV_Events_Gala.html" class="sticky-grid-item">
             <i class="fas fa-glass-cheers"></i>
-            <span>Events & Gala</span>
+            <span data-i18n="tab_events">Events & Gala</span>
         </a>
         <a href="PV_Koeriersdienst.html" class="sticky-grid-item">
             <i class="fas fa-file-signature"></i>
-            <span>Koeriersdienst</span>
+            <span data-i18n="tab_koerier">Koeriersdienst</span>
+        </a>
+        <a href="javascript:void(0)" onclick="i18n.openLanguageModal()" class="sticky-grid-item">
+            <i class="fas fa-globe"></i>
+            <span data-i18n="nav_language">Taal / Language</span>
         </a>
     </div>
 </div>
@@ -339,50 +345,50 @@
 
     <section class="page-hero">
         <div class="container">
-            <div class="breadcrumb"><a href="PV.html">Home</a> <i class="fas fa-chevron-right"></i> <span style="color: var(--accent-gold);">Vaste prijzen</span></div>
-            <h1 class="page-title"><i class="fas fa-euro-sign"></i> Vaste prijzen</h1>
-            <p class="intro-text">Geen verrassingen, geen meters, geen discussie. Bij Royal Velvet betaalt u altijd een transparante, vooraf vastgestelde prijs – ongeacht files of omwegen.</p>
-            <a href="PV.html#booking" class="btn-primary"><i class="fas fa-calculator"></i> Bereken direct uw prijs</a>
+            <div class="breadcrumb"><a href="PV.html" data-i18n="breadcrumb_home">Home</a> <i class="fas fa-chevron-right"></i> <span style="color: var(--accent-gold);" data-i18n="nav_prijzen">Vaste prijzen</span></div>
+            <h1 class="page-title"><i class="fas fa-euro-sign"></i> <span data-i18n="nav_prijzen">Vaste prijzen</span></h1>
+            <p class="intro-text" data-i18n="prijzen_hero_subtitle">Geen verrassingen, geen meters, geen discussie. Bij Royal Velvet betaalt u altijd een transparante, vooraf vastgestelde prijs – ongeacht files of omwegen.</p>
+            <a href="PV.html#booking" class="btn-primary"><i class="fas fa-calculator"></i> <span data-i18n="prijzen_btn_calc">Bereken direct uw prijs</span></a>
         </div>
     </section>
 
     <div class="container">
         <div class="nav-tabs">
-            <a href="PV.html" class="nav-tab"><i class="fas fa-home"></i> Home</a>
-            <a href="PV_Exclusieve_Service.html" class="nav-tab"><i class="fas fa-gem"></i> Exclusief</a>
-            <a href="PV-vaste-prijzen.html" class="nav-tab active"><i class="fas fa-euro-sign"></i> Prijzen</a>
-            <a href="PV-premium-vloot.html" class="nav-tab"><i class="fas fa-car-side"></i> Vloot</a>
-            <a href="PV_Luchthavenvervoer.html" class="nav-tab"><i class="fas fa-plane-departure"></i> Luchthaven</a>
-            <a href="PV_Zakelijk_Vervoer.html" class="nav-tab"><i class="fas fa-briefcase"></i> Zakelijk</a>
-            <a href="PV_Events_Gala.html" class="nav-tab"><i class="fas fa-glass-cheers"></i> Events</a>
-            <a href="PV_Koeriersdienst.html" class="nav-tab"><i class="fas fa-file-signature"></i> Koerier</a>
+            <a href="PV.html" class="nav-tab"><i class="fas fa-home"></i> <span data-i18n="tab_home">Home</span></a>
+            <a href="PV_Exclusieve_Service.html" class="nav-tab"><i class="fas fa-gem"></i> <span data-i18n="tab_exclusief">Exclusief</span></a>
+            <a href="PV-vaste-prijzen.html" class="nav-tab active"><i class="fas fa-euro-sign"></i> <span data-i18n="tab_prijzen">Prijzen</span></a>
+            <a href="PV-premium-vloot.html" class="nav-tab"><i class="fas fa-car-side"></i> <span data-i18n="tab_vloot">Vloot</span></a>
+            <a href="PV_Luchthavenvervoer.html" class="nav-tab"><i class="fas fa-plane-departure"></i> <span data-i18n="tab_luchthaven">Luchthaven</span></a>
+            <a href="PV_Zakelijk_Vervoer.html" class="nav-tab"><i class="fas fa-briefcase"></i> <span data-i18n="tab_zakelijk">Zakelijk</span></a>
+            <a href="PV_Events_Gala.html" class="nav-tab"><i class="fas fa-glass-cheers"></i> <span data-i18n="tab_events">Events</span></a>
+            <a href="PV_Koeriersdienst.html" class="nav-tab"><i class="fas fa-file-signature"></i> <span data-i18n="tab_koerier">Koerier</span></a>
         </div>
     </div>
 
     <div class="container">
         <div class="content-section">
             <div class="content-card">
-                <h2>💰 Hoe werkt ons vaste-prijzen model?</h2>
-                <p>Traditionele taxi's gebruiken een meter die blijft doorlopen bij elk rood licht, elke file en elke omweg. Bij Royal Velvet doen we dat anders. U ontvangt bij uw reservering direct een vaste prijs die niet verandert – ook niet als er onverwachte vertraging optreedt.</p>
+                <h2 data-i18n="prijzen_how_title">💰 Hoe werkt ons vaste-prijzen model?</h2>
+                <p data-i18n="prijzen_how_desc">Traditionele taxi's gebruiken een meter die blijft doorlopen bij elk rood licht, elke file en elke omweg. Bij Royal Velvet doen we dat anders. U ontvangt bij uw reservering direct een vaste prijs die niet verandert – ook niet als er onverwachte vertraging optreedt.</p>
                 
                 <div class="highlight-box">
                     <i class="fas fa-shield-alt" style="color: var(--accent-gold); font-size: 1.5rem; margin-bottom: 15px; display: inline-block;"></i>
-                    <p style="font-size: 1.1rem; font-weight: 500;">"U betaalt exact wat u ziet – geen cent meer. Dat is onze belofte."</p>
+                    <p style="font-size: 1.1rem; font-weight: 500;" data-i18n="prijzen_promise">"U betaalt exact wat u ziet – geen cent meer. Dat is onze belofte."</p>
                 </div>
 
-                <h3>📏 Onze prijsformule</h3>
-                <p>Wij hanteren een eenvoudige en eerlijke formule: <strong>€1,50 per kilometer</strong>, vermenigvuldigd met de exacte routeafstand. Deze prijs is all-in, inclusief:</p>
+                <h3 data-i18n="prijzen_formula_title">📏 Onze prijsformule</h3>
+                <p data-i18n="prijzen_formula_desc">Wij hanteren een eenvoudige en eerlijke formule: <strong>€1,50 per kilometer</strong>, vermenigvuldigd met de exacte routeafstand. Deze prijs is all-in, inclusief:</p>
                 <ul class="feature-list">
-                    <li><i class="fas fa-check-circle"></i> Alle brandstofkosten</li>
-                    <li><i class="fas fa-check-circle"></i> Btw en alle belastingen</li>
-                    <li><i class="fas fa-check-circle"></i> Weg- en tolgelden</li>
-                    <li><i class="fas fa-check-circle"></i> Wacht- en parkeerkosten</li>
-                    <li><i class="fas fa-check-circle"></i> Chauffeurservice</li>
+                    <li><i class="fas fa-check-circle"></i> <span data-i18n="prijzen_fuel">Alle brandstofkosten</span></li>
+                    <li><i class="fas fa-check-circle"></i> <span data-i18n="prijzen_vat">Btw en alle belastingen</span></li>
+                    <li><i class="fas fa-check-circle"></i> <span data-i18n="prijzen_toll">Weg- en tolgelden</span></li>
+                    <li><i class="fas fa-check-circle"></i> <span data-i18n="prijzen_parking">Wacht- en parkeerkosten</span></li>
+                    <li><i class="fas fa-check-circle"></i> <span data-i18n="prijzen_chauffeur">Chauffeurservice</span></li>
                 </ul>
 
-                <h3>🗺️ Voorbeeldprijzen populaire routes</h3>
+                <h3 data-i18n="prijzen_popular_title">🗺️ Voorbeeldprijzen populaire routes</h3>
                 <table class="price-table">
-                    <thead><tr><th>Route</th><th>Afstand</th><th>Vaste prijs</th><th>Reistijd</th></tr></thead>
+                    <thead><tr><th data-i18n="table_route">Route</th><th data-i18n="table_distance">Afstand</th><th data-i18n="table_fixed_price">Vaste prijs</th><th data-i18n="table_duration">Reistijd</th></tr></thead>
                     <tbody>
                         <tr><td>Antwerpen Centraal → Brussel Airport</td><td>45 km</td><td><strong>€ 67,50</strong></td><td>± 40 min</td></tr>
                         <tr><td>Brussel Zuid → Charleroi Airport</td><td>58 km</td><td><strong>€ 87,00</strong></td><td>± 50 min</td></tr>
@@ -392,17 +398,17 @@
                     </tbody>
                 </table>
 
-                <h3>💳 Betaalmogelijkheden – flexibel en veilig</h3>
+                <h3 data-i18n="prijzen_payment_title">💳 Betaalmogelijkheden – flexibel en veilig</h3>
                 <ul class="feature-list">
-                    <li><i class="fas fa-money-bill-wave"></i> <strong>Cash</strong> – Contant betalen bij de chauffeur</li>
-                    <li><i class="fas fa-credit-card"></i> <strong>Bancontact / Visa / Mastercard</strong> – Terminal aan boord</li>
-                    <li><i class="fas fa-mobile-alt"></i> <strong>Payconiq / Bank app</strong> – Scan de QR-code</li>
-                    <li><i class="fas fa-file-invoice"></i> <strong>Factuur (zakelijk)</strong> – Voor bedrijven met BTW-nummer</li>
+                    <li><i class="fas fa-money-bill-wave"></i> <span data-i18n="prijzen_cash_desc"><strong>Cash</strong> – Contant betalen bij de chauffeur</span></li>
+                    <li><i class="fas fa-credit-card"></i> <span data-i18n="prijzen_card_desc"><strong>Bancontact / Visa / Mastercard</strong> – Terminal aan boord</span></li>
+                    <li><i class="fas fa-mobile-alt"></i> <span data-i18n="prijzen_app_desc"><strong>Payconiq / Bank app</strong> – Scan de QR-code</span></li>
+                    <li><i class="fas fa-file-invoice"></i> <span data-i18n="prijzen_invoice_desc"><strong>Factuur (zakelijk)</strong> – Voor bedrijven met BTW-nummer</span></li>
                 </ul>
 
                 <div class="nav-pagination">
-                    <a href="PV_Exclusieve_Service.html"><i class="fas fa-arrow-left"></i> Vorige: Exclusieve service</a>
-                    <a href="PV-premium-vloot.html">Volgende: Premium vloot <i class="fas fa-arrow-right"></i></a>
+                    <a href="PV_Exclusieve_Service.html"><i class="fas fa-arrow-left"></i> <span data-i18n="prijzen_prev">Vorige: Exclusieve service</span></a>
+                    <a href="PV-premium-vloot.html"><span data-i18n="prijzen_next">Volgende: Premium vloot</span> <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
@@ -411,10 +417,10 @@
     <footer class="footer-dark">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-brand"><h4><i class="fas fa-crown"></i> Royal Velvet</h4><p>Premium taxivervoer in België – Stijl, stiptheid en service.</p></div>
+                <div class="footer-brand"><h4><i class="fas fa-crown"></i> Royal Velvet</h4><p data-i18n="footer_text">Premium taxivervoer in België – Stijl, stiptheid en service.</p></div>
                 <div class="footer-ryz3n"><h4>Ryz3n | Digital Supremacy</h4><a href="#">Control Panel</a><a href="#">Taxi Dispatch</a><a href="#">Legal & Privacy</a></div>
-                <div class="footer-legal"><h4>Juridisch</h4><a href="#">Algemene voorwaarden</a><a href="#">Privacy</a><a href="#">Cookiebeleid</a></div>
-                <div class="footer-home"><h4>Quick Links</h4><a href="PV.html">Home</a></div><div class="footer-partners"><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div>
+                <div class="footer-legal"><h4 data-i18n="footer_juridisch">Juridisch</h4><a href="#" data-i18n="footer_voorwaarden">Algemene voorwaarden</a><a href="#" data-i18n="footer_privacy">Privacy</a><a href="#" data-i18n="footer_cookie">Cookiebeleid</a></div>
+                <div class="footer-home"><h4 data-i18n="footer_links">Quick Links</h4><a href="PV.html" data-i18n="nav_home">Home</a></div><div class="footer-partners"><h4 data-i18n="footer_partners">Partners</h4><a href="#">Horizon Of Infinity</a></div>
             </div>
             <div class="footer-bottom">© 2026 Royal Velvet – <a href="#">Ryz3n</a></div>
         </div>
