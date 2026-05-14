@@ -8,6 +8,64 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+/* Statische achtergrondkaart - vast beeld voor alle pagina's */
+#background-map {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    filter: brightness(1.05) contrast(1.02);
+    opacity: 0.9;
+}
+
+/* ===== STICKY GRID RASTER ===== */
+.sticky-grid-container {
+    position: sticky; top: 20px; z-index: 50; margin: 0 auto;
+    padding: 10px 20px; background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px); border-radius: 60px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: fit-content; max-width: 95%; left: 0; right: 0;
+}
+.sticky-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.sticky-grid-item {
+    display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+    background: var(--white); border: 1px solid var(--border-light);
+    border-radius: 40px; text-decoration: none; color: var(--text-dark);
+    font-size: 0.8rem; font-weight: 500; transition: all 0.2s ease; white-space: nowrap;
+}
+.sticky-grid-item i { color: var(--primary); font-size: 1rem; }
+.sticky-grid-item:hover {
+    background: var(--primary); color: white; transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 110, 158, 0.3);
+}
+.sticky-grid-item:hover i { color: white; }
+.sticky-grid-item.active { background: var(--primary); color: white; }
+.sticky-grid-item.active i { color: white; }
+
+@media (max-width: 800px) {
+    .sticky-grid-container { border-radius: 20px; top: 10px; }
+    .sticky-grid-item { padding: 6px 12px; font-size: 0.7rem; white-space: nowrap; }
+}
+@media (max-width: 600px) {
+    .sticky-grid-item span { display: none; }
+    .sticky-grid-item { padding: 10px; }
+    .sticky-grid-item i { font-size: 1.2rem; }
+}
+
+
+
+
+
+
+
+
+
+
         :root {
             --bg-body: #f4f7fc;
             --primary: #2c6e9e;
@@ -30,20 +88,10 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { margin: 0; padding: 0; height: 100%; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-dark); line-height: 1.5; overflow-x: hidden; }
-        /* Statische achtergrondkaart - vervangt live Leaflet kaart voor betere performance */
-        #background-map {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            background-image: url('/images/background-map-static.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            filter: brightness(1.05) contrast(1.02);
-        }
+
+
+
+
         .content-overlay { position: relative; z-index: 10; background: rgba(255,255,255,0.85); backdrop-filter: blur(1px); min-height: 100vh; display: flex; flex-direction: column; }
         .container { width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 24px; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay-bg); backdrop-filter: blur(2px); z-index: 150; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; pointer-events: none; }
@@ -92,6 +140,136 @@
         .nav-tab:hover { border-color: var(--primary); transform: translateY(-2px); }
         .nav-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
         @media (max-width: 768px) { .sidebar-trigger { width: 40px; } .page-title { font-size: 1.8rem; } .content-card { padding: 25px; } }
+
+
+
+@media (max-width: 600px) {
+    .sticky-grid-item span {
+        display: none; /* Alleen iconen bij zeer kleine schermen */
+    }
+
+    .sticky-grid-item {
+        padding: 10px;
+    }
+
+    .sticky-grid-item i {
+        font-size: 1.2rem;
+    }
+}
+
+
+
+
+@media (max-width: 600px) {
+    .sticky-grid-item span {
+        display: none; /* Alleen iconen bij zeer kleine schermen */
+    }
+
+    .sticky-grid-item {
+        padding: 10px;
+    }
+
+    .sticky-grid-item i {
+        font-size: 1.2rem;
+    }
+}
+
+
+
+
+@media (max-width: 600px) {
+    .sticky-grid-item span {
+        display: none; /* Alleen iconen bij zeer kleine schermen */
+    }
+
+    .sticky-grid-item {
+        padding: 10px;
+    }
+
+    .sticky-grid-item i {
+        font-size: 1.2rem;
+    }
+}
+
+
+
+
+@media (max-width: 600px) {
+    .sticky-grid-item span {
+        display: none; /* Alleen iconen bij zeer kleine schermen */
+    }
+
+    .sticky-grid-item {
+        padding: 10px;
+    }
+
+    .sticky-grid-item i {
+        font-size: 1.2rem;
+    }
+}
+
+
+/* ===== STICKY GRID RASTER ===== */
+.sticky-grid-container {
+    position: sticky; top: 20px; z-index: 50; margin: 0 auto;
+    padding: 10px 20px; background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px); border-radius: 60px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: fit-content; max-width: 95%; left: 0; right: 0;
+}
+.sticky-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.sticky-grid-item {
+    display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+    background: var(--white); border: 1px solid var(--border-light);
+    border-radius: 40px; text-decoration: none; color: var(--text-dark);
+    font-size: 0.8rem; font-weight: 500; transition: all 0.2s ease; white-space: nowrap;
+}
+.sticky-grid-item i { color: var(--primary); font-size: 1rem; }
+.sticky-grid-item:hover {
+    background: var(--primary); color: white; transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 110, 158, 0.3);
+}
+.sticky-grid-item:hover i { color: white; }
+.sticky-grid-item.active { background: var(--primary); color: white; }
+.sticky-grid-item.active i { color: white; }
+
+@media (max-width: 800px) {
+    .sticky-grid-container { border-radius: 20px; top: 10px; }
+    .sticky-grid-item { padding: 6px 12px; font-size: 0.7rem; white-space: nowrap; }
+}
+
+
+
+/* ===== STICKY GRID RASTER ===== */
+.sticky-grid-container {
+    position: sticky; top: 20px; z-index: 50; margin: 0 auto;
+    padding: 10px 20px; background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px); border-radius: 60px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: fit-content; max-width: 95%; left: 0; right: 0;
+}
+.sticky-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.sticky-grid-item {
+    display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+    background: var(--white); border: 1px solid var(--border-light);
+    border-radius: 40px; text-decoration: none; color: var(--text-dark);
+    font-size: 0.8rem; font-weight: 500; transition: all 0.2s ease; white-space: nowrap;
+}
+.sticky-grid-item i { color: var(--primary); font-size: 1rem; }
+.sticky-grid-item:hover {
+    background: var(--primary); color: white; transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 110, 158, 0.3);
+}
+.sticky-grid-item:hover i { color: white; }
+.sticky-grid-item.active { background: var(--primary); color: white; }
+.sticky-grid-item.active i { color: white; }
+
+@media (max-width: 800px) {
+    .sticky-grid-container { border-radius: 20px; top: 10px; }
+    .sticky-grid-item { padding: 6px 12px; font-size: 0.7rem; white-space: nowrap; }
+}
+
+
     </style>
 </head>
 <body>
@@ -105,14 +283,55 @@
                 <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
                 <a href="PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
                 <a href="PV-premium-vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
-                <a href="PV_Luchthavenvervoer.html"><i class="fas fa-plane-departure"></i><span> Luchthavenvervoer</span></a>
-                <a href="PV_Zakelijk_Vervoer.html"><i class="fas fa-briefcase"></i><span> Zakelijk vervoer</span></a>
-                <a href="PV_Events_Gala.html"><i class="fas fa-glass-cheers"></i><span> Events & Gala</span></a>
-                <a href="PV_Koeriersdienst.html"><i class="fas fa-file-signature"></i><span> Koeriersdienst</span></a>
+                <a href="#contact"><i class="fas fa-envelope"></i><span> Contact</span></a>
             </div>
         </div>
     </div>
     <div class="overlay"></div>
+
+<!-- STICKY GRID RASTER - Blijft zichtbaar tijdens scrollen -->
+<div class="sticky-grid-container">
+    <div class="sticky-grid">
+        <a href="PV_Exclusieve_Service.html" class="sticky-grid-item">
+            <i class="fas fa-gem"></i>
+            <span>Exclusieve service</span>
+        </a>
+        <a href="PV-vaste-prijzen.html" class="sticky-grid-item">
+            <i class="fas fa-euro-sign"></i>
+            <span>Vaste prijzen</span>
+        </a>
+        <a href="PV-premium-vloot.html" class="sticky-grid-item">
+            <i class="fas fa-car-side"></i>
+            <span>Premium vloot</span>
+        </a>
+        <a href="PV_Luchthavenvervoer.html" class="sticky-grid-item">
+            <i class="fas fa-plane-departure"></i>
+            <span>Luchthavenvervoer</span>
+        </a>
+        <a href="PV_Zakelijk_Vervoer.html" class="sticky-grid-item active">
+            <i class="fas fa-briefcase"></i>
+            <span>Zakelijk vervoer</span>
+        </a>
+        <a href="PV_Events_Gala.html" class="sticky-grid-item">
+            <i class="fas fa-glass-cheers"></i>
+            <span>Events & Gala</span>
+        </a>
+        <a href="PV_Koeriersdienst.html" class="sticky-grid-item">
+            <i class="fas fa-file-signature"></i>
+            <span>Koeriersdienst</span>
+        </a>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
 
     <section class="page-hero">
         <div class="container">
@@ -196,12 +415,12 @@
                 <div class="footer-brand"><h4><i class="fas fa-crown"></i> Royal Velvet</h4><p>Premium taxivervoer in België – Stijl, stiptheid en service.</p></div>
                 <div class="footer-ryz3n"><h4>Ryz3n | Digital Supremacy</h4><a href="#">Control Panel</a><a href="#">Taxi Dispatch</a><a href="#">Legal & Privacy</a></div>
                 <div class="footer-legal"><h4>Juridisch</h4><a href="#">Algemene voorwaarden</a><a href="#">Privacy</a><a href="#">Cookiebeleid</a></div>
-                <div class="footer-partners"><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div>
+                <div class="footer-home"><h4>Quick Links</h4><a href="PV.html">Home</a></div><div class="footer-partners"><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div>
             </div>
             <div class="footer-bottom">© 2026 Royal Velvet – <a href="#">Ryz3n</a></div>
         </div>
     </footer>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 </body>
 </html>
