@@ -71,9 +71,22 @@
             display: flex; justify-content: flex-end; pointer-events: none;
             float: right; clear: right;
         }
+        /* Subtiele balk rechts - hint voor verborgen menu */
         .sidebar-trigger {
-            position: fixed; top: 0; right: 0; width: 30px; height: 100%;
-            z-index: 199; pointer-events: auto; cursor: pointer; background: transparent;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(44,110,158,0.12));
+            cursor: pointer;
+            z-index: 199;
+            transition: 0.2s;
+        }
+
+        .sidebar-trigger:hover {
+            background: linear-gradient(90deg, transparent, rgba(44,110,158,0.25));
+            width: 8px;
         }
         .sidebar {
             width: var(--sidebar-width-collapsed);
