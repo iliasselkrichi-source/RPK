@@ -13,6 +13,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
+/* Statische achtergrondkaart - vast beeld voor alle pagina's */
+#background-map {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    filter: brightness(1.05) contrast(1.02);
+    opacity: 0.9;
+}
+
+
+
+
+
+
+
+
+
         :root {
             --bg-body: #f4f7fc;
             --primary: #2c6e9e;
@@ -43,20 +66,8 @@
             overflow-x: hidden;
         }
         
-        /* Statische achtergrondkaart - vervangt live Leaflet kaart voor betere performance */
-        #background-map {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            background-image: url('/images/background-map-static.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            filter: brightness(1.05) contrast(1.02);
-        }
+
+
         .content-overlay {
             position: relative; z-index: 10;
             background: rgba(255,255,255,0.85);
@@ -580,14 +591,14 @@
                 <div class="footer-brand"><h4><i class="fas fa-crown"></i> Royal Velvet</h4><p>Premium taxivervoer in België – Stijl, stiptheid en service.</p></div>
                 <div class="footer-ryz3n"><h4>Ryz3n | Digital Supremacy</h4><a href="#">Control Panel</a><a href="#">Taxi Dispatch</a><a href="#">Legal & Privacy</a></div>
                 <div class="footer-legal"><h4>Juridisch</h4><a href="#">Algemene voorwaarden</a><a href="#">Privacy</a><a href="#">Cookiebeleid</a></div>
-                <div class="footer-partners"><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div>
+                <div class="footer-home"><h4>Quick Links</h4><a href="PV.html">Home</a></div><div class="footer-partners"><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div>
             </div>
             <div class="footer-bottom">© 2026 Royal Velvet – <a href="#">Ryz3n</a></div>
         </div>
     </footer>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     

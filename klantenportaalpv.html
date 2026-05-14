@@ -10,9 +10,32 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+/* Statische achtergrondkaart - vast beeld voor alle pagina's */
+#background-map {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    filter: brightness(1.05) contrast(1.02);
+    opacity: 0.9;
+}
+
+
+
+
+
+
+
+
+
         /* ===== ORIGINELE STIJLEN (ONVERANDERD) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -39,20 +62,8 @@
             color: var(--text-dark);
             overflow-x: hidden;
         }
-        /* Statische achtergrondkaart - vervangt live Leaflet kaart voor betere performance */
-        #background-map {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            background-image: url('/images/background-map-static.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            filter: brightness(1.05) contrast(1.02);
-        }
+
+
         .content-overlay {
             position: relative; z-index: 10;
             background: rgba(255,255,255,0.85);
@@ -283,11 +294,12 @@
     <div class="sidebar-trigger"></div>
     <div class="sidebar">
         <div class="sidebar-nav">
-            <a href="#" data-nav="home"><i class="fas fa-home"></i> Home</a>
-            <a href="#" data-nav="portal"><i class="fas fa-user-circle"></i> Mijn Portaal</a>
-            <a href="#" data-nav="contact"><i class="fas fa-envelope"></i> Contact</a>
-            <a href="#" class="logout-action"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
-        </div>
+                <a href="PV.html"><i class="fas fa-home"></i><span> Home</span></a>
+                <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
+                <a href="PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
+                <a href="PV-premium-vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
+                <a href="#contact"><i class="fas fa-envelope"></i><span> Contact</span></a>
+            </div>
     </div>
 
     <div style="position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; align-items: center; gap: 15px;">
