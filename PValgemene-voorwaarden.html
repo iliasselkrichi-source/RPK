@@ -196,18 +196,15 @@
             <p id="art9-p">Op deze Algemene Voorwaarden is Belgisch recht van toepassing. Geschillen worden voorgelegd aan de bevoegde rechter te Brussel.</p>
             
             <hr>
-            <p id="copyright" style="text-align:center; font-size:0.8rem;">© 2026 Fleetconnect Taxi – DZ Collection</p>
+            <p id="copyright" style="text-align:center; font-size:0.8rem;">© 2026 Fleetconnect Taxi</p>
         </div>
         
         <div class="footer-links" id="footer-links">
-            <a href="PV.html" id="home-link">🏠 Home</a> |
-            <a href="PVfaq.html" id="faq-link">❓ FAQ</a> |
-            <a href="PVprivacy.html" id="privacy-link">🔒 Privacy</a> |
-            <a href="PVcookiebeleid.html" id="cookie-link">🍪 Cookiebeleid</a> |
-            <a href="PValgemene-voorwaarden.html" id="terms-link">📜 Voorwaarden</a>
-            <div style="margin-top: 16px;">
-                <a href="PV.html" class="back-home-btn" id="back-home-btn">← Terug naar hoofdpagina</a>
-            </div>
+            <a href="PV.html">🏠 Home</a> |
+            <a href="PVfaq.html">❓ FAQ</a> |
+            <a href="PVprivacy.html">🔒 Privacy</a> |
+            <a href="PVcookiebeleid.html">🍪 Cookiebeleid</a> |
+            <a href="PValgemene-voorwaarden.html">📜 Algemene voorwaarden</a>
         </div>
     </div>
     
@@ -247,8 +244,7 @@
                 art8_p: "Klachten dienen binnen 7 werkdagen na de rit schriftelijk te worden ingediend via <a href='mailto:klachten@fleetconnect.be'>klachten@fleetconnect.be</a>. Wij reageren binnen 14 werkdagen.",
                 art9: "Artikel 9 – Toepasselijk recht",
                 art9_p: "Op deze Algemene Voorwaarden is Belgisch recht van toepassing. Geschillen worden voorgelegd aan de bevoegde rechter te Brussel.",
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Home", faq: "❓ FAQ", privacy: "🔒 Privacy", cookie: "🍪 Cookiebeleid", terms: "📜 Voorwaarden", back: "← Terug naar hoofdpagina" }
+                copyright: "© 2026 Fleetconnect Taxi"
             },
             fr: {
                 title: "Conditions Générales de Transport en Taxi",
@@ -276,8 +272,7 @@
                 art8_p: "Les réclamations doivent être soumises par écrit dans les 7 jours ouvrables suivant la course à <a href='mailto:klachten@fleetconnect.be'>klachten@fleetconnect.be</a>. Nous répondons dans les 14 jours ouvrables.",
                 art9: "Article 9 – Droit applicable",
                 art9_p: "Le droit belge s'applique aux présentes conditions générales. Les litiges sont soumis au tribunal compétent de Bruxelles.",
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Accueil", faq: "❓ FAQ", privacy: "🔒 Confidentialité", cookie: "🍪 Politique des cookies", terms: "📜 Conditions", back: "← Retour à la page d'accueil" }
+                copyright: "© 2026 Fleetconnect Taxi"
             },
             en: {
                 title: "General Terms and Conditions for Taxi Transport",
@@ -305,8 +300,7 @@
                 art8_p: "Complaints must be submitted in writing within 7 working days after the ride to <a href='mailto:klachten@fleetconnect.be'>klachten@fleetconnect.be</a>. We will respond within 14 working days.",
                 art9: "Article 9 – Applicable law",
                 art9_p: "These General Terms and Conditions are governed by Belgian law. Disputes shall be submitted to the competent court in Brussels.",
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Home", faq: "❓ FAQ", privacy: "🔒 Privacy", cookie: "🍪 Cookie Policy", terms: "📜 Terms", back: "← Back to homepage" }
+                copyright: "© 2026 Fleetconnect Taxi"
             }
         };
         
@@ -334,13 +328,6 @@
             document.getElementById('art9').innerText = t.art9;
             document.getElementById('art9-p').innerHTML = t.art9_p;
             document.getElementById('copyright').innerText = t.copyright;
-            // Footer
-            document.getElementById('home-link').innerHTML = t.footer.home;
-            document.getElementById('faq-link').innerHTML = t.footer.faq;
-            document.getElementById('privacy-link').innerHTML = t.footer.privacy;
-            document.getElementById('cookie-link').innerHTML = t.footer.cookie;
-            document.getElementById('terms-link').innerHTML = t.footer.terms;
-            document.getElementById('back-home-btn').innerHTML = t.footer.back;
             // Active class
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 if (btn.getAttribute('data-lang') === lang) btn.classList.add('active');

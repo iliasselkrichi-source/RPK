@@ -175,18 +175,15 @@
                 <!-- FAQ items worden dynamisch gegenereerd via JS -->
             </div>
             <hr>
-            <p id="copyright" style="text-align:center; font-size:0.8rem;">© 2026 Fleetconnect Taxi – DZ Collection</p>
+            <p id="copyright" style="text-align:center; font-size:0.8rem;">© 2026 Fleetconnect Taxi</p>
         </div>
         
         <div class="footer-links" id="footer-links">
-            <a href="PV.html" id="home-link">🏠 Home</a> |
-            <a href="PVfaq.html" id="faq-link">❓ FAQ</a> |
-            <a href="PVprivacy.html" id="privacy-link">🔒 Privacy</a> |
-            <a href="PVcookiebeleid.html" id="cookie-link">🍪 Cookiebeleid</a> |
-            <a href="PValgemene-voorwaarden.html" id="terms-link">📜 Voorwaarden</a>
-            <div style="margin-top: 16px;">
-                <a href="PV.html" class="back-home-btn" id="back-home-btn">← Terug naar hoofdpagina</a>
-            </div>
+            <a href="PV.html">🏠 Home</a> |
+            <a href="PVfaq.html">❓ FAQ</a> |
+            <a href="PVprivacy.html">🔒 Privacy</a> |
+            <a href="PVcookiebeleid.html">🍪 Cookiebeleid</a> |
+            <a href="PValgemene-voorwaarden.html">📜 Algemene voorwaarden</a>
         </div>
     </div>
     
@@ -215,8 +212,7 @@
                     { q: "📝 Hoe dien ik een klacht in?", a: "Klachten kunt u indienen via <a href='mailto:klachten@fleetconnect.be'>klachten@fleetconnect.be</a>. Wij nemen uw klacht binnen 14 werkdagen in behandeling." },
                     { q: "🌍 Bieden jullie ook internationaal vervoer aan?", a: "Ja, wij verzorgen taxivervoer naar buurlanden. Neem contact met ons op voor een offerte op maat." }
                 ],
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Home", faq: "❓ FAQ", privacy: "🔒 Privacy", cookie: "🍪 Cookiebeleid", terms: "📜 Voorwaarden", back: "← Terug naar hoofdpagina" }
+                copyright: "© 2026 Fleetconnect Taxi"
             },
             fr: {
                 title: "Questions fréquentes",
@@ -232,8 +228,7 @@
                     { q: "📝 Comment déposer une réclamation ?", a: "Vous pouvez soumettre votre réclamation à <a href='mailto:klachten@fleetconnect.be'>klachten@fleetconnect.be</a>. Nous traiterons votre réclamation dans les 14 jours ouvrables." },
                     { q: "🌍 Proposez-vous également des transports internationaux ?", a: "Oui, nous assurons des transports en taxi vers les pays voisins. Contactez-nous pour un devis personnalisé." }
                 ],
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Accueil", faq: "❓ FAQ", privacy: "🔒 Confidentialité", cookie: "🍪 Politique des cookies", terms: "📜 Conditions", back: "← Retour à la page d'accueil" }
+                copyright: "© 2026 Fleetconnect Taxi"
             },
             en: {
                 title: "Frequently Asked Questions",
@@ -249,8 +244,7 @@
                     { q: "📝 How do I file a complaint?", a: "You can submit complaints to <a href='mailto:klachten@fleetconnect.be'>klachten@fleetconnect.be</a>. We will handle your complaint within 14 working days." },
                     { q: "🌍 Do you also offer international transport?", a: "Yes, we provide taxi transport to neighbouring countries. Contact us for a custom quote." }
                 ],
-                copyright: "© 2026 Fleetconnect Taxi – DZ Collection",
-                footer: { home: "🏠 Home", faq: "❓ FAQ", privacy: "🔒 Privacy", cookie: "🍪 Cookie Policy", terms: "📜 Terms", back: "← Back to homepage" }
+                copyright: "© 2026 Fleetconnect Taxi"
             }
         };
         
@@ -269,13 +263,6 @@
                 container.appendChild(faqDiv);
             });
             document.getElementById('copyright').innerText = data.copyright;
-            // Footer
-            document.getElementById('home-link').innerHTML = data.footer.home;
-            document.getElementById('faq-link').innerHTML = data.footer.faq;
-            document.getElementById('privacy-link').innerHTML = data.footer.privacy;
-            document.getElementById('cookie-link').innerHTML = data.footer.cookie;
-            document.getElementById('terms-link').innerHTML = data.footer.terms;
-            document.getElementById('back-home-btn').innerHTML = data.footer.back;
             // Update active class
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 if (btn.getAttribute('data-lang') === lang) btn.classList.add('active');
