@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
     
     <style>
-        /* ===== FLEETCONNECT STIJL (aangepast thema) ===== */
+        /* ===== FLEETCONNECT STIJL ===== */
         #background-map {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
             background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
@@ -38,8 +38,6 @@
             --sidebar-bg: #ffffff;
             --sidebar-text: #1a2a3a;
             --sidebar-hover: #eef2fa;
-            --sidebar-width-collapsed: 0px;
-            --sidebar-width-expanded: 280px;
             --overlay-bg: rgba(0,0,0,0.4);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,39 +59,165 @@
         }
         .container { width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 24px; }
         
-        /* Sidebar stijlen */
-        .sidebar-trigger {
-            position: fixed; top: 0; right: 0; width: 6px; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(44,110,158,0.12));
-            cursor: pointer; z-index: 199; transition: 0.2s;
+        /* ===== HAMBURGER MENU KNOB (LINKSBOVEN) ===== */
+        .hamburger-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1.4rem;
         }
-        .sidebar-trigger:hover { background: linear-gradient(90deg, transparent, rgba(44,110,158,0.25)); width: 8px; }
-        .sidebar-wrapper { position: sticky; top: 0; z-index: 200; height: fit-content; display: flex; justify-content: flex-end; pointer-events: none; float: right; clear: right; }
+        .hamburger-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+        
+        /* ===== SIDEBAR OVERLAY (RECHTERZIJDE) - VERBETERDE ZICHTBAARHEID ===== */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3); /* Minder donker voor betere leesbaarheid */
+            z-index: 1001;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
         .sidebar {
-            width: var(--sidebar-width-collapsed); background: var(--sidebar-bg); color: var(--sidebar-text);
-            transition: width 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            box-shadow: -4px 0 20px rgba(0,0,0,0.08); display: flex; flex-direction: column;
-            pointer-events: auto; border-radius: 16px 0 0 16px; border: 1px solid var(--border-light);
-            border-right: none; overflow: hidden; height: auto; min-height: 280px; white-space: nowrap;
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            box-shadow: -4px 0 25px rgba(0,0,0,0.15);
+            transition: right 0.3s ease;
+            z-index: 1002;
+            display: flex;
+            flex-direction: column;
+            border-radius: 20px 0 0 20px;
+            border: 1px solid var(--border-light);
+            border-right: none;
         }
-        .sidebar-trigger:hover ~ .sidebar-wrapper .sidebar,
-        .sidebar-wrapper:hover .sidebar, .sidebar:hover { width: var(--sidebar-width-expanded); }
-        .sidebar-nav { display: flex; flex-direction: column; padding: 24px 16px; gap: 12px; }
+        .sidebar-overlay.active .sidebar {
+            right: 0;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-light);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px 0 0 0;
+        }
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .close-menu {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-menu:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            padding: 20px 16px;
+            gap: 8px;
+            flex: 1;
+        }
         .sidebar-nav a {
-            color: var(--sidebar-text); text-decoration: none; padding: 14px 16px;
-            border-radius: 14px; transition: 0.2s; font-weight: 500;
-            display: flex; align-items: center; gap: 14px;
-            background: var(--white); border: 1px solid var(--border-light);
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 14px 16px;
+            border-radius: 14px;
+            transition: 0.2s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            font-size: 0.95rem;
         }
-        .sidebar-nav a i { width: 24px; color: var(--primary); font-size: 1.2rem; }
-        .sidebar-nav a span { opacity: 0; transition: opacity 0.2s ease 0.1s; }
-        .sidebar:hover .sidebar-nav a span,
-        .sidebar-trigger:hover ~ .sidebar-wrapper .sidebar .sidebar-nav a span,
-        .sidebar-wrapper:hover .sidebar .sidebar-nav a span { opacity: 1; }
-        .sidebar-nav a:hover { background: var(--sidebar-hover); transform: translateX(-4px); border-color: var(--primary); }
+        .sidebar-nav a i {
+            width: 24px;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        .sidebar-nav a:hover {
+            background: var(--sidebar-hover);
+            transform: translateX(4px);
+            border-color: var(--primary);
+        }
+        
+        /* ===== INLOG KNOB IN SIDEBAR ===== */
+        .login-section {
+            padding: 16px;
+            border-top: 1px solid var(--border-light);
+            margin-top: auto;
+        }
+        .login-btn {
+            background: linear-gradient(135deg, var(--accent-gold), #b8860b);
+            color: white;
+            text-decoration: none;
+            padding: 14px 16px;
+            border-radius: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .login-btn i {
+            font-size: 1.1rem;
+        }
+        .login-btn:hover {
+            background: linear-gradient(135deg, #b8860b, #9a6e0a);
+            transform: translateX(4px);
+        }
         
         /* Hero sectie */
-        .hero { padding: 60px 0 40px; text-align: center; }
+        .hero { padding: 80px 0 40px; text-align: center; }
         .hero-card {
             background: var(--card-bg); backdrop-filter: blur(8px);
             max-width: 700px; margin: 0 auto; padding: 40px 30px;
@@ -454,6 +578,7 @@
             .vehicle-grid, .checkbox-grid { grid-template-columns: repeat(2,1fr); }
             .carousel-page { padding: 20px; }
             .summary-grid { grid-template-columns: 1fr; }
+            .sidebar { width: 280px; }
         }
     </style>
 </head>
@@ -461,20 +586,38 @@
 
 <div id="background-map"></div>
 
-<div class="content-overlay">
-    <div class="sidebar-trigger"></div>
-    <div class="sidebar-wrapper">
-        <div class="sidebar">
-            <div class="sidebar-nav">
-                <a href="PV.html"><i class="fas fa-home"></i><span> Home</span></a>
-                <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
-                <a href="PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
-                <a href="PV-premium-vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
-                <a href="#contact"><i class="fas fa-envelope"></i><span> Contact</span></a>
-            </div>
+<!-- HAMBURGER MENU KNOB (LINKSBOVEN) -->
+<button class="hamburger-btn" id="hamburgerBtn">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- SIDEBAR OVERLAY (RECHTERZIJDE) - MET INLOG KNOB -->
+<div class="sidebar-overlay" id="sidebarOverlay">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-car"></i> Fleetconnect</h3>
+            <button class="close-menu" id="closeMenuBtn">&times;</button>
+        </div>
+        <div class="sidebar-nav">
+            <a href="PV.html"><i class="fas fa-home"></i><span> Home</span></a>
+            <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
+            <a href="PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
+            <a href="PV-premium-vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
+            <a href="#contact"><i class="fas fa-envelope"></i><span> Contact</span></a>
+            <a href="#booking"><i class="fas fa-calendar-alt"></i><span> Reserveer nu</span></a>
+        </div>
+        <!-- INLOG KNOB -->
+        <div class="login-section">
+            <a href="admin-index.html" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Beheerder inloggen</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
+</div>
 
+<div class="content-overlay">
     <section class="hero">
         <div class="container">
             <div class="hero-card">
@@ -485,6 +628,7 @@
         </div>
     </section>
 
+    <!-- UITLEG GRID - 3 blokken -->
     <div class="container">
         <div class="uitleg-grid">
             <a href="PV_Exclusieve_Service.html" class="uitleg-item">
@@ -670,7 +814,7 @@
     </footer>
 </div>
 
-<!-- BOEKINGSSCRIPT - VOLLEDIG FUNCTIONEEL MET SUGGESTIEBAR -->
+<!-- BOEKINGSSCRIPT -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -686,6 +830,35 @@
     let selectedVehicle = null, selectedVehicleExtra = 0;
     let returnFlatpickrInstance = null;
     let currentPage = 1;
+    
+    // ============================================
+    // HAMBURGER MENU FUNCTIONALITEIT
+    // ============================================
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    
+    function openMenu() {
+        sidebarOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+        sidebarOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openMenu);
+    if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function(e) {
+            if (e.target === sidebarOverlay) closeMenu();
+        });
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebarOverlay && sidebarOverlay.classList.contains('active')) closeMenu();
+    });
     
     // ============================================
     // BOEKINGSNUMMER MET T-PV- PREFIX (BEHOUDEN)
@@ -704,10 +877,10 @@
     
     function getExtrasString() {
         const extras = [];
-        if (document.getElementById('meetGreet').checked) extras.push("Meet & Greet");
-        if (document.getElementById('kissRide').checked) extras.push("Kiss & Ride");
-        if (document.getElementById('waterBottle').checked) extras.push("Waterfles");
-        if (document.getElementById('wifi').checked) extras.push("WiFi");
+        if (document.getElementById('meetGreet')?.checked) extras.push("Meet & Greet");
+        if (document.getElementById('kissRide')?.checked) extras.push("Kiss & Ride");
+        if (document.getElementById('waterBottle')?.checked) extras.push("Waterfles");
+        if (document.getElementById('wifi')?.checked) extras.push("WiFi");
         return extras.join(", ") || "Geen";
     }
     
@@ -752,6 +925,7 @@
     function showSuggestions(s, wid) {
         const w = document.getElementById(wid);
         const sd = w.querySelector('.suggestions');
+        if (!sd) return;
         sd.innerHTML = '';
         s.forEach(sug => {
             const div = document.createElement('div');
@@ -776,6 +950,7 @@
     function showTempMsg(wid, msg) {
         const w = document.getElementById(wid);
         const sd = w.querySelector('.suggestions');
+        if (!sd) return;
         sd.innerHTML = `<div class="suggestion-item" style="color:#b91c1c;">❌ ${msg}</div>`;
         sd.style.display = 'block';
         setTimeout(() => { if (sd.style.display === 'block') sd.style.display = 'none'; }, 8000);
@@ -996,7 +1171,6 @@
             status: "pending"
         };
         
-        // Validatie
         if (!bookingData.name.trim() || !bookingData.email || !bookingData.phone) {
             alert('Vul alle verplichte velden in');
             return;
@@ -1122,7 +1296,7 @@
     
     function initMap() { map = L.map('map').setView([50.85, 4.35], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map); }
     
-    document.getElementById('roundtripCheckbox').addEventListener('change', function (e) {
+    document.getElementById('roundtripCheckbox')?.addEventListener('change', function (e) {
         const returnContainer = document.getElementById('returnDateContainer');
         e.target.checked ? returnContainer.classList.add('visible') : returnContainer.classList.remove('visible');
         if (currentRouteData) {
@@ -1144,7 +1318,7 @@
     document.getElementById('verstuurBerichtBtn').addEventListener('click', () => alert('Bedankt! We nemen spoedig contact op.'));
     
     initMap(); 
-    initAutocomplete();  // SUGGESTIEBAR WERKT
+    initAutocomplete();
     initVehicleSelection(); 
     showPage(1);
     
