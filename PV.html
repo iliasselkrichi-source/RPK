@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
     
     <style>
-        /* ===== ROYAL VELVET STIJL (origineel thema - behouden) ===== */
+        /* ===== ROYAL VELVET STIJL (origineel thema) ===== */
         #background-map {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
             background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
@@ -111,7 +111,7 @@
         }
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
         
-        /* ===== BOEKINGSFORMULIER STIJLEN (aangepast aan Royal Velvet thema) ===== */
+        /* ===== BOEKINGSFORMULIER STIJLEN ===== */
         .booking-container {
             max-width: 850px;
             width: 100%;
@@ -416,7 +416,7 @@
             margin-top: 20px;
         }
         
-        /* Diensten en footer stijlen (origineel) */
+        /* Diensten en footer stijlen */
         .services-grid { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; padding: 50px 0 30px; }
         .service-card { background: var(--card-bg); backdrop-filter: blur(4px); border: 1px solid var(--border-light); border-radius: 36px; padding: 30px 24px; text-align: center; flex: 1 1 240px; text-decoration: none; color: inherit; transition: 0.2s; }
         .service-card:hover { transform: translateY(-6px); border-color: var(--primary); }
@@ -511,7 +511,7 @@
         </div>
     </div>
 
-    <!-- BOEKINGSFORMULIER (HERSTELD MET JUISTE LOGICA) -->
+    <!-- BOEKINGSFORMULIER -->
     <div class="container" id="booking">
         <div class="booking-container">
             <div class="carousel">
@@ -664,12 +664,12 @@
     </footer>
 </div>
 
-<!-- BOEKINGSSCRIPT (HERSTELD MET CORRECTE LOGICA UIT VOORBEELDCODE) -->
+<!-- BOEKINGSSCRIPT - FULL SUPABASE INTEGRATIE ACTIEF -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     
-    // Supabase configuratie (uit de voorbeeldcode)
+    // Supabase configuratie
     const SUPABASE_URL = 'https://kwsuqzbqzsmgkjaslwkz.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c3VxemJxenNtZ2tqYXNsd2t6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTUwMDQsImV4cCI6MjA5MjY5MTAwNH0.DBgx2oq0LbXwUlPQv3cmYMvGEjYA6bhy-2hejvgtERE';
     
@@ -819,6 +819,8 @@
         let total = (dist * 1.5) + (selectedVehicleExtra || 0);
         const totalDisplay = document.getElementById('totalDisplay');
         if (totalDisplay) totalDisplay.innerHTML = `Totaal: € ${total.toFixed(2)}`;
+        const overviewTotal = document.getElementById('overviewTotal');
+        if (overviewTotal) overviewTotal.innerHTML = `€ ${total.toFixed(2)}`;
     }
     
     function updateRitOverzicht() {
@@ -922,45 +924,81 @@
         }
     }
     
-    async function nextPage() {
-        if (currentPage === 1) { const ok = await calculateAndStoreRoute(); if (ok) showPage(2); }
-        else if (currentPage === 2) { if (!currentRouteData) { showError(2, 'Bereken eerst een rit in stap 1'); return; } showPage(3); }
-        else if (currentPage === 3) { if (!selectedVehicle) { showError(3, 'Selecteer een voertuig'); return; } showPage(4); }
-        else if (currentPage === 4) {
-            const fn = document.getElementById('firstName').value.trim(), ln = document.getElementById('lastName').value.trim(), ph = document.getElementById('phone').value.trim(), em = document.getElementById('email').value.trim();
-            if (!fn || !ln || !ph || !em) { showError(4, 'Vul alle verplichte velden in'); return; }
-            if (!currentRouteData) { showError(4, 'Geen ritgegevens'); return; }
-            if (!selectedVehicle) { showError(4, 'Geen voertuig gekozen'); return; }
-            showPage(5);
-        } else if (currentPage === 5) { showOverlay(); }
+    // ============================================
+    // SUPABASE - SEND TO DATABASE (ACTIEF)
+    // ============================================
+    async function sendToSupabase(bookingData) {
+        console.log('📦 Verzenden naar Supabase:', bookingData);
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify(bookingData)
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            console.log('✅ Boeking opgeslagen in Supabase!');
+            return true;
+        } catch (error) {
+            console.error('❌ Supabase fout:', error);
+            return false;
+        }
     }
     
-    function prevPage() { if (currentPage > 1) showPage(currentPage - 1); }
-    
-    function buildSummaryHTML() {
-        const fn = document.getElementById('firstName').value.trim(), ln = document.getElementById('lastName').value.trim();
-        const ph = document.getElementById('phone').value.trim(), em = document.getElementById('email').value.trim();
-        const pu = document.getElementById('pickupInput').value, doff = document.getElementById('dropoffInput').value;
-        let d = parseFloat(currentRouteData.distanceKm), t = currentRouteData.durationMin;
-        if (currentRoundTrip) { d *= 2; t *= 2; }
-        const base = d * 1.5, total = base + selectedVehicleExtra;
-        return `<div class="summary-section"><h3>🚖 Rit</h3><div class="summary-line"><strong>📍</strong> ${pu}</div><div class="summary-line"><strong>🏁</strong> ${doff}</div><div class="summary-line"><strong>📅 Heen:</strong> ${currentDateTime}</div><div class="summary-line"><strong>✈️</strong> ${currentFlight || "geen"}</div></div>
-                <div class="summary-section"><h3>👤 Klant</h3><div class="summary-line"><strong>Naam:</strong> ${fn} ${ln}</div><div class="summary-line"><strong>GSM:</strong> ${ph}</div><div class="summary-line"><strong>E-mail:</strong> ${em}</div></div>
-                <div class="summary-section"><h3>🚘 Voertuig</h3><div class="summary-line"><strong>Type:</strong> ${selectedVehicle} (+€${selectedVehicleExtra})</div></div>
-                <div class="summary-section"><h3>💰 Prijs</h3><div class="summary-line"><strong>Afstand:</strong> ${d.toFixed(1)} km</div><div class="summary-line"><strong>Basis:</strong> € ${base.toFixed(2)}</div><div class="summary-line"><strong>Totaal:</strong> € ${total.toFixed(2)}</div></div>`;
-    }
-    
-    function showOverlay() {
-        document.getElementById('overlaySummary').innerHTML = buildSummaryHTML();
-        document.getElementById('summaryOverlay').classList.add('active');
-    }
-    
-    function hideOverlay() { document.getElementById('summaryOverlay').classList.remove('active'); }
-    
-    function finalizeBooking() {
-        alert('Boeking bevestigd! (Demo - Supabase integratie werkt)');
-        hideOverlay();
-        resetAll();
+    // ============================================
+    // FINALIZE BOOKING - SUPABASE ACTIEF
+    // ============================================
+    async function finalizeBooking() {
+        const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || "Cash";
+        
+        let totalAmount = 0;
+        if (currentRouteData) {
+            let dist = parseFloat(currentRouteData.distanceKm);
+            if (currentRoundTrip) dist *= 2;
+            totalAmount = (dist * 1.5) + (selectedVehicleExtra || 0);
+        }
+        
+        const bookingData = {
+            id: generateBookingId(),
+            datetime: currentDateTime.split(' ')[0] || "",
+            time: currentDateTime.split(' ')[1] || "",
+            name: `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`,
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            pickup: document.getElementById('pickupInput').value,
+            destination: document.getElementById('dropoffInput').value,
+            flight_number: document.getElementById('flightNumber').value.trim() || "",
+            vehicle: selectedVehicle,
+            extras: getExtrasString(),
+            amount: totalAmount,
+            payment: paymentMethod,
+            status: "pending"
+        };
+        
+        // Validatie
+        if (!bookingData.name.trim() || !bookingData.email || !bookingData.phone) {
+            alert('Vul alle verplichte velden in');
+            return;
+        }
+        
+        const success = await sendToSupabase(bookingData);
+        
+        if (success) {
+            alert(`✅ Boeking bevestigd!\n\n📋 Boekingsnummer: ${bookingData.id}\n💰 Totaalbedrag: € ${totalAmount.toFixed(2)}\n\nEen bevestiging is opgeslagen in de database.`);
+            resetAll();
+            hideOverlay();
+        } else {
+            alert('❌ Er ging iets mis met het opslaan van uw boeking. Probeer opnieuw of contacteer ons.');
+        }
     }
     
     function resetAll() {
@@ -993,12 +1031,78 @@
         if (document.getElementById('totalDisplay')) document.getElementById('totalDisplay').innerHTML = 'Totaal: € 0,00';
     }
     
+    function buildSummaryHTML() {
+        const fn = document.getElementById('firstName').value.trim(), ln = document.getElementById('lastName').value.trim();
+        const ph = document.getElementById('phone').value.trim(), em = document.getElementById('email').value.trim();
+        const pu = document.getElementById('pickupInput').value, doff = document.getElementById('dropoffInput').value;
+        let d = parseFloat(currentRouteData.distanceKm), t = currentRouteData.durationMin;
+        if (currentRoundTrip) { d *= 2; t *= 2; }
+        const base = d * 1.5, total = base + selectedVehicleExtra;
+        return `<div class="summary-section"><h3>🚖 Rit</h3><div class="summary-line"><strong>📍</strong> ${pu}</div><div class="summary-line"><strong>🏁</strong> ${doff}</div><div class="summary-line"><strong>📅 Heen:</strong> ${currentDateTime}</div><div class="summary-line"><strong>✈️</strong> ${currentFlight || "geen"}</div></div>
+                <div class="summary-section"><h3>👤 Klant</h3><div class="summary-line"><strong>Naam:</strong> ${fn} ${ln}</div><div class="summary-line"><strong>GSM:</strong> ${ph}</div><div class="summary-line"><strong>E-mail:</strong> ${em}</div></div>
+                <div class="summary-section"><h3>🚘 Voertuig</h3><div class="summary-line"><strong>Type:</strong> ${selectedVehicle} (+€${selectedVehicleExtra})</div></div>
+                <div class="summary-section"><h3>💰 Prijs</h3><div class="summary-line"><strong>Afstand:</strong> ${d.toFixed(1)} km</div><div class="summary-line"><strong>Basis:</strong> € ${base.toFixed(2)}</div><div class="summary-line"><strong>Totaal:</strong> € ${total.toFixed(2)}</div></div>`;
+    }
+    
+    function showOverlay() {
+        document.getElementById('overlaySummary').innerHTML = buildSummaryHTML();
+        document.getElementById('summaryOverlay').classList.add('active');
+    }
+    
+    function hideOverlay() { document.getElementById('summaryOverlay').classList.remove('active'); }
+    
+    async function nextPage() {
+        if (currentPage === 1) { const ok = await calculateAndStoreRoute(); if (ok) showPage(2); }
+        else if (currentPage === 2) { if (!currentRouteData) { showError(2, 'Bereken eerst een rit in stap 1'); return; } showPage(3); }
+        else if (currentPage === 3) { if (!selectedVehicle) { showError(3, 'Selecteer een voertuig'); return; } showPage(4); }
+        else if (currentPage === 4) {
+            const fn = document.getElementById('firstName').value.trim(), ln = document.getElementById('lastName').value.trim(), ph = document.getElementById('phone').value.trim(), em = document.getElementById('email').value.trim();
+            if (!fn || !ln || !ph || !em) { showError(4, 'Vul alle verplichte velden in'); return; }
+            if (!currentRouteData) { showError(4, 'Geen ritgegevens'); return; }
+            if (!selectedVehicle) { showError(4, 'Geen voertuig gekozen'); return; }
+            showPage(5);
+            updateRitOverzicht();
+            updateTotalDisplay();
+        } else if (currentPage === 5) { showOverlay(); }
+    }
+    
+    function prevPage() { if (currentPage > 1) showPage(currentPage - 1); }
+    
     function initAutocomplete() {
-        const pInp = document.getElementById('pickupInput'), dInp = document.getElementById('dropoffInput');
-        let pTO, dTO;
-        pInp.addEventListener('input', () => { clearTimeout(pTO); pTO = setTimeout(() => fetchAddresses(pInp.value, 'pickupWrap'), 300); });
-        dInp.addEventListener('input', () => { clearTimeout(dTO); dTO = setTimeout(() => fetchAddresses(dInp.value, 'dropoffWrap'), 300); });
-        document.addEventListener('click', (e) => { if (!e.target.closest('.suggest-wrapper')) { clearSuggestions('pickupWrap'); clearSuggestions('dropoffWrap'); } });
+        const pickupInput = document.getElementById('pickupInput');
+        const dropoffInput = document.getElementById('dropoffInput');
+        let pickupTimeout, dropoffTimeout;
+        
+        if (pickupInput) {
+            pickupInput.addEventListener('input', function(e) {
+                clearTimeout(pickupTimeout);
+                const query = e.target.value;
+                if (query.length >= 3) {
+                    pickupTimeout = setTimeout(() => fetchAddresses(query, 'pickupWrap'), 300);
+                } else {
+                    clearSuggestions('pickupWrap');
+                }
+            });
+        }
+        
+        if (dropoffInput) {
+            dropoffInput.addEventListener('input', function(e) {
+                clearTimeout(dropoffTimeout);
+                const query = e.target.value;
+                if (query.length >= 3) {
+                    dropoffTimeout = setTimeout(() => fetchAddresses(query, 'dropoffWrap'), 300);
+                } else {
+                    clearSuggestions('dropoffWrap');
+                }
+            });
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.suggest-wrapper')) {
+                clearSuggestions('pickupWrap');
+                clearSuggestions('dropoffWrap');
+            }
+        });
     }
     
     function initMap() { map = L.map('map').setView([50.85, 4.35], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map); }
@@ -1024,7 +1128,10 @@
     document.getElementById('confirmBookingBtn').addEventListener('click', finalizeBooking);
     document.getElementById('verstuurBerichtBtn').addEventListener('click', () => alert('Bedankt! We nemen spoedig contact op.'));
     
-    initMap(); initAutocomplete(); initVehicleSelection(); showPage(1);
+    initMap(); 
+    initAutocomplete(); 
+    initVehicleSelection(); 
+    showPage(1);
     
     flatpickr("#datetime", {
         locale: "nl", enableTime: true, dateFormat: "d-m-Y H:i", time_24hr: true,
