@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Royal Velvet | Luxe taxivervoer België</title>
+    <title>Fleetconnect | Professioneel taxivervoer België</title>
     
-    <!-- Royal Velvet eigen fonts en icons -->
+    <!-- Fleetconnect eigen fonts en icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
     
     <style>
-        /* ===== ROYAL VELVET STIJL (origineel thema) ===== */
+        /* ===== FLEETCONNECT STIJL (aangepast thema) ===== */
         #background-map {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
             background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
@@ -478,8 +478,8 @@
     <section class="hero">
         <div class="container">
             <div class="hero-card">
-                <h1><i class="fas fa-crown"></i> Royal Velvet</h1>
-                <p>Luxe taxivervoer in België – Stipt, discreet & koninklijk comfort</p>
+                <h1><i class="fas fa-car"></i> Fleetconnect</h1>
+                <p>Professioneel taxivervoer in België – Stipt, betrouwbaar & comfortabel</p>
                 <a href="#booking" class="btn-primary"><i class="fas fa-calendar-alt"></i> Reserveer nu</a>
             </div>
         </div>
@@ -548,7 +548,7 @@
                 <div id="page2" class="carousel-page">
                     <h2>🗺️ Route & Prijs</h2>
                     <div id="map"></div>
-                    <div class="route-legend"><div class="legend-item"><div class="legend-color green"></div><span>🟢 Ophalen</span></div><div class="legend-item"><div class="legend-color red"></div><span>🔴 Afzetten</span></div><div class="legend-item"><div class="legend-color blue"></div><span>🟡 Route (goud, versterkt)</span></div></div>
+                    <div class="route-legend"><div class="legend-item"><div class="legend-color green"></div><span>🟢 Ophalen</span></div><div class="legend-item"><div class="legend-color red"></div><span>🔴 Afzetten</span></div><div class="legend-item"><div class="legend-color blue"></div><span>🟡 Route</span></div></div>
                     <div class="info-strip"><div class="info-card"><div class="label">📏 Afstand</div><div class="value" id="distVal">—</div><small>km</small></div><div class="info-card"><div class="label">⏱️ Reistijd</div><div class="value" id="timeVal">—</div><small>min</small></div><div class="info-card"><div class="label">💰 Prijs</div><div class="value" id="priceVal">—</div><small>€</small></div></div>
                     <div id="page2Error" class="error"></div>
                 </div>
@@ -600,7 +600,7 @@
         </div>
     </div>
 
-    <!-- ONZE DIENSTEN - 4 GRID BLOKKEN (AANGEPASTE LINKS) -->
+    <!-- ONZE DIENSTEN - 4 GRID BLOKKEN -->
     <div class="container">
         <h2 style="text-align:center; margin-bottom:20px;"><i class="fas fa-concierge-bell"></i> Onze diensten</h2>
         <div class="services-grid">
@@ -650,12 +650,12 @@
         </div>
     </div>
 
-    <!-- FOOTER (AANGEPASTE LINKS NAAR BELEIDSPAGINA'S) -->
+    <!-- FOOTER -->
     <footer class="footer-dark">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-brand"><h4><i class="fas fa-crown"></i> Royal Velvet</h4><p>Premium taxivervoer in België – Stijl, stiptheid en service.</p></div>
-                <div class="footer-ryz3n"><h4>Ryz3n | Digital Supremacy</h4><a href="#">Control Panel</a><a href="#">Taxi Dispatch</a><a href="#">Legal & Privacy</a></div>
+                <div class="footer-brand"><h4><i class="fas fa-car"></i> Fleetconnect</h4><p>Professioneel taxivervoer in België – Stijl, stiptheid en service.</p></div>
+                <div class="footer-ryz3n"><h4>Fleetconnect | Digital</h4><a href="#">Control Panel</a><a href="#">Taxi Dispatch</a><a href="#">Legal & Privacy</a></div>
                 <div class="footer-legal">
                     <h4>Juridisch</h4>
                     <a href="PVfaq.html">❓ FAQ</a><br>
@@ -665,7 +665,7 @@
                 </div>
                 <div class="footer-partners"><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div>
             </div>
-            <div class="footer-bottom">© 2026 Royal Velvet – <a href="#">Ryz3n</a></div>
+            <div class="footer-bottom">© 2026 Fleetconnect – <a href="#">Fleetconnect</a></div>
         </div>
     </footer>
 </div>
@@ -687,6 +687,9 @@
     let returnFlatpickrInstance = null;
     let currentPage = 1;
     
+    // ============================================
+    // BOEKINGSNUMMER MET T-PV- PREFIX (BEHOUDEN)
+    // ============================================
     function generateBookingId() {
         const now = new Date();
         const yyyy = now.getFullYear();
@@ -696,7 +699,7 @@
         counter++;
         localStorage.setItem('bookingCounter', counter);
         const formatted = String(counter).padStart(3, '0');
-        return `PV-${yyyy}${mm}${dd}-${formatted}`;
+        return `T-PV-${yyyy}${mm}${dd}-${formatted}`;
     }
     
     function getExtrasString() {
@@ -738,7 +741,7 @@
         if (q.length < 3) { clearSuggestions(wid); return; }
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&countrycodes=be&accept-language=nl`;
         try {
-            const r = await fetch(url, { headers: { 'User-Agent': 'RoyalVelvet/1.0' } });
+            const r = await fetch(url, { headers: { 'User-Agent': 'Fleetconnect/1.0' } });
             if (!r.ok) throw new Error();
             const d = await r.json();
             if (!d.length) { showTempMsg(wid, 'Geen adres in België'); return; }
