@@ -227,9 +227,9 @@
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     
-    // WERKENDE Supabase configuratie
-    const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
+    // Supabase configuratie
+    const SUPABASE_URL = 'https://kwsuqzbqzsmgkjaslwkz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c3VxemJxenNtZ2tqYXNsd2t6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTUwMDQsImV4cCI6MjA5MjY5MTAwNH0.DBgx2oq0LbXwUlPQv3cmYMvGEjYA6bhy-2hejvgtERE';
     
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
@@ -252,6 +252,7 @@
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', function(e) { if (e.target === sidebarOverlay) closeMenu(); });
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && sidebarOverlay && sidebarOverlay.classList.contains('active')) closeMenu(); });
     
+    // BOEKINGSNUMMER MET T-PV- PREFIX
     function generateBookingId() {
         const now = new Date();
         const yyyy = now.getFullYear();
@@ -495,7 +496,7 @@
         }
     }
     
-    // SUPABASE FUNCTIE - WERKT!
+    // SUPABASE FUNCTIE
     async function sendToSupabase(bookingData) {
         console.log('📦 Verzenden naar Supabase:', bookingData);
         try {
@@ -523,7 +524,7 @@
         }
     }
     
-    // FINALIZE BOOKING - Met customer_id en form_data voor jouw tabel
+    // FINALIZE BOOKING
     async function finalizeBooking() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || "Cash";
         
@@ -534,27 +535,13 @@
             totalAmount = (dist * 1.5) + (selectedVehicleExtra || 0);
         }
         
-        const nameValue = `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`;
-        const emailValue = document.getElementById('email').value.trim();
-        const phoneValue = document.getElementById('phone').value.trim();
-        
-        if (!nameValue || !emailValue || !phoneValue) {
-            alert('Vul alle verplichte velden in');
-            return;
-        }
-        
-        if (!selectedVehicle) {
-            alert('Selecteer een voertuig');
-            return;
-        }
-        
         const bookingData = {
             id: generateBookingId(),
             datetime: currentDateTime.split(' ')[0] || "",
             time: currentDateTime.split(' ')[1] || "",
-            name: nameValue,
-            email: emailValue,
-            phone: phoneValue,
+            name: `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`,
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
             pickup: document.getElementById('pickupInput').value,
             destination: document.getElementById('dropoffInput').value,
             flight_number: document.getElementById('flightNumber').value.trim() || "",
@@ -562,11 +549,13 @@
             extras: getExtrasString(),
             amount: totalAmount,
             payment: paymentMethod,
-            status: "pending",
-            customer_id: "CUST-" + emailValue.toLowerCase().replace(/[^a-z0-9]/g, ""),
-            form_data: { source: "web-booking" },
-            partner_id: 1
+            status: "pending"
         };
+        
+        if (!bookingData.name.trim() || !bookingData.email || !bookingData.phone) {
+            alert('Vul alle verplichte velden in');
+            return;
+        }
         
         const success = await sendToSupabase(bookingData);
         
