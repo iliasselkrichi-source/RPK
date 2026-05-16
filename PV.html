@@ -531,6 +531,7 @@
             return true;
         } catch (error) {
             console.error('❌ Supabase fout:', error);
+            alert(`Fout: ${error.message}`);
             return false;
         }
     }
@@ -554,6 +555,11 @@
             return;
         }
         
+        if (!selectedVehicle) {
+            alert('Selecteer een voertuig');
+            return;
+        }
+        
         const bookingData = {
             id: generateBookingId(),
             datetime: currentDateTime.split(' ')[0] || "",
@@ -570,17 +576,17 @@
             payment: paymentMethod,
             status: "pending",
             customer_id: "CUST-" + emailValue.toLowerCase().replace(/[^a-z0-9]/g, ""),
-            form_data: { source: "web-booking" }
+            form_data: { source: "web-booking" },
+            partner_id: 1  // <-- DIT WAS HET PROBLEEM!
         };
         
+        console.log('📦 Verzenden:', bookingData);
         const success = await sendToSupabase(bookingData);
         
         if (success) {
-            alert(`✅ Boeking bevestigd!\n\n📋 Boekingsnummer: ${bookingData.id}\n💰 Totaalbedrag: € ${totalAmount.toFixed(2)}\n\nEen bevestiging is opgeslagen in de database.`);
+            alert(`✅ Boeking bevestigd!\n\n📋 Boekingsnummer: ${bookingData.id}\n💰 Totaalbedrag: € ${totalAmount.toFixed(2)}`);
             resetAll();
             hideOverlay();
-        } else {
-            alert('❌ Er ging iets mis met het opslaan van uw boeking. Probeer opnieuw of contacteer ons.');
         }
     }
     
