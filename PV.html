@@ -103,6 +103,12 @@
         .service-card:hover,.uitleg-item:hover{transform:translateY(-6px);border-color:var(--primary)}
         .contact-wrapper{width:100%;display:flex;justify-content:center;padding:0 16px}
         .contact-row{background:white;border-radius:44px;padding:30px;margin:40px 0;border:1px solid var(--border-light);width:100%;max-width:600px}
+        .contact-form h3{margin-bottom:20px;color:var(--primary);text-align:center}
+        .compact-form{display:flex;flex-direction:column;gap:16px}
+        .compact-form input,.compact-form textarea{width:100%;padding:12px 16px;border-radius:28px;border:1px solid var(--border-light);font-size:1rem;background:white}
+        .button-row{display:flex;justify-content:space-between;gap:15px;margin-top:20px;flex-wrap:wrap}
+        .btn-whatsapp{background:#25D366;color:white;border:none;padding:12px 28px;border-radius:40px;font-weight:600;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+        .btn-whatsapp:hover{background:#128C7E}
         .footer-dark{background:#0d1f2c;color:#e0edf5;padding:48px 0 24px;margin-top:40px}
         .footer-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:40px;margin-bottom:30px}
         .footer-bottom{text-align:center;border-top:1px solid rgba(224,237,245,0.2);padding-top:24px}
@@ -212,87 +218,518 @@
         <a href="#" class="service-card"><div class="service-icon"><i class="fas fa-file-signature"></i></div><h3>Koeriersdienst</h3><p>Snelle documentleveringen</p></a>
     </div></div>
 
-    <div class="contact-wrapper" id="contact"><div class="contact-row"><div class="contact-form"><h3><i class="fas fa-paper-plane"></i> Stuur een bericht</h3><div class="compact-form"><input type="text" id="contactNaam" placeholder="Uw naam"><input type="email" id="contactEmail" placeholder="E-mail"><textarea id="contactBericht" rows="2" placeholder="Uw bericht"></textarea><div class="button-row"><button class="btn-primary" id="verstuurBerichtBtn"><i class="fas fa-paper-plane"></i> Verstuur</button><a href="https://wa.me/32470123456" target="_blank" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a></div></div></div></div></div>
+    <div class="contact-wrapper" id="contact">
+        <div class="contact-row">
+            <div class="contact-form">
+                <h3><i class="fas fa-paper-plane"></i> Stuur een bericht</h3>
+                <div class="compact-form">
+                    <div class="form-group"><label><i class="fas fa-user"></i> Uw naam *</label><input type="text" id="contactNaam" placeholder="Uw naam"></div>
+                    <div class="form-group"><label><i class="fas fa-envelope"></i> E-mail *</label><input type="email" id="contactEmail" placeholder="email@domein.be"></div>
+                    <div class="form-group"><label><i class="fas fa-comment"></i> Bericht *</label><textarea id="contactBericht" rows="2" placeholder="Uw vraag of opmerking..."></textarea></div>
+                    <div class="button-row">
+                        <button class="btn-primary" id="verstuurBerichtBtn"><i class="fas fa-paper-plane"></i> Verstuur bericht</button>
+                        <a href="https://wa.me/32470123456?text=Hallo%20Fleetconnect%2C%20ik%20heb%20een%20vraag%20over%20een%20taxirit" target="_blank" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp ons</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <footer class="footer-dark"><div class="container"><div class="footer-grid"><div class="footer-brand"><h4>Fleetconnect</h4><p>Professioneel taxivervoer in België</p></div><div class="footer-legal"><h4>Juridisch</h4><a href="#">FAQ</a><br><a href="#">Privacy</a><br><a href="#">Cookiebeleid</a><br><a href="#">Algemene voorwaarden</a></div></div><div class="footer-bottom">© 2026 Fleetconnect</div></div></footer>
+    <footer class="footer-dark"><div class="container"><div class="footer-grid"><div class="footer-brand"><h4><i class="fas fa-car"></i> Fleetconnect</h4><p>Professioneel taxivervoer in België – Stijl, stiptheid en service.</p></div><div class="footer-legal"><h4>Juridisch</h4><a href="#">❓ FAQ</a><br><a href="#">🔒 Privacy</a><br><a href="#">🍪 Cookiebeleid</a><br><a href="#">📜 Algemene voorwaarden</a></div></div><div class="footer-bottom">© 2026 Fleetconnect</div></div></footer>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const SUPABASE_URL = 'https://kwsuqzbqzsmgkjaslwkz.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c3VxemJxenNtZ2tqYXNsd2t6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTUwMDQsImV4cCI6MjA5MjY5MTAwNH0.DBgx2oq0LbXwUlPQv3cmYMvGEjYA6bhy-2hejvgtERE';
-
-let map, pickupCoord=null, dropoffCoord=null, routeLayer=null, pickupMarker=null, dropoffMarker=null;
-let currentRouteData=null, currentRoundTrip=false, currentDateTime="", currentReturnDateTime="";
-let selectedVehicle=null, selectedVehicleExtra=0, currentPage=1;
-
-// Hamburger menu
-document.getElementById('hamburgerBtn')?.addEventListener('click',()=>document.getElementById('sidebarOverlay').classList.add('active'));
-document.getElementById('closeMenuBtn')?.addEventListener('click',()=>document.getElementById('sidebarOverlay').classList.remove('active'));
-document.getElementById('sidebarOverlay')?.addEventListener('click',(e)=>{if(e.target===document.getElementById('sidebarOverlay')) document.getElementById('sidebarOverlay').classList.remove('active');});
-
-function generateBookingId(){let c=parseInt(localStorage.getItem('bookingCounter')||'0')+1;localStorage.setItem('bookingCounter',c);return `T-PV-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(c).padStart(3,'0')}`;}
-function getExtrasString(){let e=[];document.getElementById('meetGreet')?.checked&&e.push("Meet & Greet");document.getElementById('kissRide')?.checked&&e.push("Kiss & Ride");document.getElementById('waterBottle')?.checked&&e.push("Waterfles");document.getElementById('wifi')?.checked&&e.push("WiFi");return e.join(", ")||"Geen";}
-function parseEuroDate(s){if(!s)return null;let[d,t]=s.split(' ');if(!d)return null;let[dd,mm,yyyy]=d.split('-'),[hh,min]=t?t.split(':'):['0','0'];return new Date(yyyy,mm-1,dd,hh,min);}
-function isPast(s){let p=parseEuroDate(s);return p?p<new Date():false;}
-function isWithinNextHour(s){let p=parseEuroDate(s);return p?(p-new Date())>0&&(p-new Date())<3600000:false;}
-
-async function fetchAddresses(q,wid){if(q.length<3){clearSuggestions(wid);return}try{let r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&countrycodes=be&accept-language=nl`,{headers:{'User-Agent':'Fleetconnect/2.0'}});if(!r.ok)throw new Error();let d=await r.json();if(!d.length){showTempMsg(wid,'Geen adres in België');return}let sd=document.getElementById(wid).querySelector('.suggestions');sd.innerHTML='';d.forEach(p=>{let div=document.createElement('div');div.className='suggestion-item';div.textContent=p.display_name;div.onclick=()=>{document.getElementById(wid==='pickupWrap'?'pickupInput':'dropoffInput').value=p.display_name;if(wid==='pickupWrap')pickupCoord={lat:parseFloat(p.lat),lon:parseFloat(p.lon)};else dropoffCoord={lat:parseFloat(p.lat),lon:parseFloat(p.lon)};sd.style.display='none';if(pickupCoord&&dropoffCoord)calculateAndStoreRoute();};sd.appendChild(div);});sd.style.display='block';}catch(e){showTempMsg(wid,'Netwerkfout');}}
-function clearSuggestions(wid){let e=document.getElementById(wid)?.querySelector('.suggestions');if(e)e.style.display='none';}
-function showTempMsg(wid,msg){let w=document.getElementById(wid),sd=w.querySelector('.suggestions');sd.innerHTML=`<div class="suggestion-item" style="color:#b91c1c;">❌ ${msg}</div>`;sd.style.display='block';setTimeout(()=>{if(sd.style.display==='block')sd.style.display='none';},8000);}
-
-async function calcRoute(lat1,lon1,lat2,lon2){let r=await fetch(`https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`);let d=await r.json();if(d.code==='Ok'&&d.routes.length){let rt=d.routes[0];return{distanceKm:(rt.distance/1000).toFixed(1),durationMin:Math.round(rt.duration/60),geometry:rt.geometry};}return null;}
-
-function showError(p,msg){let e=document.getElementById(`page${p}Error`);if(e){e.innerText=msg;e.style.display='block';setTimeout(()=>e.style.display='none',4000);}}
-
-function updateTotalDisplay(){if(!currentRouteData)return;let d=parseFloat(currentRouteData.distanceKm);if(currentRoundTrip)d*=2;let t=(d*1.5)+(selectedVehicleExtra||0);let td=document.getElementById('totalDisplay');if(td)td.innerHTML=`Totaal: € ${t.toFixed(2)}`;}
-
-function updateRitOverzicht(){document.getElementById('overviewPickup').innerText=document.getElementById('pickupInput').value||'—';document.getElementById('overviewDestination').innerText=document.getElementById('dropoffInput').value||'—';document.getElementById('overviewHeen').innerText=document.getElementById('datetime').value||'—';document.getElementById('overviewVehicle').innerText=selectedVehicle||'—';document.getElementById('overviewExtras').innerText=getExtrasString();let rc=document.getElementById('overviewReturnContainer');if(currentRoundTrip&&currentReturnDateTime){rc.style.display='block';document.getElementById('overviewReturn').innerText=currentReturnDateTime;}else rc.style.display='none';let t=0;if(currentRouteData){let d=parseFloat(currentRouteData.distanceKm);if(currentRoundTrip)d*=2;t=(d*1.5)+(selectedVehicleExtra||0);}document.getElementById('overviewTotal').innerHTML=`€ ${t.toFixed(2)}`;}
-
-async function updateMapAndInfo(rd){if(!rd)return;if(pickupMarker)map.removeLayer(pickupMarker);if(dropoffMarker)map.removeLayer(dropoffMarker);if(routeLayer)map.removeLayer(routeLayer);let pi=L.divIcon({html:'<div style="background:#22c55e;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;">📍</div>',iconSize:[32,32]});let di=L.divIcon({html:'<div style="background:#ef4444;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;">🏁</div>',iconSize:[32,32]});pickupMarker=L.marker([pickupCoord.lat,pickupCoord.lon],{icon:pi}).addTo(map);dropoffMarker=L.marker([dropoffCoord.lat,dropoffCoord.lon],{icon:di}).addTo(map);routeLayer=L.geoJSON(rd.geometry,{color:'#d4af37',weight:6}).addTo(map);let b=L.latLngBounds([pickupCoord.lat,pickupCoord.lon],[dropoffCoord.lat,dropoffCoord.lon]);map.fitBounds(b,{padding:[80,80]});let d=parseFloat(rd.distanceKm),t=rd.durationMin;if(currentRoundTrip){d*=2;t*=2;}let p=d*1.5;document.getElementById('distVal').innerHTML=d.toFixed(1);document.getElementById('timeVal').innerHTML=t;document.getElementById('priceVal').innerHTML=p.toFixed(2);updateTotalDisplay();}
-
-async function calculateAndStoreRoute(){if(!pickupCoord||!dropoffCoord){showError(1,'Selecteer adressen uit suggesties.');return false}let dt=document.getElementById('datetime').value;if(!dt){showError(1,'Kies heen datum/tijd.');return false}if(isPast(dt)){showError(1,'❌ Geen ritten in verleden.');return false}if(currentRoundTrip){let rdt=document.getElementById('returnDatetime').value;if(!rdt){showError(1,'Kies terug datum/tijd voor retour.');return false}if(isPast(rdt)){showError(1,'❌ Terug rit mag niet in verleden zijn.');return false}currentReturnDateTime=rdt;}let u=isWithinNextHour(dt);let ud=document.getElementById('urgentWhatsApp');if(ud)u?ud.classList.add('show'):ud.classList.remove('show');let rd=await calcRoute(pickupCoord.lat,pickupCoord.lon,dropoffCoord.lat,dropoffCoord.lon);if(!rd){showError(1,'Route mislukt.');return false}currentRouteData=rd;currentRoundTrip=document.getElementById('roundtripCheckbox').checked;currentDateTime=dt;await updateMapAndInfo(rd);return true;}
-
-function initVehicleSelection(){document.querySelectorAll('.vehicle-card').forEach(c=>{c.addEventListener('click',()=>{document.querySelectorAll('.vehicle-card').forEach(c=>c.classList.remove('selected'));c.classList.add('selected');selectedVehicle=c.getAttribute('data-vehicle');selectedVehicleExtra=parseInt(c.getAttribute('data-extraprice'))||0;updateTotalDisplay();if(currentPage===5)updateRitOverzicht();});});}
-
-function addOkButtonToFlatpickr(i){if(!i.calendarContainer.querySelector('.flatpickr-ok-button')){let b=document.createElement('button');b.textContent='OK';b.className='flatpickr-ok-button';b.style.cssText='margin-left:10px;background:#28a745;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;';b.addEventListener('click',(e)=>{e.preventDefault();i.close();});let f=i.calendarContainer.querySelector('.flatpickr-footer');if(!f){f=document.createElement('div');f.className='flatpickr-footer';i.calendarContainer.appendChild(f);}f.appendChild(b);}}
-
-function showPage(p){document.querySelectorAll('.carousel-page').forEach((pg,i)=>{pg.classList.remove('active-page');if(i+1===p)pg.classList.add('active-page');});document.querySelectorAll('.step-btn').forEach((s,i)=>{s.classList.remove('active');if(i+1===p)s.classList.add('active');});document.getElementById('prevBtn').disabled=(p===1);currentPage=p;if(p===5){updateRitOverzicht();updateTotalDisplay();document.getElementById('nextBtn').style.display='none';}else document.getElementById('nextBtn').style.display='flex';}
-
-async function sendToSupabase(data){console.log('📦 Verzenden:',data);try{let r=await fetch(`${SUPABASE_URL}/rest/v1/bookings`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,'Prefer':'return=minimal'},body:JSON.stringify(data)});if(!r.ok)throw new Error(await r.text());console.log('✅ Opgeslagen!');return true;}catch(e){console.error('❌ Fout:',e);return false;}}
-
-async function finalizeBooking(){let pm=document.querySelector('input[name="payment"]:checked')?.value||"Cash";let total=0;if(currentRouteData){let d=parseFloat(currentRouteData.distanceKm);if(currentRoundTrip)d*=2;total=(d*1.5)+(selectedVehicleExtra||0);}let name=`${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`;let email=document.getElementById('email').value.trim();let phone=document.getElementById('phone').value.trim();if(!name||!email||!phone){alert('Vul alle verplichte velden in');return}let customerId="CUST-"+email.toLowerCase().replace(/[^a-z0-9]/g,"");let data={id:generateBookingId(),datetime:currentDateTime.split(' ')[0]||"",time:currentDateTime.split(' ')[1]||"",name,email,phone,pickup:document.getElementById('pickupInput').value,destination:document.getElementById('dropoffInput').value,flight_number:document.getElementById('flightNumber').value.trim()||"",vehicle:selectedVehicle||"Standaard",extras:getExtrasString(),amount:total.toString(),payment:pm,status:"pending",customer_id:customerId,form_data:{source:"web-booking"}};let ok=await sendToSupabase(data);if(ok){alert(`✅ Boeking bevestigd!\n📋 ${data.id}\n💰 € ${total.toFixed(2)}`);resetAll();hideOverlay();}else alert('❌ Fout bij opslaan');}
-
-function resetAll(){if(routeLayer)map.removeLayer(routeLayer);if(pickupMarker)map.removeLayer(pickupMarker);if(dropoffMarker)map.removeLayer(dropoffMarker);currentRouteData=null;pickupCoord=null;dropoffCoord=null;selectedVehicle=null;document.getElementById('distVal').innerHTML='—';document.getElementById('timeVal').innerHTML='—';document.getElementById('priceVal').innerHTML='—';document.getElementById('pickupInput').value='';document.getElementById('dropoffInput').value='';document.getElementById('firstName').value='';document.getElementById('lastName').value='';document.getElementById('phone').value='';document.getElementById('email').value='';document.getElementById('vat').value='';document.getElementById('flightNumber').value='';document.getElementById('roundtripCheckbox').checked=false;document.getElementById('meetGreet').checked=false;document.getElementById('kissRide').checked=false;document.getElementById('waterBottle').checked=false;document.getElementById('wifi').checked=false;document.getElementById('specialWishes').value='';document.getElementById('returnDatetime').value='';currentRoundTrip=false;currentReturnDateTime='';document.getElementById('returnDateContainer').classList.remove('visible');showPage(1);if(document.getElementById('totalDisplay'))document.getElementById('totalDisplay').innerHTML='Totaal: € 0,00';}
-
-function buildSummaryHTML(){let fn=document.getElementById('firstName').value.trim(),ln=document.getElementById('lastName').value.trim();let pu=document.getElementById('pickupInput').value,doff=document.getElementById('dropoffInput').value;let d=parseFloat(currentRouteData.distanceKm);if(currentRoundTrip)d*=2;let base=d*1.5,total=base+selectedVehicleExtra;return `<div class="summary-section"><h3>🚖 Rit</h3><div><strong>📍</strong> ${pu}</div><div><strong>🏁</strong> ${doff}</div><div><strong>📅</strong> ${currentDateTime}</div></div><div class="summary-section"><h3>👤 Klant</h3><div><strong>Naam:</strong> ${fn} ${ln}</div><div><strong>E-mail:</strong> ${document.getElementById('email').value}</div></div><div class="summary-section"><h3>🚘 Voertuig</h3><div>${selectedVehicle} (+€${selectedVehicleExtra})</div></div><div class="summary-section"><h3>💰 Prijs</h3><div><strong>Afstand:</strong> ${d.toFixed(1)} km</div><div><strong>Totaal:</strong> € ${total.toFixed(2)}</div></div>`;}
-function showOverlay(){document.getElementById('overlaySummary').innerHTML=buildSummaryHTML();document.getElementById('summaryOverlay').classList.add('active');}
-function hideOverlay(){document.getElementById('summaryOverlay').classList.remove('active');}
-
-async function nextPage(){if(currentPage===1){let ok=await calculateAndStoreRoute();if(ok)showPage(2);}else if(currentPage===2){if(!currentRouteData){showError(2,'Bereken eerst een rit');return}showPage(3);}else if(currentPage===3){if(!selectedVehicle){showError(3,'Selecteer een voertuig');return}showPage(4);}else if(currentPage===4){let fn=document.getElementById('firstName').value.trim(),ln=document.getElementById('lastName').value.trim();if(!fn||!ln){showError(4,'Vul alle verplichte velden in');return}showPage(5);updateRitOverzicht();updateTotalDisplay();}else if(currentPage===5)showOverlay();}
-function prevPage(){if(currentPage>1)showPage(currentPage-1);}
-
-function initAutocomplete(){let pi=document.getElementById('pickupInput'),di=document.getElementById('dropoffInput'),to;pi.addEventListener('input',()=>{clearTimeout(to);to=setTimeout(()=>fetchAddresses(pi.value,'pickupWrap'),300);});di.addEventListener('input',()=>{clearTimeout(to);to=setTimeout(()=>fetchAddresses(di.value,'dropoffWrap'),300);});document.addEventListener('click',(e)=>{if(!e.target.closest('.suggest-wrapper')){clearSuggestions('pickupWrap');clearSuggestions('dropoffWrap');}});}
-function initMap(){map=L.map('map').setView([50.85,4.35],13);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);}
-
-document.getElementById('roundtripCheckbox')?.addEventListener('change',(e)=>{let rc=document.getElementById('returnDateContainer');e.target.checked?rc.classList.add('visible'):rc.classList.remove('visible');if(currentRouteData){currentRoundTrip=e.target.checked;let d=parseFloat(currentRouteData.distanceKm);if(currentRoundTrip)d*=2;document.getElementById('distVal').innerHTML=d.toFixed(1);document.getElementById('priceVal').innerHTML=(d*1.5).toFixed(2);updateTotalDisplay();}});
-document.getElementById('nextBtn').addEventListener('click',nextPage);
-document.getElementById('prevBtn').addEventListener('click',prevPage);
-document.getElementById('finalConfirmBtn')?.addEventListener('click',finalizeBooking);
-document.getElementById('closeOverlayBtn')?.addEventListener('click',hideOverlay);
-document.getElementById('cancelOverlayBtn')?.addEventListener('click',hideOverlay);
-document.getElementById('confirmBookingBtn')?.addEventListener('click',finalizeBooking);
-document.getElementById('verstuurBerichtBtn')?.addEventListener('click',()=>alert('Bedankt! We nemen contact op.'));
-
-initMap();initAutocomplete();initVehicleSelection();showPage(1);
-
-flatpickr("#datetime",{locale:"nl",enableTime:true,dateFormat:"d-m-Y H:i",time_24hr:true,defaultDate:(()=>{let d=new Date();d.setHours(d.getHours()+1);return d;})(),onReady:(_,__,i)=>addOkButtonToFlatpickr(i)});
-flatpickr("#returnDatetime",{locale:"nl",enableTime:true,dateFormat:"d-m-Y H:i",time_24hr:true,onReady:(_,__,i)=>addOkButtonToFlatpickr(i)});
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    
+    const SUPABASE_URL = 'https://kwsuqzbqzsmgkjaslwkz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c3VxemJxenNtZ2tqYXNsd2t6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTUwMDQsImV4cCI6MjA5MjY5MTAwNH0.DBgx2oq0LbXwUlPQv3cmYMvGEjYA6bhy-2hejvgtERE';
+    
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let map, pickupCoord = null, dropoffCoord = null, routeLayer = null, pickupMarker = null, dropoffMarker = null;
+    let currentRouteData = null, currentRoundTrip = false, currentFlight = "", currentDateTime = "", currentReturnDateTime = "";
+    let selectedVehicle = null, selectedVehicleExtra = 0;
+    let returnFlatpickrInstance = null;
+    let currentPage = 1;
+    
+    // Hamburger menu
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    
+    function openMenu() { sidebarOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeMenu() { sidebarOverlay.classList.remove('active'); document.body.style.overflow = ''; }
+    
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openMenu);
+    if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', function(e) { if (e.target === sidebarOverlay) closeMenu(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && sidebarOverlay && sidebarOverlay.classList.contains('active')) closeMenu(); });
+    
+    function generateBookingId() {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        let counter = parseInt(localStorage.getItem('bookingCounter') || '0');
+        counter++;
+        localStorage.setItem('bookingCounter', counter);
+        const formatted = String(counter).padStart(3, '0');
+        return `T-PV-${yyyy}${mm}${dd}-${formatted}`;
+    }
+    
+    function getExtrasString() {
+        const extras = [];
+        if (document.getElementById('meetGreet')?.checked) extras.push("Meet & Greet");
+        if (document.getElementById('kissRide')?.checked) extras.push("Kiss & Ride");
+        if (document.getElementById('waterBottle')?.checked) extras.push("Waterfles");
+        if (document.getElementById('wifi')?.checked) extras.push("WiFi");
+        return extras.join(", ") || "Geen";
+    }
+    
+    function parseEuroDate(str) {
+        if (!str) return null;
+        let [datePart, timePart] = str.split(' ');
+        if (!datePart) return null;
+        let [dd, mm, yyyy] = datePart.split('-');
+        let [hh, min] = timePart ? timePart.split(':') : ['0', '0'];
+        return new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd), parseInt(hh), parseInt(min));
+    }
+    
+    function isPast(ds) {
+        if (!ds) return false;
+        const parsed = parseEuroDate(ds);
+        return parsed ? parsed < new Date() : false;
+    }
+    
+    function isWithinNextHour(ds) {
+        if (!ds) return false;
+        const parsed = parseEuroDate(ds);
+        if (!parsed) return false;
+        const diff = parsed - new Date();
+        return diff > 0 && diff < 3600000;
+    }
+    
+    async function fetchAddresses(q, wid) {
+        if (q.length < 3) { clearSuggestions(wid); return; }
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&countrycodes=be&accept-language=nl`;
+        try {
+            const response = await fetch(url, { headers: { 'User-Agent': 'Fleetconnect/2.0' } });
+            if (!response.ok) throw new Error();
+            const data = await response.json();
+            if (!data.length) { showTempMsg(wid, 'Geen adres in België'); return; }
+            const wrapper = document.getElementById(wid);
+            const suggestionsDiv = wrapper.querySelector('.suggestions');
+            suggestionsDiv.innerHTML = '';
+            data.forEach(place => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.setAttribute('data-lat', place.lat);
+                div.setAttribute('data-lon', place.lon);
+                div.textContent = place.display_name.length > 80 ? place.display_name.slice(0, 80) + '…' : place.display_name;
+                div.onclick = (function(lat, lon, name) {
+                    return function() {
+                        document.getElementById(wid === 'pickupWrap' ? 'pickupInput' : 'dropoffInput').value = name;
+                        if (wid === 'pickupWrap') { pickupCoord = { lat: parseFloat(lat), lon: parseFloat(lon) }; }
+                        else { dropoffCoord = { lat: parseFloat(lat), lon: parseFloat(lon) }; }
+                        suggestionsDiv.style.display = 'none';
+                        if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
+                    };
+                })(place.lat, place.lon, place.display_name);
+                suggestionsDiv.appendChild(div);
+            });
+            suggestionsDiv.style.display = 'block';
+        } catch (error) {
+            console.error('Autocomplete fout:', error);
+            showTempMsg(wid, 'Netwerkfout');
+        }
+    }
+    
+    function clearSuggestions(wid) { const el = document.getElementById(wid)?.querySelector('.suggestions'); if (el) el.style.display = 'none'; }
+    
+    function showTempMsg(wid, msg) {
+        const w = document.getElementById(wid);
+        const sd = w.querySelector('.suggestions');
+        if (!sd) return;
+        sd.innerHTML = `<div class="suggestion-item" style="color:#b91c1c;">❌ ${msg}</div>`;
+        sd.style.display = 'block';
+        setTimeout(() => { if (sd.style.display === 'block') sd.style.display = 'none'; }, 8000);
+    }
+    
+    async function calcRoute(lat1, lon1, lat2, lon2) {
+        const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
+        try {
+            const r = await fetch(url);
+            const d = await r.json();
+            if (d.code === 'Ok' && d.routes.length) {
+                const rt = d.routes[0];
+                return { distanceKm: (rt.distance / 1000).toFixed(1), durationMin: Math.round(rt.duration / 60), geometry: rt.geometry };
+            }
+        } catch (e) { }
+        return null;
+    }
+    
+    function showError(page, msg) { const errDiv = document.getElementById(`page${page}Error`); if (errDiv) { errDiv.innerText = msg; errDiv.style.display = 'block'; setTimeout(() => errDiv.style.display = 'none', 4000); } }
+    
+    async function updateMapAndInfo(rd) {
+        if (!rd) return;
+        if (pickupMarker) map.removeLayer(pickupMarker);
+        if (dropoffMarker) map.removeLayer(dropoffMarker);
+        if (routeLayer) map.removeLayer(routeLayer);
+        
+        const pickupIcon = L.divIcon({ className: 'custom-div-icon', html: '<div style="background-color:#22c55e;width:32px;height:32px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:18px;">📍</div>', iconSize: [32, 32], popupAnchor: [0, -16] });
+        const dropoffIcon = L.divIcon({ className: 'custom-div-icon', html: '<div style="background-color:#ef4444;width:32px;height:32px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:18px;">🏁</div>', iconSize: [32, 32], popupAnchor: [0, -16] });
+        
+        pickupMarker = L.marker([pickupCoord.lat, pickupCoord.lon], { icon: pickupIcon }).addTo(map);
+        dropoffMarker = L.marker([dropoffCoord.lat, dropoffCoord.lon], { icon: dropoffIcon }).addTo(map);
+        routeLayer = L.geoJSON(rd.geometry, { color: '#d4af37', weight: 6, opacity: 0.9 }).addTo(map);
+        
+        const bounds = L.latLngBounds([pickupCoord.lat, pickupCoord.lon], [dropoffCoord.lat, dropoffCoord.lon]);
+        map.fitBounds(bounds, { padding: [80, 80] });
+        
+        let d = parseFloat(rd.distanceKm), t = rd.durationMin;
+        if (currentRoundTrip) { d *= 2; t *= 2; }
+        const price = d * 1.5;
+        document.getElementById('distVal').innerHTML = d.toFixed(1);
+        document.getElementById('timeVal').innerHTML = t;
+        document.getElementById('priceVal').innerHTML = price.toFixed(2);
+        updateTotalDisplay();
+    }
+    
+    function updateTotalDisplay() {
+        if (!currentRouteData) return;
+        let dist = parseFloat(currentRouteData.distanceKm);
+        if (currentRoundTrip) dist *= 2;
+        let total = (dist * 1.5) + (selectedVehicleExtra || 0);
+        const totalDisplay = document.getElementById('totalDisplay');
+        if (totalDisplay) totalDisplay.innerHTML = `Totaal: € ${total.toFixed(2)}`;
+        const overviewTotal = document.getElementById('overviewTotal');
+        if (overviewTotal) overviewTotal.innerHTML = `€ ${total.toFixed(2)}`;
+    }
+    
+    function updateRitOverzicht() {
+        document.getElementById('overviewPickup').innerText = document.getElementById('pickupInput').value || '—';
+        document.getElementById('overviewDestination').innerText = document.getElementById('dropoffInput').value || '—';
+        document.getElementById('overviewHeen').innerText = document.getElementById('datetime').value || '—';
+        document.getElementById('overviewVehicle').innerText = selectedVehicle || '—';
+        document.getElementById('overviewExtras').innerText = getExtrasString();
+        
+        const returnContainer = document.getElementById('overviewReturnContainer');
+        if (currentRoundTrip && currentReturnDateTime) {
+            returnContainer.style.display = 'block';
+            document.getElementById('overviewReturn').innerText = currentReturnDateTime;
+        } else {
+            returnContainer.style.display = 'none';
+        }
+        
+        let total = 0;
+        if (currentRouteData) {
+            let dist = parseFloat(currentRouteData.distanceKm);
+            if (currentRoundTrip) dist *= 2;
+            total = (dist * 1.5) + (selectedVehicleExtra || 0);
+        }
+        document.getElementById('overviewTotal').innerHTML = `€ ${total.toFixed(2)}`;
+    }
+    
+    async function calculateAndStoreRoute() {
+        if (!pickupCoord || !dropoffCoord) { showError(1, 'Selecteer adressen uit suggesties.'); return false; }
+        const dt = document.getElementById('datetime').value;
+        if (!dt) { showError(1, 'Kies heen datum/tijd.'); return false; }
+        if (isPast(dt)) { showError(1, '❌ Geen ritten in verleden.'); return false; }
+        if (currentRoundTrip) {
+            const returnDt = document.getElementById('returnDatetime').value;
+            if (!returnDt) { showError(1, 'Kies terug datum/tijd voor retour.'); return false; }
+            if (isPast(returnDt)) { showError(1, '❌ Terug rit mag niet in verleden zijn.'); return false; }
+            currentReturnDateTime = returnDt;
+        }
+        const urgent = isWithinNextHour(dt);
+        const urgentDiv = document.getElementById('urgentWhatsApp');
+        if (urgentDiv) urgent ? urgentDiv.classList.add('show') : urgentDiv.classList.remove('show');
+        
+        const rd = await calcRoute(pickupCoord.lat, pickupCoord.lon, dropoffCoord.lat, dropoffCoord.lon);
+        if (!rd) { showError(1, 'Route mislukt.'); return false; }
+        currentRouteData = rd;
+        currentRoundTrip = document.getElementById('roundtripCheckbox').checked;
+        currentFlight = document.getElementById('flightNumber').value;
+        currentDateTime = dt;
+        await updateMapAndInfo(rd);
+        return true;
+    }
+    
+    function initVehicleSelection() {
+        document.querySelectorAll('.vehicle-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedVehicle = card.getAttribute('data-vehicle');
+                selectedVehicleExtra = parseInt(card.getAttribute('data-extraprice')) || 0;
+                updateTotalDisplay();
+                if (currentPage === 5) updateRitOverzicht();
+            });
+        });
+    }
+    
+    function addOkButtonToFlatpickr(instance) {
+        const existing = instance.calendarContainer.querySelector('.flatpickr-ok-button');
+        if (!existing) {
+            const btn = document.createElement('button');
+            btn.textContent = 'OK';
+            btn.className = 'flatpickr-ok-button';
+            btn.style.cssText = 'margin-left:10px; background:#28a745; color:white; border:none; padding:4px 12px; border-radius:4px; cursor:pointer;';
+            btn.addEventListener('click', (e) => { e.preventDefault(); instance.close(); });
+            let footer = instance.calendarContainer.querySelector('.flatpickr-footer');
+            if (!footer) { footer = document.createElement('div'); footer.className = 'flatpickr-footer'; instance.calendarContainer.appendChild(footer); }
+            footer.appendChild(btn);
+        }
+    }
+    
+    function showPage(page) {
+        document.querySelectorAll('.carousel-page').forEach((p, idx) => { p.classList.remove('active-page'); if (idx + 1 === page) p.classList.add('active-page'); });
+        document.querySelectorAll('.step-btn').forEach((s, idx) => { s.classList.remove('active'); if (idx + 1 === page) s.classList.add('active'); if (idx + 1 < page) s.classList.add('done'); else s.classList.remove('done'); });
+        document.getElementById('prevBtn').disabled = (page === 1);
+        currentPage = page;
+        if (page === 2 && map) {
+            setTimeout(() => {
+                map.invalidateSize();
+                if (currentRouteData && pickupCoord && dropoffCoord) {
+                    const bounds = L.latLngBounds([pickupCoord.lat, pickupCoord.lon], [dropoffCoord.lat, dropoffCoord.lon]);
+                    map.fitBounds(bounds, { padding: [80, 80] });
+                }
+            }, 150);
+        }
+        if (page === 5) {
+            updateRitOverzicht();
+            updateTotalDisplay();
+            const nextBtn = document.getElementById('nextBtn');
+            if (nextBtn) nextBtn.style.display = 'none';
+        } else {
+            const nextBtn = document.getElementById('nextBtn');
+            if (nextBtn) nextBtn.style.display = 'flex';
+        }
+    }
+    
+    async function sendToSupabase(bookingData) {
+        console.log('📦 Verzenden naar Supabase:', bookingData);
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify(bookingData)
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            console.log('✅ Boeking opgeslagen in Supabase!');
+            return true;
+        } catch (error) {
+            console.error('❌ Supabase fout:', error);
+            return false;
+        }
+    }
+    
+    async function finalizeBooking() {
+        const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || "Cash";
+        
+        let totalAmount = 0;
+        if (currentRouteData) {
+            let dist = parseFloat(currentRouteData.distanceKm);
+            if (currentRoundTrip) dist *= 2;
+            totalAmount = (dist * 1.5) + (selectedVehicleExtra || 0);
+        }
+        
+        const nameValue = `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`;
+        const emailValue = document.getElementById('email').value.trim();
+        const phoneValue = document.getElementById('phone').value.trim();
+        
+        if (!nameValue || !emailValue || !phoneValue) {
+            alert('Vul alle verplichte velden in');
+            return;
+        }
+        
+        const bookingData = {
+            id: generateBookingId(),
+            datetime: currentDateTime.split(' ')[0] || "",
+            time: currentDateTime.split(' ')[1] || "",
+            name: nameValue,
+            email: emailValue,
+            phone: phoneValue,
+            pickup: document.getElementById('pickupInput').value,
+            destination: document.getElementById('dropoffInput').value,
+            flight_number: document.getElementById('flightNumber').value.trim() || "",
+            vehicle: selectedVehicle,
+            extras: getExtrasString(),
+            amount: totalAmount.toString(),
+            payment: paymentMethod,
+            status: "pending",
+            customer_id: "CUST-" + emailValue.toLowerCase().replace(/[^a-z0-9]/g, ""),
+            form_data: { source: "web-booking" }
+        };
+        
+        const success = await sendToSupabase(bookingData);
+        
+        if (success) {
+            alert(`✅ Boeking bevestigd!\n\n📋 Boekingsnummer: ${bookingData.id}\n💰 Totaalbedrag: € ${totalAmount.toFixed(2)}\n\nEen bevestiging is opgeslagen in de database.`);
+            resetAll();
+            hideOverlay();
+        } else {
+            alert('❌ Er ging iets mis met het opslaan van uw boeking. Probeer opnieuw of contacteer ons.');
+        }
+    }
+    
+    function resetAll() {
+        if (routeLayer) map.removeLayer(routeLayer);
+        if (pickupMarker) map.removeLayer(pickupMarker);
+        if (dropoffMarker) map.removeLayer(dropoffMarker);
+        currentRouteData = null; pickupCoord = null; dropoffCoord = null; selectedVehicle = null; selectedVehicleExtra = 0;
+        document.getElementById('distVal').innerHTML = '—';
+        document.getElementById('timeVal').innerHTML = '—';
+        document.getElementById('priceVal').innerHTML = '—';
+        document.getElementById('pickupInput').value = '';
+        document.getElementById('dropoffInput').value = '';
+        document.getElementById('firstName').value = '';
+        document.getElementById('lastName').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('vat').value = '';
+        document.getElementById('flightNumber').value = '';
+        document.getElementById('roundtripCheckbox').checked = false;
+        document.getElementById('meetGreet').checked = false;
+        document.getElementById('kissRide').checked = false;
+        document.getElementById('waterBottle').checked = false;
+        document.getElementById('wifi').checked = false;
+        document.getElementById('specialWishes').value = '';
+        document.getElementById('returnDatetime').value = '';
+        currentRoundTrip = false;
+        currentReturnDateTime = '';
+        document.getElementById('returnDateContainer').classList.remove('visible');
+        showPage(1);
+        if (document.getElementById('totalDisplay')) document.getElementById('totalDisplay').innerHTML = 'Totaal: € 0,00';
+    }
+    
+    function buildSummaryHTML() {
+        const fn = document.getElementById('firstName').value.trim(), ln = document.getElementById('lastName').value.trim();
+        const ph = document.getElementById('phone').value.trim(), em = document.getElementById('email').value.trim();
+        const pu = document.getElementById('pickupInput').value, doff = document.getElementById('dropoffInput').value;
+        let d = parseFloat(currentRouteData.distanceKm), t = currentRouteData.durationMin;
+        if (currentRoundTrip) { d *= 2; t *= 2; }
+        const base = d * 1.5, total = base + selectedVehicleExtra;
+        return `<div class="summary-section"><h3>🚖 Rit</h3><div class="summary-line"><strong>📍</strong> ${pu}</div><div class="summary-line"><strong>🏁</strong> ${doff}</div><div class="summary-line"><strong>📅 Heen:</strong> ${currentDateTime}</div><div class="summary-line"><strong>✈️</strong> ${currentFlight || "geen"}</div></div>
+                <div class="summary-section"><h3>👤 Klant</h3><div class="summary-line"><strong>Naam:</strong> ${fn} ${ln}</div><div class="summary-line"><strong>GSM:</strong> ${ph}</div><div class="summary-line"><strong>E-mail:</strong> ${em}</div></div>
+                <div class="summary-section"><h3>🚘 Voertuig</h3><div class="summary-line"><strong>Type:</strong> ${selectedVehicle} (+€${selectedVehicleExtra})</div></div>
+                <div class="summary-section"><h3>💰 Prijs</h3><div class="summary-line"><strong>Afstand:</strong> ${d.toFixed(1)} km</div><div class="summary-line"><strong>Basis:</strong> € ${base.toFixed(2)}</div><div class="summary-line"><strong>Totaal:</strong> € ${total.toFixed(2)}</div></div>`;
+    }
+    
+    function showOverlay() { document.getElementById('overlaySummary').innerHTML = buildSummaryHTML(); document.getElementById('summaryOverlay').classList.add('active'); }
+    function hideOverlay() { document.getElementById('summaryOverlay').classList.remove('active'); }
+    
+    async function nextPage() {
+        if (currentPage === 1) { const ok = await calculateAndStoreRoute(); if (ok) showPage(2); }
+        else if (currentPage === 2) { if (!currentRouteData) { showError(2, 'Bereken eerst een rit in stap 1'); return; } showPage(3); }
+        else if (currentPage === 3) { if (!selectedVehicle) { showError(3, 'Selecteer een voertuig'); return; } showPage(4); }
+        else if (currentPage === 4) {
+            const fn = document.getElementById('firstName').value.trim(), ln = document.getElementById('lastName').value.trim(), ph = document.getElementById('phone').value.trim(), em = document.getElementById('email').value.trim();
+            if (!fn || !ln || !ph || !em) { showError(4, 'Vul alle verplichte velden in'); return; }
+            if (!currentRouteData) { showError(4, 'Geen ritgegevens'); return; }
+            if (!selectedVehicle) { showError(4, 'Geen voertuig gekozen'); return; }
+            showPage(5);
+            updateRitOverzicht();
+            updateTotalDisplay();
+        } else if (currentPage === 5) { showOverlay(); }
+    }
+    
+    function prevPage() { if (currentPage > 1) showPage(currentPage - 1); }
+    
+    function initAutocomplete() {
+        const pickupInput = document.getElementById('pickupInput');
+        const dropoffInput = document.getElementById('dropoffInput');
+        let pickupTimeout, dropoffTimeout;
+        if (pickupInput) {
+            pickupInput.addEventListener('input', function(e) {
+                clearTimeout(pickupTimeout);
+                const query = e.target.value;
+                if (query.length >= 3) { pickupTimeout = setTimeout(() => fetchAddresses(query, 'pickupWrap'), 300); }
+                else { clearSuggestions('pickupWrap'); }
+            });
+        }
+        if (dropoffInput) {
+            dropoffInput.addEventListener('input', function(e) {
+                clearTimeout(dropoffTimeout);
+                const query = e.target.value;
+                if (query.length >= 3) { dropoffTimeout = setTimeout(() => fetchAddresses(query, 'dropoffWrap'), 300); }
+                else { clearSuggestions('dropoffWrap'); }
+            });
+        }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.suggest-wrapper')) {
+                clearSuggestions('pickupWrap');
+                clearSuggestions('dropoffWrap');
+            }
+        });
+    }
+    
+    function initMap() { map = L.map('map').setView([50.85, 4.35], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map); }
+    
+    document.getElementById('roundtripCheckbox')?.addEventListener('change', function (e) {
+        const returnContainer = document.getElementById('returnDateContainer');
+        e.target.checked ? returnContainer.classList.add('visible') : returnContainer.classList.remove('visible');
+        if (currentRouteData) {
+            currentRoundTrip = e.target.checked;
+            let d = parseFloat(currentRouteData.distanceKm), t = currentRouteData.durationMin;
+            if (currentRoundTrip) { d *= 2; t *= 2; }
+            document.getElementById('distVal').innerHTML = d.toFixed(1);
+            document.getElementById('timeVal').innerHTML = t;
+            document.getElementById('priceVal').innerHTML = (d * 1.5).toFixed(2);
+            updateTotalDisplay();
+        }
+    });
+    
+    document.getElementById('nextBtn').addEventListener('click', nextPage);
+    document.getElementById('prevBtn').addEventListener('click', prevPage);
+    document.getElementById('finalConfirmBtn').addEventListener('click', finalizeBooking);
+    
+    const closeOverlayBtn = document.getElementById('closeOverlayBtn');
+    const cancelOverlayBtn = document.getElementById('cancelOverlayBtn');
+    const confirmBookingBtn = document.getElementById('confirmBookingBtn');
+    
+    if (closeOverlayBtn) closeOverlayBtn.addEventListener('click', hideOverlay);
+    if (cancelOverlayBtn) cancelOverlayBtn.addEventListener('click', hideOverlay);
+    if (confirmBookingBtn) confirmBookingBtn.addEventListener('click', finalizeBooking);
+    
+    document.getElementById('verstuurBerichtBtn')?.addEventListener('click', () => alert('Bedankt! We nemen spoedig contact op.'));
+    
+    initMap(); initAutocomplete(); initVehicleSelection(); showPage(1);
+    
+    flatpickr("#datetime", {
+        locale: "nl", enableTime: true, dateFormat: "d-m-Y H:i", time_24hr: true,
+        defaultDate: (() => { let d = new Date(); d.setHours(d.getHours() + 1); return d; })(),
+        minuteIncrement: 1, onReady: (_, __, inst) => addOkButtonToFlatpickr(inst)
+    });
+    
+    returnFlatpickrInstance = flatpickr("#returnDatetime", {
+        locale: "nl", enableTime: true, dateFormat: "d-m-Y H:i", time_24hr: true,
+        minuteIncrement: 1, onReady: (_, __, inst) => addOkButtonToFlatpickr(inst)
+    });
 </script>
 
-<div id="summaryOverlay" class="overlay"><div class="overlay-content"><button id="closeOverlayBtn" style="float:right;font-size:28px;cursor:pointer;">&times;</button><h2>📋 Samenvatting</h2><div id="overlaySummary" class="summary-grid"></div><div class="overlay-actions"><button id="cancelOverlayBtn" class="btn-secondary">Annuleer</button><button id="confirmBookingBtn" class="btn-primary">✅ Bevestig</button></div></div></div>
+<div id="summaryOverlay" class="overlay">
+    <div class="overlay-content">
+        <button id="closeOverlayBtn" style="float:right; background:none; border:none; font-size:28px; cursor:pointer;">&times;</button>
+        <h2>📋 Samenvatting reservatie</h2>
+        <div id="overlaySummary" class="summary-grid"></div>
+        <div class="overlay-actions">
+            <button id="cancelOverlayBtn" style="background:#f1f5f9; color:#334155; padding:12px 24px; border-radius:30px; border:none; cursor:pointer;">Annuleer</button>
+            <button id="confirmBookingBtn" style="background:var(--primary); color:white; padding:12px 24px; border-radius:30px; border:none; cursor:pointer;">✅ Bevestig boeking</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
