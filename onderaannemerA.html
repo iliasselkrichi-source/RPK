@@ -167,9 +167,9 @@
         .status-cancelled { background: #fee2e2; color: #991b1b; }
 
         /* ============================================ */
-        /* TABLET & MOBIEL (breedte < 1000px) */
+        /* TABLET & MOBIEL (breedte < 1200px) - aangepast voor tablet */
         /* ============================================ */
-        @media (max-width: 1000px) {
+        @media (max-width: 1200px) {
             .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
             
@@ -650,7 +650,7 @@
                 let tbody = document.getElementById('ordersTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></table>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}<tr></td>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
                         const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
@@ -671,7 +671,7 @@
             },
             
             renderHistory() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="historyTable"></tbody>}</div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th><tr></thead><tbody id="historyTable"></tbody>}</div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderHistoryTable(this.historyOrders);
                 document.getElementById('pageTitle').innerHTML = `History <span class="order-count">${this.historyOrders.length}</span>`;
