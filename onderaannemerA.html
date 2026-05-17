@@ -50,15 +50,30 @@
         .btn-filter { background: #0f172a; color: white; }
         .btn-reset { background: #e2e8f0; color: #1e293b; }
         
-        .orders-table-wrapper { overflow-x: auto; background: white; border-radius: 16px; padding: 20px; }
-        .orders-table { width: 100%; border-collapse: collapse; }
-        .orders-table th { text-align: left; padding: 12px 8px; border-bottom: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; color: #64748b; }
-        .orders-table td { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; }
-        
-        /* Zorgt dat alle kolommen naast elkaar blijven (horizontaal scrollen) */
-        .orders-table th,
+        /* FIX: tabel wrapper - horizontaal scrollen verplicht */
+        .orders-table-wrapper {
+            overflow-x: auto;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px; /* Zorgt dat kolommen niet in elkaar vallen */
+        }
+        .orders-table th {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+        }
         .orders-table td {
-            white-space: nowrap;
+            padding: 12px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.8rem;
         }
         
         .action-btn { background: #2dd4bf; color: #0f172a; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.75rem; }
@@ -718,7 +733,7 @@
                 let tbody = document.getElementById('newOrdersTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}<tr></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => `
                         <tr>
@@ -765,7 +780,6 @@
                 }
             },
             
-            // AANGEPASTE HISTORY: Status kolom vervangen door Actie kolom (alleen knop)
             renderHistory() {
                 let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="historyTable"></tbody>}</div>`;
                 document.getElementById('contentArea').innerHTML = html;
