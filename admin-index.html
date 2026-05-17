@@ -292,6 +292,8 @@
                 if (error) throw error;
 
                 if (data.user) {
+                    // Zet sessievlag voor beveiligde pagina's
+                    sessionStorage.setItem('horizon_logged_in', 'true');
                     showPanels();
                 }
             } catch (err) {
