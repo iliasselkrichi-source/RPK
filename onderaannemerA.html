@@ -235,116 +235,86 @@
         /* Zorgt dat alles in verhouding blijft bij omkantelen */
         /* ============================================ */
         @media (orientation: portrait) and (max-width: 900px) {
-            /* Algemene aanpassingen voor staand formaat */
-            .content {
-                padding: 12px !important;
-            }
-            
-            /* Dashboard grid in portret: 1 kolom voor alle kaarten */
-            .dashboard-grid {
-                grid-template-columns: 1fr !important;
-                gap: 10px;
-            }
-            
-            .kpi-grid {
-                grid-template-columns: 1fr !important;
-                gap: 10px;
-            }
-            
-            /* Flipkaarten iets kleiner */
-            .mini-flip-container {
-                height: 110px;
-            }
-            .mini-flip-front .value, .mini-flip-back .value {
-                font-size: 1.3rem;
-            }
-            
-            /* Tabel beter leesbaar: verklein lettergrootte en padding */
-            .orders-table th, .orders-table td {
-                font-size: 0.65rem !important;
-                padding: 6px 4px !important;
-            }
-            
-            /* Knoppen compact maar nog goed aanklikbaar */
-            .action-btn, .delete-btn, .add-btn, .fiche-btn {
-                padding: 6px 10px !important;
-                font-size: 0.7rem !important;
-                min-height: 36px;
-            }
-            
-            /* Filterbalk compacter */
-            .filter-bar {
-                padding: 8px;
-                gap: 6px;
-            }
-            .filter-group {
-                padding: 2px 8px;
-            }
-            .filter-group input {
-                font-size: 0.7rem;
-                width: 100px;
-            }
-            
-            /* Kalender in portret: kleinere dagen */
-            .calendar-day {
-                font-size: 0.6rem;
-                min-width: 30px;
-            }
-            .calendar-weekdays div {
-                font-size: 0.6rem;
-            }
-            
-            /* Planning items */
-            .planning-item {
-                padding: 8px;
-            }
-            .planning-time, .planning-ride {
-                font-size: 0.75rem;
-            }
-            
-            /* Modale fiche */
-            .fiche-body {
-                padding: 12px;
-            }
-            .fiche-row {
-                font-size: 0.75rem;
-            }
-            .fiche-label {
-                width: 100px;
-            }
-            
-            /* Header knoppen */
-            .header-right button {
-                padding: 4px 8px !important;
-                font-size: 0.65rem !important;
-            }
-            .header h1 {
-                font-size: 0.9rem;
-            }
-            
-            /* Tabellen in portret: laat kolom 'Driver' weg voor meer ruimte? 
-               (optioneel, maar dan verliest u functionaliteit. Ik kies voor behoud, maar scrollen blijft nodig) */
-            .orders-table {
-                min-width: 550px; /* iets minder breed dan normaal */
-            }
+            .content { padding: 12px !important; }
+            .dashboard-grid { grid-template-columns: 1fr !important; gap: 10px; }
+            .kpi-grid { grid-template-columns: 1fr !important; gap: 10px; }
+            .mini-flip-container { height: 110px; }
+            .mini-flip-front .value, .mini-flip-back .value { font-size: 1.3rem; }
+            .orders-table th, .orders-table td { font-size: 0.65rem !important; padding: 6px 4px !important; }
+            .action-btn, .delete-btn, .add-btn, .fiche-btn { padding: 6px 10px !important; font-size: 0.7rem !important; min-height: 36px; }
+            .filter-bar { padding: 8px; gap: 6px; }
+            .filter-group { padding: 2px 8px; }
+            .filter-group input { font-size: 0.7rem; width: 100px; }
+            .calendar-day { font-size: 0.6rem; min-width: 30px; }
+            .calendar-weekdays div { font-size: 0.6rem; }
+            .planning-item { padding: 8px; }
+            .planning-time, .planning-ride { font-size: 0.75rem; }
+            .fiche-body { padding: 12px; }
+            .fiche-row { font-size: 0.75rem; }
+            .fiche-label { width: 100px; }
+            .header-right button { padding: 4px 8px !important; font-size: 0.65rem !important; }
+            .header h1 { font-size: 0.9rem; }
+            .orders-table { min-width: 550px; }
         }
 
-        /* Extra fijnregeling voor kleine portret schermen (<480px) */
         @media (orientation: portrait) and (max-width: 480px) {
-            .orders-table th, .orders-table td {
-                font-size: 0.6rem !important;
-                padding: 4px 2px !important;
-            }
-            .action-btn {
-                padding: 4px 6px !important;
-                font-size: 0.65rem !important;
-            }
-            .header-right {
-                gap: 4px;
-            }
-            .filter-group input {
-                width: 80px;
-            }
+            .orders-table th, .orders-table td { font-size: 0.6rem !important; padding: 4px 2px !important; }
+            .action-btn { padding: 4px 6px !important; font-size: 0.65rem !important; }
+            .header-right { gap: 4px; }
+            .filter-group input { width: 80px; }
+        }
+
+        /* ============================================ */
+        /* iOS / SAFARI VERBETERINGEN (toegevoegd zonder schade) */
+        /* ============================================ */
+        /* Voorkom grijze achtergrond bij tap op knoppen en links */
+        button,
+        .nav-item,
+        .action-btn,
+        .delete-btn,
+        .add-btn,
+        .switch-btn,
+        .switch-woningen-btn,
+        .refresh-btn,
+        .back-btn,
+        .fiche-btn,
+        .calendar-day,
+        .menu-btn,
+        .close-modal {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Zorg dat touch targets sneller reageren (geen 300ms vertraging) */
+        button,
+        .action-btn,
+        .nav-item,
+        .calendar-day,
+        .menu-btn {
+            touch-action: manipulation;
+        }
+
+        /* Zorg dat tekst niet automatisch geschaald wordt in landscape modus */
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* Inputs en selects op iOS beter leesbaar: vermijd zoom op focus */
+        input, select, textarea {
+            font-size: 16px; /* voorkomt dat Safari inzoomt bij focus */
+            -webkit-appearance: none;
+            border-radius: 8px;
+        }
+
+        /* Sluitknop in sidebar (mobiel) voldoende groot voor iOS */
+        .close-sidebar-btn button {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        /* Voor scrollbare tabellen: vloeiend scrollen op iOS */
+        .orders-table-wrapper,
+        .modal-content {
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -651,7 +621,7 @@
                 let tbody = document.getElementById('ordersTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></td>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
                         const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
