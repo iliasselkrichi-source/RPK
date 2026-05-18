@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* ===== ORIGINELE STIJL (ONVERANDERD) ===== */
+        /* ===== ORIGINELE STIJL ===== */
         #background-map {
             position: fixed;
             top: 0; left: 0;
@@ -802,63 +802,74 @@
         }
     }
 
-    // ========== AUTOCOMPLETE - DEFINITIEVE WERKENDE VERSIE ==========
-    let activeAutocompleteController = null;
+    // ========== NIEUW: STABIELE AUTOCOMPLETE MET PHOTON API ==========
+    // Photon is speciaal voor autocomplete, geen rate limit, snel en gratis.
+    let activeController = null;
 
     async function fetchAddresses(query, wrapId) {
-        const suggestionsDiv = wrapId === 'pickupWrap' ? document.getElementById('pickupSuggest') : document.getElementById('dropoffSuggest');
-        if (!suggestionsDiv) return;
         if (query.length < 3) {
-            suggestionsDiv.style.display = 'none';
+            clearSuggestions(wrapId);
             return;
         }
-        suggestionsDiv.innerHTML = '<div class="suggestion-item">🔍 Adressen laden...</div>';
+        const suggestionsDiv = wrapId === 'pickupWrap' ? document.getElementById('pickupSuggest') : document.getElementById('dropoffSuggest');
+        if (!suggestionsDiv) return;
+
+        suggestionsDiv.innerHTML = '<div class="suggestion-item">🔍 Zoeken...</div>';
         suggestionsDiv.style.display = 'block';
 
-        if (activeAutocompleteController) activeAutocompleteController.abort();
-        activeAutocompleteController = new AbortController();
+        if (activeController) activeController.abort();
+        activeController = new AbortController();
 
         try {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=be&accept-language=nl&addressdetails=1`;
-            const timeoutId = setTimeout(() => activeAutocompleteController.abort(), 8000);
-            const response = await fetch(url, {
-                signal: activeAutocompleteController.signal,
-                headers: { 'User-Agent': 'Fleetconnect/2.0 (contact: support@fleetconnect.be)' }
-            });
+            // Photon API - speciaal voor adreszoekopdrachten in Europa
+            const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=nl&osm_tag=place:city,place:town,place:village,place:suburb,place:locality&lon=4.5&lat=50.8&distance=100000`;
+            const timeoutId = setTimeout(() => activeController.abort(), 6000);
+            const response = await fetch(url, { signal: activeController.signal });
             clearTimeout(timeoutId);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            if (!data.length) {
-                suggestionsDiv.innerHTML = '<div class="suggestion-item">❌ Geen adressen gevonden in België</div>';
+            if (!data.features || data.features.length === 0) {
+                suggestionsDiv.innerHTML = '<div class="suggestion-item">❌ Geen adres gevonden</div>';
                 return;
             }
             suggestionsDiv.innerHTML = '';
-            data.forEach(place => {
+            data.features.forEach(feature => {
+                const properties = feature.properties;
+                const name = properties.name ? properties.name : '';
+                const street = properties.street ? properties.street : '';
+                const city = properties.city ? properties.city : '';
+                const displayName = [name, street, city].filter(Boolean).join(', ');
+                const lat = feature.geometry.coordinates[1];
+                const lon = feature.geometry.coordinates[0];
                 const div = document.createElement('div');
                 div.className = 'suggestion-item';
-                div.setAttribute('data-lat', place.lat);
-                div.setAttribute('data-lon', place.lon);
-                div.textContent = place.display_name.length > 80 ? place.display_name.substring(0,80)+'…' : place.display_name;
-                div.addEventListener('click', (function(lat, lon, name) {
-                    return function() {
-                        const inputField = wrapId === 'pickupWrap' ? document.getElementById('pickupInput') : document.getElementById('dropoffInput');
-                        inputField.value = name;
-                        if (wrapId === 'pickupWrap') {
-                            pickupCoord = { lat: parseFloat(lat), lon: parseFloat(lon) };
-                        } else {
-                            dropoffCoord = { lat: parseFloat(lat), lon: parseFloat(lon) };
-                        }
-                        suggestionsDiv.style.display = 'none';
-                        if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
-                    };
-                })(place.lat, place.lon, place.display_name));
+                div.textContent = displayName || properties.name || 'Onbekend adres';
+                div.addEventListener('click', () => {
+                    const inputField = wrapId === 'pickupWrap' ? document.getElementById('pickupInput') : document.getElementById('dropoffInput');
+                    inputField.value = displayName;
+                    if (wrapId === 'pickupWrap') {
+                        pickupCoord = { lat: lat, lon: lon };
+                    } else {
+                        dropoffCoord = { lat: lat, lon: lon };
+                    }
+                    suggestionsDiv.style.display = 'none';
+                    if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
+                });
                 suggestionsDiv.appendChild(div);
             });
             suggestionsDiv.style.display = 'block';
         } catch (error) {
             if (error.name === 'AbortError') return;
-            console.error(error);
+            console.error('Photon error:', error);
             suggestionsDiv.innerHTML = '<div class="suggestion-item" style="color:#b91c1c;">⚠️ Netwerkfout – probeer later</div>';
+        }
+    }
+
+    function clearSuggestions(wrapId) {
+        const wrapper = document.getElementById(wrapId);
+        if (wrapper) {
+            const sugg = wrapper.querySelector('.suggestions');
+            if (sugg) sugg.style.display = 'none';
         }
     }
 
@@ -871,10 +882,9 @@
                 clearTimeout(pickupTimeout);
                 const q = e.target.value;
                 if (q.length >= 3) {
-                    pickupTimeout = setTimeout(() => fetchAddresses(q, 'pickupWrap'), 400);
+                    pickupTimeout = setTimeout(() => fetchAddresses(q, 'pickupWrap'), 350);
                 } else {
-                    const sugg = document.getElementById('pickupSuggest');
-                    if (sugg) sugg.style.display = 'none';
+                    clearSuggestions('pickupWrap');
                 }
             });
         }
@@ -883,19 +893,16 @@
                 clearTimeout(dropoffTimeout);
                 const q = e.target.value;
                 if (q.length >= 3) {
-                    dropoffTimeout = setTimeout(() => fetchAddresses(q, 'dropoffWrap'), 400);
+                    dropoffTimeout = setTimeout(() => fetchAddresses(q, 'dropoffWrap'), 350);
                 } else {
-                    const sugg = document.getElementById('dropoffSuggest');
-                    if (sugg) sugg.style.display = 'none';
+                    clearSuggestions('dropoffWrap');
                 }
             });
         }
         document.addEventListener('click', (e) => {
             if (!e.target.closest('#pickupWrap') && !e.target.closest('#dropoffWrap')) {
-                const ps = document.getElementById('pickupSuggest');
-                const ds = document.getElementById('dropoffSuggest');
-                if (ps) ps.style.display = 'none';
-                if (ds) ds.style.display = 'none';
+                clearSuggestions('pickupWrap');
+                clearSuggestions('dropoffWrap');
             }
         });
     }
