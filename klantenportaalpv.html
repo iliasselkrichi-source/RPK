@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* ===== ORIGINELE FLEETCONNECT STIJL (ONVERANDERD) ===== */
+        /* ===== ORIGINELE STIJL (ONVERANDERD) ===== */
         #background-map {
             position: fixed;
             top: 0; left: 0;
@@ -41,8 +41,6 @@
             --sidebar-bg: #ffffff;
             --sidebar-text: #1a2a3a;
             --sidebar-hover: #eef2fa;
-            --sidebar-width-collapsed: 0px;
-            --sidebar-width-expanded: 280px;
             --overlay-bg: rgba(0,0,0,0.4);
         }
         body {
@@ -640,9 +638,10 @@
         });
     }
 
-    // ========== BOEKINGSLOGICA (werkend, met prefix T-RV-) ==========
+    // ========== BOEKINGSLOGICA (prefix T-RV-) ==========
     let bookingMap, pickupCoord = null, dropoffCoord = null, routeLayer = null, currentRouteData = null, currentRoundTrip = false, currentReturnDateTime = "", selectedVehicle = 'Standaard', selectedVehicleExtra = 0;
-    let returnFlatpickrInstance = null, currentPage = 1, debounceTimer;
+    let returnFlatpickrInstance = null, currentPage = 1;
+    let activeFetchController = null; // AbortController voor autocomplete
 
     function generateBookingId() {
         const now = new Date();
@@ -804,19 +803,32 @@
         }
     }
 
-    // ========== ADRESSUGGESTIES ==========
+    // ========== VERBETERDE ADRESSUGGESTIES (blijft langer staan) ==========
+    let mouseOverSuggestions = false; // vlag voor mouseleave/enter
+
     async function fetchAddresses(q, wrapId) {
         const wrap = document.getElementById(wrapId);
         const suggestionsDiv = wrap.querySelector('.suggestions');
         if (!suggestionsDiv) return;
-        if (q.length < 3) { suggestionsDiv.style.display = 'none'; return; }
+        if (q.length < 3) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+        // Toon laad-indicator
         suggestionsDiv.innerHTML = '<div class="suggestion-item">🔍 Zoeken...</div>';
         suggestionsDiv.style.display = 'block';
+
+        // Annuleer vorige fetch indien nog bezig
+        if (activeFetchController) activeFetchController.abort();
+        activeFetchController = new AbortController();
+
         try {
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=6&countrycodes=be&addressdetails=0&accept-language=nl`;
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
-            const response = await fetch(url, { headers: { 'User-Agent': 'Fleetconnect/2.0' }, signal: controller.signal });
+            const timeoutId = setTimeout(() => activeFetchController.abort(), 8000);
+            const response = await fetch(url, {
+                headers: { 'User-Agent': 'Fleetconnect/2.0' },
+                signal: activeFetchController.signal
+            });
             clearTimeout(timeoutId);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
@@ -824,39 +836,84 @@
                 suggestionsDiv.innerHTML = '<div class="suggestion-item">❌ Geen adressen gevonden in België</div>';
                 return;
             }
-            suggestionsDiv.innerHTML = data.map(p => `<div class="suggestion-item" data-lat="${p.lat}" data-lon="${p.lon}">${p.display_name}</div>`).join('');
+            suggestionsDiv.innerHTML = data.map(p => `<div class="suggestion-item" data-lat="${p.lat}" data-lon="${p.lon}">${escapeHtml(p.display_name)}</div>`).join('');
         } catch (err) {
+            if (err.name === 'AbortError') return;
             console.error(err);
             suggestionsDiv.innerHTML = '<div class="suggestion-item" style="color:#b91c1c;">⚠️ Netwerkfout – probeer later</div>';
         }
     }
+
+    // helper tegen XSS
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
     function initAutocomplete() {
         const pickupInput = document.getElementById('pickupInput');
         const dropoffInput = document.getElementById('dropoffInput');
+        let debounceTimer;
+
+        // input events met langere debounce (600ms)
         pickupInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => fetchAddresses(e.target.value, 'pickupWrap'), 400);
+            const q = e.target.value;
+            debounceTimer = setTimeout(() => fetchAddresses(q, 'pickupWrap'), 600);
         });
         dropoffInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => fetchAddresses(e.target.value, 'dropoffWrap'), 400);
+            const q = e.target.value;
+            debounceTimer = setTimeout(() => fetchAddresses(q, 'dropoffWrap'), 600);
         });
-        document.querySelector('#pickupWrap .suggestions').addEventListener('click', (e) => {
+
+        // Blur op input: verberg suggesties alleen als muis niet boven de lijst zweeft
+        pickupInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (!mouseOverSuggestions) {
+                    document.querySelector('#pickupWrap .suggestions').style.display = 'none';
+                }
+            }, 200);
+        });
+        dropoffInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (!mouseOverSuggestions) {
+                    document.querySelector('#dropoffWrap .suggestions').style.display = 'none';
+                }
+            }, 200);
+        });
+
+        // Mouse enter/leave op suggestielijsten
+        const pickupSuggest = document.querySelector('#pickupWrap .suggestions');
+        const dropoffSuggest = document.querySelector('#dropoffWrap .suggestions');
+        pickupSuggest.addEventListener('mouseenter', () => { mouseOverSuggestions = true; });
+        pickupSuggest.addEventListener('mouseleave', () => { mouseOverSuggestions = false; });
+        dropoffSuggest.addEventListener('mouseenter', () => { mouseOverSuggestions = true; });
+        dropoffSuggest.addEventListener('mouseleave', () => { mouseOverSuggestions = false; });
+
+        // Klik op een suggestie-item
+        pickupSuggest.addEventListener('click', (e) => {
             const item = e.target.closest('.suggestion-item');
             if (!item || !item.dataset.lat) return;
-            document.getElementById('pickupInput').value = item.innerText;
+            pickupInput.value = item.innerText;
             pickupCoord = { lat: parseFloat(item.dataset.lat), lon: parseFloat(item.dataset.lon) };
-            document.querySelector('#pickupWrap .suggestions').style.display = 'none';
+            pickupSuggest.style.display = 'none';
             if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
         });
-        document.querySelector('#dropoffWrap .suggestions').addEventListener('click', (e) => {
+        dropoffSuggest.addEventListener('click', (e) => {
             const item = e.target.closest('.suggestion-item');
             if (!item || !item.dataset.lat) return;
-            document.getElementById('dropoffInput').value = item.innerText;
+            dropoffInput.value = item.innerText;
             dropoffCoord = { lat: parseFloat(item.dataset.lat), lon: parseFloat(item.dataset.lon) };
-            document.querySelector('#dropoffWrap .suggestions').style.display = 'none';
+            dropoffSuggest.style.display = 'none';
             if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
         });
+
+        // Klik buiten wrapper: verberg suggesties direct
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.suggest-wrapper')) {
                 document.querySelectorAll('.suggestions').forEach(s => s.style.display = 'none');
