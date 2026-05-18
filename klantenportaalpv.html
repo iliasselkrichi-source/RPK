@@ -461,7 +461,7 @@
         <div id="dashboard-container" class="tab-container hidden">
             <div class="stats-grid" id="statsGrid"></div>
             <h4>📅 Komende ritten</h4>
-            <table class="bookings-table" id="upcomingTable"><thead><tr><th>ID</th><th>Datum/tijd</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th><th>Acties</th></tr></thead><tbody></tbody></table>
+            <table class="bookings-table" id="upcomingTable"><thead><tr><th>ID</th><th>Datum/tijd</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th><th>Acties</th></tr></thead><tbody></tbody><tr>
             <h4>✅ Voltooide ritten</h4>
             <table class="bookings-table" id="completedTable"><thead><tr><th>ID</th><th>Datum/tijd</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th><th>Acties</th></tr></thead><tbody></tbody></table>
         </div>
@@ -641,7 +641,7 @@
     // ========== BOEKINGSLOGICA (prefix T-RV-) ==========
     let bookingMap, pickupCoord = null, dropoffCoord = null, routeLayer = null, currentRouteData = null, currentRoundTrip = false, currentReturnDateTime = "", selectedVehicle = 'Standaard', selectedVehicleExtra = 0;
     let returnFlatpickrInstance = null, currentPage = 1;
-    let activeFetchController = null;
+    let activeAutocompleteController = null;
 
     function generateBookingId() {
         const now = new Date();
@@ -803,29 +803,24 @@
         }
     }
 
-    // ========== ADRESSUGGESTIES - NU 100% WERKEND ==========
-    async function fetchAddresses(query, inputFieldId) {
-        // inputFieldId is 'pickupInput' of 'dropoffInput'
-        const suggestionsDiv = inputFieldId === 'pickupInput' ? document.getElementById('pickupSuggest') : document.getElementById('dropoffSuggest');
+    // ========== NIEUWE AUTOCOMPLETE (WERKT ZEKER) ==========
+    async function fetchAddresses(query, inputId) {
+        const suggestionsDiv = inputId === 'pickupInput' ? document.getElementById('pickupSuggest') : document.getElementById('dropoffSuggest');
         if (!suggestionsDiv) return;
-
         if (query.length < 3) {
             suggestionsDiv.style.display = 'none';
             return;
         }
-
         suggestionsDiv.innerHTML = '<div class="suggestion-item">🔍 Zoeken...</div>';
         suggestionsDiv.style.display = 'block';
-
-        if (activeFetchController) activeFetchController.abort();
-        activeFetchController = new AbortController();
-
+        if (activeAutocompleteController) activeAutocompleteController.abort();
+        activeAutocompleteController = new AbortController();
         try {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=be&addressdetails=0&accept-language=nl`;
-            const timeoutId = setTimeout(() => activeFetchController.abort(), 8000);
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=be&accept-language=nl&addressdetails=1`;
+            const timeoutId = setTimeout(() => activeAutocompleteController.abort(), 8000);
             const response = await fetch(url, {
-                headers: { 'User-Agent': 'Fleetconnect/3.0' },
-                signal: activeFetchController.signal
+                signal: activeAutocompleteController.signal,
+                headers: { 'User-Agent': 'Fleetconnect/3.0' }
             });
             clearTimeout(timeoutId);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -834,81 +829,73 @@
                 suggestionsDiv.innerHTML = '<div class="suggestion-item">❌ Geen adressen gevonden in België</div>';
                 return;
             }
-            suggestionsDiv.innerHTML = data.map(p => `
-                <div class="suggestion-item" data-lat="${p.lat}" data-lon="${p.lon}" data-name="${escapeHtml(p.display_name)}">
-                    ${escapeHtml(p.display_name)}
-                </div>
-            `).join('');
-        } catch (err) {
-            if (err.name === 'AbortError') return;
-            console.error(err);
+            suggestionsDiv.innerHTML = '';
+            data.forEach(place => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.setAttribute('data-lat', place.lat);
+                div.setAttribute('data-lon', place.lon);
+                div.textContent = place.display_name.length > 80 ? place.display_name.substring(0,80)+'…' : place.display_name;
+                div.addEventListener('click', (function(lat, lon, name) {
+                    return function() {
+                        const inputField = inputId === 'pickupInput' ? document.getElementById('pickupInput') : document.getElementById('dropoffInput');
+                        inputField.value = name;
+                        if (inputId === 'pickupInput') {
+                            pickupCoord = { lat: parseFloat(lat), lon: parseFloat(lon) };
+                        } else {
+                            dropoffCoord = { lat: parseFloat(lat), lon: parseFloat(lon) };
+                        }
+                        suggestionsDiv.style.display = 'none';
+                        if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
+                    };
+                })(place.lat, place.lon, place.display_name));
+                suggestionsDiv.appendChild(div);
+            });
+            suggestionsDiv.style.display = 'block';
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            console.error(error);
             suggestionsDiv.innerHTML = '<div class="suggestion-item" style="color:#b91c1c;">⚠️ Netwerkfout – probeer later</div>';
         }
-    }
-
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
     }
 
     function initAutocomplete() {
         const pickupInput = document.getElementById('pickupInput');
         const dropoffInput = document.getElementById('dropoffInput');
-        const pickupSuggest = document.getElementById('pickupSuggest');
-        const dropoffSuggest = document.getElementById('dropoffSuggest');
-        if (!pickupInput || !dropoffInput || !pickupSuggest || !dropoffSuggest) return;
-
         let debounceTimer;
-
-        pickupInput.addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            const q = e.target.value;
-            debounceTimer = setTimeout(() => fetchAddresses(q, 'pickupInput'), 400);
-        });
-        dropoffInput.addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            const q = e.target.value;
-            debounceTimer = setTimeout(() => fetchAddresses(q, 'dropoffInput'), 400);
-        });
-
-        pickupSuggest.addEventListener('click', (e) => {
-            const item = e.target.closest('.suggestion-item');
-            if (!item || !item.dataset.lat) return;
-            pickupInput.value = item.dataset.name || item.innerText;
-            pickupCoord = { lat: parseFloat(item.dataset.lat), lon: parseFloat(item.dataset.lon) };
-            pickupSuggest.style.display = 'none';
-            if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
-        });
-
-        dropoffSuggest.addEventListener('click', (e) => {
-            const item = e.target.closest('.suggestion-item');
-            if (!item || !item.dataset.lat) return;
-            dropoffInput.value = item.dataset.name || item.innerText;
-            dropoffCoord = { lat: parseFloat(item.dataset.lat), lon: parseFloat(item.dataset.lon) };
-            dropoffSuggest.style.display = 'none';
-            if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
-        });
-
+        if (pickupInput) {
+            pickupInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                const q = e.target.value;
+                debounceTimer = setTimeout(() => fetchAddresses(q, 'pickupInput'), 400);
+            });
+            pickupInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const sugg = document.getElementById('pickupSuggest');
+                    if (sugg && !sugg.matches(':hover')) sugg.style.display = 'none';
+                }, 150);
+            });
+        }
+        if (dropoffInput) {
+            dropoffInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                const q = e.target.value;
+                debounceTimer = setTimeout(() => fetchAddresses(q, 'dropoffInput'), 400);
+            });
+            dropoffInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const sugg = document.getElementById('dropoffSuggest');
+                    if (sugg && !sugg.matches(':hover')) sugg.style.display = 'none';
+                }, 150);
+            });
+        }
         document.addEventListener('click', (e) => {
             if (!e.target.closest('#pickupWrap') && !e.target.closest('#dropoffWrap')) {
-                pickupSuggest.style.display = 'none';
-                dropoffSuggest.style.display = 'none';
+                const ps = document.getElementById('pickupSuggest');
+                const ds = document.getElementById('dropoffSuggest');
+                if (ps) ps.style.display = 'none';
+                if (ds) ds.style.display = 'none';
             }
-        });
-
-        pickupInput.addEventListener('blur', () => {
-            setTimeout(() => {
-                if (!pickupSuggest.matches(':hover')) pickupSuggest.style.display = 'none';
-            }, 200);
-        });
-        dropoffInput.addEventListener('blur', () => {
-            setTimeout(() => {
-                if (!dropoffSuggest.matches(':hover')) dropoffSuggest.style.display = 'none';
-            }, 200);
         });
     }
 
