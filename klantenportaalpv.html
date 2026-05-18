@@ -236,7 +236,7 @@
             <a href="#" data-nav="home"><i class="fas fa-home"></i> Home</a>
             <a href="#" data-nav="portal"><i class="fas fa-user-circle"></i> Mijn Portaal</a>
             <a href="#" data-nav="contact"><i class="fas fa-envelope"></i> Contact</a>
-            <a href="#" id="logoutBtnSidebar"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
+            <a href="index.html" id="logoutBtnSidebar"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
         </div>
     </div>
 
@@ -278,7 +278,7 @@
             <button class="tab-btn active" data-tab="new-booking">📝 Nieuwe Rit</button>
             <button class="tab-btn" data-tab="profile">👤 Mijn Profiel</button>
             <button class="tab-btn" data-tab="dashboard">📊 Dashboard & Ritten</button>
-            <button id="logoutTabBtn" class="logout-tab-btn"><i class="fas fa-sign-out-alt"></i> Uitloggen</button>
+            <a href="index.html" id="logoutTabBtn" class="logout-tab-btn" style="text-decoration:none;"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
         </div>
 
         <div id="new-booking-container" class="tab-container">
@@ -455,11 +455,6 @@
         const sidebar = document.querySelector('.sidebar');
         if (sidebar) sidebar.style.right = '-280px';
     }
-    
-    // Logout
-    function logout() { location.reload(); }
-    document.getElementById('logoutBtnSidebar')?.addEventListener('click', logout);
-    document.getElementById('logoutTabBtn')?.addEventListener('click', logout);
     
     // Tab functies
     function switchToTab(tabName) {
@@ -887,7 +882,7 @@
     
     initMap();
     initVehicleSelection();
-    initAutocomplete();  // 🔥 AUTOCOMPLETE START HIER!
+    initAutocomplete();  // 🔥 AUTOCOMPLETE START HIER - WERKT!
     showPage(1);
     loadUserProfile();
     loadUserBookings();
