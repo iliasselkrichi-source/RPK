@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Royal Velvet · Klantenportaal</title>
+    <title>FleetConnect · Klantenportaal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -217,8 +217,8 @@
     <section class="hero" style="padding: 40px 0 20px; text-align: center;">
         <div class="container">
             <div class="hero-card" style="background: var(--card-bg); backdrop-filter: blur(8px); max-width:700px; margin:0 auto; padding:30px; border-radius:48px;">
-                <h1 style="font-size:2.2rem; color:var(--primary);"><i class="fas fa-crown"></i> Royal Velvet</h1>
-                <p style="color:var(--text-light);">Luxe taxivervoer in België – Stipt, discreet & koninklijk comfort</p>
+                <h1 style="font-size:2.2rem; color:var(--primary);"><i class="fas fa-network-wired"></i> FleetConnect</h1>
+                <p style="color:var(--text-light);">Professioneel wagenparkbeheer – Stipt, betrouwbaar & slim verbonden</p>
             </div>
         </div>
     </section>
@@ -352,7 +352,7 @@
         </div>
     </div>
 
-    <footer class="footer-dark"><div class="footer-grid"><div><h4>Royal Velvet</h4><p>Premium taxivervoer</p></div><div><h4>Ryz3n</h4><a href="#">Control Panel</a></div><div><h4>Juridisch</h4><a href="#">Voorwaarden</a></div><div><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div></div><div class="footer-bottom">© 2026 Royal Velvet – Ryz3n</div></footer>
+    <footer class="footer-dark"><div class="footer-grid"><div><h4>FleetConnect</h4><p>Professioneel wagenparkbeheer</p></div><div><h4>Ryz3n</h4><a href="#">Control Panel</a></div><div><h4>Juridisch</h4><a href="#">Voorwaarden</a></div><div><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div></div><div class="footer-bottom">© 2026 FleetConnect – Ryz3n</div></footer>
 </div>
 <div id="ritModal" class="modal"><div class="modal-content" id="modalContent"></div></div>
 
@@ -362,7 +362,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c3VxemJxenNtZ2tqYXNsd2t6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTUwMDQsImV4cCI6MjA5MjY5MTAwNH0.DBgx2oq0LbXwUlPQv3cmYMvGEjYA6bhy-2hejvgtERE';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentUser = { id: 'demo-user', full_name: 'Demo Gebruiker', email: 'demo@royalvelvet.be', phone: '+32 470 12 34 56', default_pickup_address: '' };
+    let currentUser = { id: 'demo-user', full_name: 'Demo Gebruiker', email: 'demo@fleetconnect.be', phone: '+32 470 12 34 56', default_pickup_address: '' };
     let userBookings = [];
     let bookingMap, pickupCoord = null, dropoffCoord = null, routeLayer, currentRouteData = null, currentRoundTrip = false, currentReturnDateTime = "";
     let selectedVehicle = 'Standaard', selectedVehicleExtra = 0, currentPage = 1;
@@ -412,8 +412,8 @@
         if (data && data.length) userBookings = data;
         else {
             userBookings = [
-                { id: "RV-20260515-001", datetime: "15-05-2026", time: "09:00", name: currentUser.full_name, pickup: "Gent, België", destination: "Brussel, België", vehicle: "Standaard", amount: 67.50, status: "completed", extras: "Meet & Greet", flight_number: "BA398", email: currentUser.email, phone: currentUser.phone, payment: "Cash" },
-                { id: "RV-20260516-002", datetime: "16-05-2026", time: "14:30", name: currentUser.full_name, pickup: "Antwerpen, België", destination: "Leuven, België", vehicle: "Break", amount: 55.00, status: "pending", extras: "WiFi", email: currentUser.email, phone: currentUser.phone, payment: "Cash" }
+                { id: "FC-20260515-001", datetime: "15-05-2026", time: "09:00", name: currentUser.full_name, pickup: "Gent, België", destination: "Brussel, België", vehicle: "Standaard", amount: 67.50, status: "completed", extras: "Meet & Greet", flight_number: "BA398", email: currentUser.email, phone: currentUser.phone, payment: "Cash" },
+                { id: "FC-20260516-002", datetime: "16-05-2026", time: "14:30", name: currentUser.full_name, pickup: "Antwerpen, België", destination: "Leuven, België", vehicle: "Break", amount: 55.00, status: "pending", extras: "WiFi", email: currentUser.email, phone: currentUser.phone, payment: "Cash" }
             ];
         }
         renderDashboard();
@@ -476,7 +476,7 @@
         element.style.padding = '20px';
         element.style.fontFamily = 'Inter, sans-serif';
         element.innerHTML = `
-            <h2 style="color: #2c6e9e;">Royal Velvet</h2>
+            <h2 style="color: #2c6e9e;">FleetConnect</h2>
             <h3>Ritfiche ${booking.id}</h3>
             <p><strong>Klant:</strong> ${booking.name}</p>
             <p><strong>Datum:</strong> ${booking.datetime} ${booking.time || ''}</p>
@@ -486,7 +486,7 @@
             <p><strong>Bedrag:</strong> €${booking.amount}</p>
             <p><strong>Status:</strong> ${booking.status}</p>
             <hr />
-            <p style="font-size: 12px;">Dit is een officiële ritfiche van Royal Velvet.</p>
+            <p style="font-size: 12px;">Dit is een officiële ritfiche van FleetConnect.</p>
         `;
         html2pdf().from(element).set({ filename: `Ritfiche_${booking.id}.pdf` }).save();
     }
@@ -508,7 +508,7 @@
         });
     }
 
-    // ========== AUTOCOMPLETE (VOLLEDIG INTACT - NIET BESCHADIGD) ==========
+    // ========== AUTOCOMPLETE (VOLLEDIG INTACT - NIET BESCHADIGD!) ==========
     async function fetchAddresses(q, wrapId) {
         const wrap = document.getElementById(wrapId);
         const suggestionsDiv = wrap.querySelector('.suggestions');
@@ -521,7 +521,7 @@
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 8000);
             const response = await fetch(url, {
-                headers: { 'User-Agent': 'RoyalVelvet/2.0 (contact@royalvelvet.be)' },
+                headers: { 'User-Agent': 'FleetConnect/2.0 (contact@fleetconnect.be)' },
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
@@ -859,7 +859,7 @@
     document.querySelectorAll('[data-nav]').forEach(link => link.addEventListener('click', (e) => {
         const nav = e.currentTarget.getAttribute('data-nav');
         if (nav === 'home' || nav === 'portal') switchToTab('new-booking');
-        if (nav === 'contact') alert('📧 info@royalvelvet.be | 📞 +32 470 12 34 56');
+        if (nav === 'contact') alert('📧 info@fleetconnect.be | 📞 +32 470 12 34 56');
     }));
 
     function initMap() {
