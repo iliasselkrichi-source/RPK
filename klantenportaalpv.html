@@ -406,7 +406,7 @@
         loadUserProfile();
     });
 
-    // ========== DASHBOARD (onge wijzigd) ==========
+    // ========== DASHBOARD ==========
     async function loadUserBookings() {
         const { data } = await supabase.from('bookings').select('*').eq('customer_id', currentUser.id).order('datetime', { ascending: false });
         if (data && data.length) userBookings = data;
@@ -449,7 +449,7 @@
         renderTable('completedTable', completed);
         attachBookingActions();
     }
-    function showRitFiche(booking) { /* ongewijzigd */ 
+    function showRitFiche(booking) { 
         const modal = document.getElementById('ritModal');
         const modalContent = document.getElementById('modalContent');
         modalContent.innerHTML = `
@@ -471,7 +471,7 @@
         document.getElementById('closeModalBtn').onclick = () => modal.classList.remove('active');
         document.getElementById('downloadPdfFromModal').onclick = () => downloadRitPDF(booking);
     }
-    async function downloadRitPDF(booking) { /* ongewijzigd */
+    async function downloadRitPDF(booking) {
         const element = document.createElement('div');
         element.style.padding = '20px';
         element.style.fontFamily = 'Inter, sans-serif';
@@ -508,7 +508,7 @@
         });
     }
 
-    // ========== AUTOCOMPLETE (ongewijzigd) ==========
+    // ========== AUTOCOMPLETE (VOLLEDIG INTACT - NIET BESCHADIGD) ==========
     async function fetchAddresses(q, wrapId) {
         const wrap = document.getElementById(wrapId);
         const suggestionsDiv = wrap.querySelector('.suggestions');
@@ -666,14 +666,18 @@
         await updateMapAndInfo(rd);
         return true;
     }
+    
+    // ========== ID GENERATIE in het formaat T-PV-YYYYMMDD-XXX ==========
     function generateBookingId() {
-        const d = new Date(), y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
-        let c = parseInt(localStorage.getItem('bookingCounter') || '0') + 1;
-        localStorage.setItem('bookingCounter', c);
-        return `RV-${y}${m}${dd}-${String(c).padStart(3,'0')}`;
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const seq = String(Math.floor(Math.random() * 900) + 100);
+        return `T-PV-${year}${month}${day}-${seq}`;
     }
 
-    // ========== NIEUWE ROUNDTRIP LOGICA (twee aparte records) ==========
+    // ========== Supabase RECORD CONSTRUCTOR (AANGEPAST naar CSV formaat) ==========
     function buildSupabaseRecord(paymentMethod, amount, isReturnTrip = false, baseId = null) {
         const firstName = document.getElementById('firstName').value.trim();
         const lastName = document.getElementById('lastName').value.trim();
@@ -685,6 +689,7 @@
         const flightNumberRaw = document.getElementById('flightNumber').value.trim();
         const vehicleRaw = selectedVehicle;
         const extrasRaw = getExtrasString();
+        
         let datePart = "", timePart = "";
         let dt;
         if (isReturnTrip) {
@@ -697,12 +702,24 @@
             datePart = parts[0];
             timePart = parts[1] || "";
         }
+        
+        // Genereer ID in T-PV formaat
         let bookingId;
         if (isReturnTrip && baseId) {
             bookingId = `${baseId}/B`;
         } else {
             bookingId = baseId || generateBookingId();
         }
+        
+        // customer_id in CUST- formaat (zoals in CSV)
+        const customerId = `CUST-${firstName.toLowerCase()}${lastName.toLowerCase()}`;
+        
+        // form_data zoals in CSV voorbeeld
+        const formData = {
+            ai: true,
+            source: "ai-chat"
+        };
+        
         return {
             id: bookingId,
             datetime: datePart,
@@ -718,12 +735,21 @@
             amount: parseFloat(amount),
             payment: paymentMethod,
             status: "pending",
-            customer_id: currentUser.id
+            customer_id: customerId,
+            form_data: formData,
+            assigned_driver_id: null,
+            partner_id: 1
         };
     }
 
     async function sendToSupabase(record) {
         try {
+            // Zorg dat form_data correct als JSON string wordt verstuurd
+            const payload = {
+                ...record,
+                form_data: JSON.stringify(record.form_data)
+            };
+            
             const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
                 method: 'POST',
                 headers: {
@@ -732,7 +758,7 @@
                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                     'Prefer': 'return=minimal'
                 },
-                body: JSON.stringify(record)
+                body: JSON.stringify(payload)
             });
             if (!response.ok) throw new Error(await response.text());
             return true;
@@ -768,7 +794,6 @@
         return success;
     }
 
-    // ========== AANGEPASTE finalizeBooking ==========
     async function finalizeBooking() {
         if (!currentRouteData) { showError(5,'Geen rit berekend'); return; }
         if (!selectedVehicle) { showError(5,'Geen voertuig gekozen'); return; }
