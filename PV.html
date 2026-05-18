@@ -206,6 +206,13 @@
             <div id="totalDisplay" class="total-display">Totaal: € 0,00</div>
             <button id="finalConfirmBtn" class="btn-primary" style="width:100%">✅ Bevestig boeking</button>
             <div id="page5Error" class="error"></div>
+            
+            <!-- HIDDEN INPUTS VOOR SUPABASE -->
+            <input type="hidden" id="hiddenCustomerId">
+            <input type="hidden" id="hiddenFormData">
+            <input type="hidden" id="hiddenCreatedAt">
+            <input type="hidden" id="hiddenPartnerId" value="1">
+            <input type="hidden" id="hiddenAssignedDriverId">
         </div>
         
         <div class="nav-buttons"><button class="nav-btn prev" id="prevBtn" disabled>◀ Vorige</button><button class="nav-btn next" id="nextBtn">Volgende ▶</button></div>
@@ -496,35 +503,36 @@
         }
     }
     
-    // SUPABASE FUNCTIE
+    // Nieuwe functie: vul hidden velden voor Supabase
+    function fillHiddenSupabaseFields() {
+        const email = document.getElementById('email').value.trim();
+        const customerId = `CUST-${email.replace(/[^a-z0-9]/gi, '').substring(0, 30)}`;
+        document.getElementById('hiddenCustomerId').value = customerId;
+        document.getElementById('hiddenFormData').value = JSON.stringify({ source: "web-booking" });
+        document.getElementById('hiddenCreatedAt').value = new Date().toISOString();
+        // hiddenPartnerId heeft al value="1"
+        // hiddenAssignedDriverId blijft leeg (NULL)
+    }
+    
+    // SUPABASE FUNCTIE - gebruikt supabase client
     async function sendToSupabase(bookingData) {
         console.log('📦 Verzenden naar Supabase:', bookingData);
         try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Prefer': 'return=minimal'
-                },
-                body: JSON.stringify(bookingData)
-            });
+            const { error } = await supabase
+                .from('bookings')
+                .insert([bookingData]);
             
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
-            }
-            
+            if (error) throw error;
             console.log('✅ Boeking opgeslagen in Supabase!');
             return true;
         } catch (error) {
-            console.error('❌ Supabase fout:', error);
+            console.error('❌ Supabase fout:', error.message);
+            alert(`Fout: ${error.message}`);
             return false;
         }
     }
     
-    // FINALIZE BOOKING
+    // FINALIZE BOOKING - aangepast met extra velden
     async function finalizeBooking() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || "Cash";
         
@@ -535,27 +543,48 @@
             totalAmount = (dist * 1.5) + (selectedVehicleExtra || 0);
         }
         
+        // Verplichte velden checken
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        if (!firstName || !lastName || !email || !phone) {
+            alert('Vul alle verplichte velden in (voornaam, achternaam, GSM, e-mail)');
+            return;
+        }
+        
+        // Vul hidden velden voor de extra Supabase kolommen
+        fillHiddenSupabaseFields();
+        
+        // Haal waarden uit hidden velden
+        const customerId = document.getElementById('hiddenCustomerId').value;
+        const formDataRaw = document.getElementById('hiddenFormData').value;
+        const formData = JSON.parse(formDataRaw);
+        const createdAt = document.getElementById('hiddenCreatedAt').value;
+        const partnerId = parseInt(document.getElementById('hiddenPartnerId').value);
+        const assignedDriverId = document.getElementById('hiddenAssignedDriverId').value || null;
+        
         const bookingData = {
             id: generateBookingId(),
             datetime: currentDateTime.split(' ')[0] || "",
             time: currentDateTime.split(' ')[1] || "",
-            name: `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`,
-            email: document.getElementById('email').value.trim(),
-            phone: document.getElementById('phone').value.trim(),
+            name: `${firstName} ${lastName}`,
+            email: email,
+            phone: phone,
             pickup: document.getElementById('pickupInput').value,
             destination: document.getElementById('dropoffInput').value,
             flight_number: document.getElementById('flightNumber').value.trim() || "",
             vehicle: selectedVehicle,
             extras: getExtrasString(),
-            amount: totalAmount,
+            amount: totalAmount.toString(), // string (kolom is text)
             payment: paymentMethod,
-            status: "pending"
+            status: "pending",
+            customer_id: customerId,
+            form_data: formData,
+            created_at: createdAt,
+            partner_id: partnerId,
+            assigned_driver_id: assignedDriverId
         };
-        
-        if (!bookingData.name.trim() || !bookingData.email || !bookingData.phone) {
-            alert('Vul alle verplichte velden in');
-            return;
-        }
         
         const success = await sendToSupabase(bookingData);
         
