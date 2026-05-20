@@ -32,7 +32,6 @@ export const CommunicationConfig = {
             // Secure backend endpoint (Supabase Edge Function)
             // This prevents exposing the Resend API Key in the browser.
             endpoint: '/send-email',
-         
             from: 'FleetConnect <noreply@fleetconnect.be>',
             replyTo: 'FleetConnect <support@fleetconnect.be>'
         }
