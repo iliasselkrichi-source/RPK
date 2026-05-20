@@ -49,7 +49,7 @@
         }
         .container { max-width: 1300px; margin: 0 auto; padding: 0 24px; width: 100%; }
 
-        /* ----- HAMBURGER MENU & SIDEBAR ----- */
+        /* ----- HAMBURGER MENU & SIDEBAR (smaller, no close button) ----- */
         .hamburger {
             position: fixed;
             top: 20px;
@@ -73,28 +73,19 @@
         .sidebar {
             position: fixed;
             top: 0;
-            right: -300px;
-            width: 280px;
+            right: -260px;  /* smaller width */
+            width: 240px;
             height: 100%;
             background: var(--sidebar-bg);
             box-shadow: -4px 0 20px rgba(0,0,0,0.1);
             z-index: 200;
             transition: right 0.3s ease;
-            padding: 24px 16px;
+            padding: 60px 16px 24px; /* extra padding top to avoid hamburger */
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
         .sidebar.open { right: 0; }
-        .sidebar-close {
-            align-self: flex-end;
-            background: none;
-            border: none;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: var(--text-light);
-            margin-bottom: 16px;
-        }
         .sidebar-nav a {
             display: flex;
             align-items: center;
@@ -311,9 +302,8 @@
 <div class="content-overlay">
     <!-- Hamburger knop -->
     <button class="hamburger" id="hamburgerBtn">☰</button>
-    <!-- Sidebar -->
+    <!-- Sidebar (geen close knop) -->
     <div class="sidebar" id="sidebar">
-        <button class="sidebar-close" id="closeSidebarBtn">&times;</button>
         <div class="sidebar-nav">
             <a href="#" data-nav="home"><i class="fas fa-home"></i> Home</a>
             <a href="#" data-nav="portal"><i class="fas fa-user-circle"></i> Mijn Portaal</a>
@@ -538,22 +528,20 @@
     let selectedVehicle = 'Standaard', selectedVehicleExtra = 0, currentPage = 1;
     let debounceTimer;
     
-    // Sidebar functionaliteit (hamburger)
+    // Sidebar functionaliteit (hamburger toggle, geen sluitknop)
     const hamburger = document.getElementById('hamburgerBtn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
-    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
     
-    function openSidebar() {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
+    function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
     }
     function closeSidebar() {
         sidebar.classList.remove('open');
         overlay.classList.remove('active');
     }
-    hamburger.addEventListener('click', openSidebar);
-    closeSidebarBtn.addEventListener('click', closeSidebar);
+    hamburger.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', closeSidebar);
     
     // Tab functies
