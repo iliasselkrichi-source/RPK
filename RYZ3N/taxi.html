@@ -5,29 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ryz3n | Eigen taxisysteem – Geen Uber, geen Bolt, bespaar 25%</title>
     
-    <!-- SEO Meta Tags (verbeterd) -->
     <meta name="description" content="Uw eigen taxisysteem zonder tussenpersonen. Bespaar 20-30% commissie. Geen Uber, geen Bolt. Vanaf €299/maand. Demo aanvragen.">
     <meta name="keywords" content="eigen taxisysteem, taxi software, geen uber, geen bolt, dispatch systeem, vlootbeheer, taxi boeking, geen commissie">
     <meta name="author" content="Ryz3n Digital Supremacy">
     <meta name="robots" content="index, follow">
     
-    <!-- Canonical -->
     <link rel="canonical" href="https://ryz3n.com/taxi.html">
     
-    <!-- Open Graph (verbeterd) -->
     <meta property="og:title" content="Ryz3n | Uw eigen taxisysteem – Geen tussenpersonen">
     <meta property="og:description" content="Bespaar 20-30% commissie. Uw data, uw eigendom. Geen lock-in. Vanaf €299/maand.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ryz3n.com/taxi.html">
     <meta property="og:image" content="https://ryz3n.com/og-taxi.jpg">
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     
     <style>
-        /* ========== BASIS STIJLEN (identiek aan hoofdpagina, NIET AANGEPAST) ========== */
+        /* ========== BASIS STIJLEN (identiek aan jouw origineel) ========== */
         :root {
             --bg-deep: #0A0A0F;
             --bg-surface: #0F0F15;
@@ -77,7 +73,6 @@
             z-index: 2;
         }
         
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -112,7 +107,23 @@
         
         .nav-links a:hover { color: var(--accent-primary); }
         
-        /* Hero */
+        /* Language switcher */
+        .language-switcher {
+            display: flex;
+            gap: 0.75rem;
+            margin-left: auto;
+            align-items: center;
+        }
+        .language-switcher a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: var(--transition-smooth);
+        }
+        .language-switcher a:hover {
+            color: var(--accent-primary);
+        }
+        
         .hero {
             padding: 3rem 0 4rem 0;
             text-align: center;
@@ -172,7 +183,6 @@
             color: var(--accent-primary);
         }
         
-        /* NIEUW: USP BLOK (toegevoegd zonder structuur te wijzigen) */
         .usp-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -205,7 +215,6 @@
             margin-top: 0.5rem;
         }
         
-        /* Secties */
         .section {
             padding: 4rem 0;
             border-bottom: 1px solid var(--border-subtle);
@@ -229,7 +238,6 @@
             margin: 0 auto 3rem auto;
         }
         
-        /* Grids */
         .grid-2, .grid-3, .grid-4 {
             display: grid;
             gap: 2rem;
@@ -264,7 +272,6 @@
             line-height: 1.6;
         }
         
-        /* Stappen */
         .steps {
             display: flex;
             justify-content: space-between;
@@ -293,7 +300,6 @@
             font-weight: 700;
         }
         
-        /* Testimonials */
         .testimonial {
             background: var(--bg-card);
             border-left: 3px solid var(--accent-primary);
@@ -312,7 +318,6 @@
             color: var(--text-white);
         }
         
-        /* Sociaal bewijs badge */
         .social-proof-badge {
             text-align: center;
             margin-bottom: 2rem;
@@ -327,7 +332,6 @@
             border: 1px solid rgba(233, 69, 96, 0.3);
         }
         
-        /* Ervaringscard */
         .experience-card {
             background: var(--bg-card-hover);
             border-left: 3px solid var(--accent-primary);
@@ -342,7 +346,6 @@
             line-height: 1.6;
         }
         
-        /* FAQ */
         .faq-item {
             border-bottom: 1px solid var(--border-subtle);
             margin-bottom: 1rem;
@@ -381,7 +384,6 @@
             padding: 0 0 1rem 0;
         }
         
-        /* Contact form */
         .contact-form {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -408,7 +410,6 @@
         .contact-form .full-width { grid-column: span 2; }
         .contact-form button { grid-column: span 2; justify-self: center; }
         
-        /* Footer */
         .footer {
             padding: 2rem 0;
             text-align: center;
@@ -425,7 +426,6 @@
         
         .footer a:hover { color: var(--accent-primary); }
         
-        /* Responsive */
         @media (max-width: 1024px) {
             .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
             .hero h1 { font-size: 2.5rem; }
@@ -439,6 +439,7 @@
             .contact-form { grid-template-columns: 1fr; }
             .contact-form .full-width { grid-column: span 1; }
             .steps { flex-direction: column; }
+            .language-switcher { margin-left: 0; }
         }
     </style>
 </head>
@@ -454,6 +455,11 @@
             <a href="#oplossing">Oplossing</a>
             <a href="#features">Features</a>
             <a href="#contact">Demo aanvragen</a>
+        </div>
+        <div class="language-switcher">
+            <a href="taxi.html" style="color: var(--accent-primary);">NL</a>
+            <a href="taxi.en.html">EN</a>
+            <a href="taxi.fr.html">FR</a>
         </div>
     </div>
     
@@ -471,7 +477,7 @@
         </div>
     </div>
     
-    <!-- ========== ERVARINGSCARD (NIEUW) ========== -->
+    <!-- ========== ERVARINGSCARD ========== -->
     <div class="experience-card">
         <p style="font-weight: 700; color: var(--accent-primary); margin-bottom: 1rem;">🚖 15+ jaar ervaring – van pakjes tot NAVO. Dit systeem is geen IT-project. Het is mijn leven in code.</p>
         <p>Ik reed voor <strong>NATO, de Europese Commissie, privéjets op de tarmac</strong> – diplomaten, beveiliging, perfectie.<br>
@@ -487,7 +493,7 @@
         <p style="margin-top: 1rem;"><strong>Dit systeem bouwde ik in 2 maanden, van nul, omdat ik het zat was. Het werkt, omdat ik het nodig had.</strong></p>
     </div>
     
-    <!-- ========== NIEUW: USP BLOK ========== -->
+    <!-- ========== USP BLOK ========== -->
     <div class="usp-grid">
         <div class="usp-card">
             <strong>🔒 100% data eigendom</strong>
@@ -503,7 +509,7 @@
         </div>
     </div>
     
-    <!-- ========== PROBLEEM (VERBETERD) ========== -->
+    <!-- ========== PROBLEEM ========== -->
     <div class="section">
         <h2 class="section-title">Herkent u dit? <span>↓</span></h2>
         <div class="grid-3">
@@ -625,7 +631,7 @@
         </div>
     </div>
     
-    <!-- ========== SOCIAAL BEWIJS (UITGEBREID) ========== -->
+    <!-- ========== SOCIAAL BEWIJS ========== -->
     <div class="section">
         <div class="social-proof-badge">
             <span>✅ 25+ taxibedrijven in België en Nederland gebruiken Ryz3n</span>
@@ -643,7 +649,7 @@
         </div>
     </div>
     
-    <!-- ========== FAQ (MET PRIJS INDICATIE) ========== -->
+    <!-- ========== FAQ ========== -->
     <div class="section">
         <h2 class="section-title">Veelgestelde vragen</h2>
         <div class="faq-item">
@@ -686,7 +692,7 @@
             <textarea rows="3" name="message" placeholder="Hoeveel voertuigen heeft u? Wat is uw grootste uitdaging?" class="full-width"></textarea>
             <button type="submit" class="cta-button">📅 Demo aanvragen</button>
         </form>
-        <p class="footer-note" style="text-align: center; margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted);">
+        <p style="text-align: center; margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted);">
             Geen verplichtingen. Geen verkoopgesprekken. Gewoon een technische demo met een architect. Antwoord binnen 24 uur.
         </p>
     </div>
