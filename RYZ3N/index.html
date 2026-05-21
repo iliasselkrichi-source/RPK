@@ -25,6 +25,7 @@
     
     <style>
         /* ALLE CSS BLIJFT EXACT HETZELFDE - NIET AANGEPAST */
+        /* (dezelfde CSS als in jouw originele bestand - hier niet herhaald voor beknoptheid) */
         :root {
             --bg-deep: #0A0A0F;
             --bg-surface: #0F0F15;
@@ -969,7 +970,14 @@
 <div class="container">
     
     <div class="hero" id="doctrine">
-        <div class="no-tracking">🔒 GEEN TRACKING • GEEN COOKIES • UW DATA BLIJFT VAN U</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div class="no-tracking">🔒 GEEN TRACKING • GEEN COOKIES • UW DATA BLIJFT VAN U</div>
+            <div class="language-switcher">
+                <a href="index.html" style="color: var(--accent-primary);">NL</a> |
+                <a href="index.en.html">EN</a> |
+                <a href="index.fr.html">FR</a>
+            </div>
+        </div>
         <h1>Ryz3n <span>|</span> Digital Supremacy</h1>
         <div class="hero-subhead">
             Ryz3n bouwt uw eigen private software. Geen Uber. Geen Airbnb. Geen 25% commissie. Uw data, uw eigendom. Uw merk. <strong>Gebouwd door iemand die reed voor NATO, de Europese Commissie, privéjets, Belgium Limousine, DHL, FedEx, TNT, TSE, Husk, Gorsele, Airportaxi, Airtax, 40Love – en zelf 10 voertuigen runde.</strong>
@@ -1095,7 +1103,7 @@
     <div class="section-title" id="solutions">Use Cases</div>
     <div class="full-width-card">
         <div style="overflow-x: auto;">
-            </table>
+            <table>
                 <thead><tr><th>Sector</th><th>Implementatie</th><th>Resultaat</th></tr></thead>
                 <tbody>
                     <tr><td class="\"><strong>Logistiek & Supply Chain</strong></span></td><td class="\">Geautomatiseerde dispatch + last-mile orchestratie</span></td><td class="\">Bespaar 22% op logistieke kosten • 31% snellere last-mile delivery</span></td></tr>
@@ -1115,7 +1123,7 @@
                 <thead><tr><th>Laag</th><th>Technologie keuzes</th></tr></thead>
                 <tbody>
                     <tr><td class="\"><strong>Databases</strong></span></td><td class="\">PostgreSQL (TimescaleDB), Supabase Realtime, CockroachDB</span></td></tr>
-                    <tr><td class="\"><strong>Message brokers</strong></span></td><td class="\">Apache Kafka, RabbitMQ</span></td></tr>
+                    <tr><td class="\"><strong>Message brokers</strong></span></td><td class="\">Apache Kafka, RabbitMQ</span><tr></tr>
                     <tr><td class="\"><strong>Backend frameworks</strong></span></td><td class="\">Node.js (NestJS), .NET Core, Go</span></td></tr>
                     <tr><td class="\"><strong>Orchestration</strong></span></td><td class="\">Kubernetes (EKS, GKE, AKS), serverless</span></td></tr>
                     <tr><td class="\"><strong>Infrastructure as Code</strong></span></td><td class="\">Terraform, Pulumi</span></td></tr>
