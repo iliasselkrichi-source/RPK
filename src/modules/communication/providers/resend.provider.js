@@ -33,17 +33,24 @@ export class ResendProvider extends BaseEmailProvider {
             const functionBase = CommunicationConfig.settings.edgeFunctionBase;
             const endpoint = this.config.endpoint;
 
-            const response = await fetch(`${baseUrl}${functionBase}${endpoint}`, {
+            // Handle potential double-slashes during path construction
+            const cleanFunctionBase = functionBase.endsWith('/') ? functionBase.slice(0, -1) : functionBase;
+            const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+            const fullUrl = `${baseUrl}${cleanFunctionBase}${cleanEndpoint}`;
+
+            const response = await fetch(fullUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'apikey': CommunicationConfig.settings.supabaseKey || '',
+                    'Authorization': `Bearer ${CommunicationConfig.settings.supabaseKey || ''}`
                 },
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
-                throw new Error(data.message || `HTTP ${response.status}: Failed to dispatch via backend`);
+                throw new Error(data.error || data.message || `HTTP ${response.status}: Dispatch failed via backend`);
             }
 
             const data = await response.json();

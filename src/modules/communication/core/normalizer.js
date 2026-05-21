@@ -15,6 +15,8 @@ export class DataNormalizer {
         }
 
         try {
+            console.log(`[DataNormalizer] Rehydrating snapshot for ${bookingId}`);
+
             // 1. Fetch full booking details
             const { data: booking, error: bError } = await supabaseClient
                 .from('bookings')
@@ -22,7 +24,10 @@ export class DataNormalizer {
                 .eq('id', bookingId)
                 .single();
 
-            if (bError || !booking) throw new Error(`Booking ${bookingId} not found`);
+            if (bError || !booking) {
+                console.error(`❌ [DataNormalizer] Booking ${bookingId} lookup failed:`, bError?.message);
+                throw new Error(`Booking ${bookingId} not found`);
+            }
 
             // 2. Fetch Customer details
             let customer = null;
@@ -32,7 +37,11 @@ export class DataNormalizer {
                     .select('*')
                     .eq('id', booking.customer_id)
                     .single();
-                if (!cError) customer = cData;
+                if (!cError) {
+                    customer = cData;
+                } else {
+                    console.warn(`[DataNormalizer] Customer ${booking.customer_id} lookup failed (non-fatal):`, cError.message);
+                }
             }
 
             // 3. Fetch Driver details (Relational UUID priority)
@@ -43,7 +52,11 @@ export class DataNormalizer {
                     .select('*')
                     .eq('id', booking.assigned_driver_id)
                     .single();
-                if (!dError) driver = dData;
+                if (!dError) {
+                    driver = dData;
+                } else {
+                    console.warn(`[DataNormalizer] Driver ${booking.assigned_driver_id} lookup failed (non-fatal):`, dError.message);
+                }
             }
 
             // 4. Fetch Partner details
@@ -55,7 +68,11 @@ export class DataNormalizer {
                     .select('*')
                     .eq('id', pId)
                     .single();
-                if (!pError) partner = pData;
+                if (!pError) {
+                    partner = pData;
+                } else {
+                    console.warn(`[DataNormalizer] Partner ${pId} lookup failed (non-fatal):`, pError.message);
+                }
             }
 
             // 5. Assemble Normalized Snapshot
