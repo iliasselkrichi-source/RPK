@@ -5,28 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ryz3n | Uw eigen private verhuursysteem – Geen Airbnb, geen Booking.com, geen 15% commissie</title>
     
-    <!-- SEO Meta Tags (verbeterd) -->
     <meta name="description" content="Uw eigen private verhuursysteem. Bespaar 15% commissie. Geen Airbnb, geen Booking.com. Automatische boekingen, contracten, facturen. Demo aanvragen.">
     <meta name="keywords" content="immobiliën software, vakantieverhuur software, eigen boekingssysteem, geen airbnb, geen booking.com, panden beheer, verhuur administratie, geen commissie">
     <meta name="author" content="Ryz3n Digital Supremacy">
     <meta name="robots" content="index, follow">
     
-    <!-- Canonical -->
     <link rel="canonical" href="https://ryz3n.com/immo.html">
     
-    <!-- Open Graph (verbeterd) -->
     <meta property="og:title" content="Ryz3n | Uw eigen private verhuursysteem – Geen tussenpersonen">
     <meta property="og:description" content="Bespaar 15% commissie. Uw data, uw eigendom. Geen lock-in. Vanaf €199/maand.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ryz3n.com/immo.html">
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     
     <style>
-        /* ========== BASIS STIJLEN (identiek aan hoofdpagina, NIET AANGEPAST) ========== */
+        /* ========== BASIS STIJLEN (identiek aan origineel) ========== */
         :root {
             --bg-deep: #0A0A0F;
             --bg-surface: #0F0F15;
@@ -105,6 +101,23 @@
         
         .nav-links a:hover { color: var(--accent-primary); }
         
+        /* Language switcher */
+        .language-switcher {
+            display: flex;
+            gap: 0.75rem;
+            margin-left: auto;
+            align-items: center;
+        }
+        .language-switcher a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: var(--transition-smooth);
+        }
+        .language-switcher a:hover {
+            color: var(--accent-primary);
+        }
+        
         .hero {
             padding: 3rem 0 4rem 0;
             text-align: center;
@@ -164,7 +177,6 @@
             color: var(--accent-primary);
         }
         
-        /* NIEUW: USP BLOK (toegevoegd zonder structuur te wijzigen) */
         .usp-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -272,7 +284,6 @@
             font-weight: 700;
         }
         
-        /* Sociaal bewijs badge */
         .social-proof-badge {
             text-align: center;
             margin-bottom: 2rem;
@@ -386,6 +397,7 @@
             .contact-form { grid-template-columns: 1fr; }
             .contact-form .full-width { grid-column: span 1; }
             .steps { flex-direction: column; }
+            .language-switcher { margin-left: 0; }
         }
     </style>
 </head>
@@ -402,9 +414,14 @@
             <a href="#features">Features</a>
             <a href="#contact">Demo aanvragen</a>
         </div>
+        <div class="language-switcher">
+            <a href="immo.html" style="color: var(--accent-primary);">NL</a>
+            <a href="immo.en.html">EN</a>
+            <a href="immo.fr.html">FR</a>
+        </div>
     </div>
     
-    <!-- ========== HERO (VERBETERD) ========== -->
+    <!-- ========== HERO ========== -->
     <div class="hero">
         <h1>Uw eigen private verhuursysteem.<br>Geen Airbnb. Geen Booking.com. Geen 15% commissie.</h1>
         <div class="hero-subhead">
@@ -418,7 +435,7 @@
         </div>
     </div>
     
-    <!-- ========== NIEUW: USP BLOK ========== -->
+    <!-- ========== USP BLOK ========== -->
     <div class="usp-grid">
         <div class="usp-card">
             <strong>🏠 Geen commissie</strong>
@@ -434,7 +451,7 @@
         </div>
     </div>
     
-    <!-- ========== PROBLEEM (VERBETERD) ========== -->
+    <!-- ========== PROBLEEM ========== -->
     <div class="section">
         <h2 class="section-title">Herkent u dit? <span>↓</span></h2>
         <div class="grid-3">
@@ -556,7 +573,7 @@
         </div>
     </div>
     
-    <!-- ========== SOCIAAL BEWIJS (UITGEBREID) ========== -->
+    <!-- ========== SOCIAAL BEWIJS ========== -->
     <div class="section">
         <div class="social-proof-badge">
             <span>✅ 30+ verhuurders in België, Nederland en Marokko gebruiken Ryz3n</span>
@@ -574,7 +591,7 @@
         </div>
     </div>
     
-    <!-- ========== FAQ (MET PRIJS INDICATIE) ========== -->
+    <!-- ========== FAQ ========== -->
     <div class="section">
         <h2 class="section-title">Veelgestelde vragen</h2>
         <div class="faq-item">
@@ -637,7 +654,7 @@
 </div>
 
 <script>
-    // FAQ Accordion
+    // Accordéon FAQ
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
         const button = item.querySelector('.faq-question');
@@ -646,7 +663,7 @@
         });
     });
     
-    // Form submit
+    // Envoi du formulaire
     const contactForm = document.querySelector('.contact-form');
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
