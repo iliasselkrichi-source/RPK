@@ -342,7 +342,9 @@
         
         .status-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
         .status-pending { background: #fef3c7; color: #92400e; }
-        .status-accepted { background: #dbeafe; color: #1e40af; }
+        .status-accepted { background: #dcfce7; color: #166534; }
+        .status-assigned { background: #dbeafe; color: #1e40af; }
+        .status-declined { background: #fee2e2; color: #991b1b; }
         .status-completed { background: #d1fae5; color: #065f46; }
         .status-cancelled { background: #fee2e2; color: #991b1b; }
 
@@ -500,6 +502,7 @@
 
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        import { CommunicationService } from './src/modules/communication/core/service.js';
 
         // ========== SESSIECHECK (BEVEILIGING TEGEN TERUGNAVIGEREN) ==========
         (function checkAuthentication() {
@@ -515,6 +518,7 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const comms = new CommunicationService(supabase);
 
         const app = {
             allBookings: [],
@@ -590,12 +594,13 @@
             filterAndSortData() {
                 this.newOrders = this.allBookings.filter(b => b.status === 'pending');
                 this.ordersList = this.allBookings.filter(b => 
-                    b.status === 'accepted' && !this.isExpired(b.datetime, b.time)
+                    (b.status === 'accepted' || b.status === 'assigned') && !this.isExpired(b.datetime, b.time)
                 );
                 this.historyOrders = this.allBookings.filter(b => 
                     b.status === 'completed' || 
                     b.status === 'cancelled' ||
-                    (b.status === 'accepted' && this.isExpired(b.datetime, b.time))
+                    b.status === 'declined' ||
+                    ((b.status === 'accepted' || b.status === 'assigned') && this.isExpired(b.datetime, b.time))
                 );
                 this.ordersList.sort((a,b) => this.parseDate(a.datetime, a.time) - this.parseDate(b.datetime, b.time));
                 this.historyOrders.sort((a,b) => this.parseDate(b.datetime, b.time) - this.parseDate(a.datetime, a.time));
@@ -686,8 +691,10 @@
                     let statusBadge = '';
                     if (r.status === 'pending') statusBadge = '<span class="status-badge status-pending">⏳ Nieuw</span>';
                     else if (r.status === 'accepted') statusBadge = isExpired ? '<span class="status-badge status-cancelled">⏰ Verlopen</span>' : '<span class="status-badge status-accepted">✅ Geaccepteerd</span>';
+                    else if (r.status === 'assigned') statusBadge = isExpired ? '<span class="status-badge status-cancelled">⏰ Verlopen</span>' : '<span class="status-badge status-assigned">👨‍✈️ Toegewezen</span>';
                     else if (r.status === 'completed') statusBadge = '<span class="status-badge status-completed">✓ Voltooid</span>';
                     else if (r.status === 'cancelled') statusBadge = '<span class="status-badge status-cancelled">✗ Geannuleerd</span>';
+                    else if (r.status === 'declined') statusBadge = '<span class="status-badge status-declined">✗ Geweigerd</span>';
                     return `
                     <div class="planning-item ${expiredClass}">
                         <div class="planning-time"><i class="fas fa-clock"></i> ${r.time} uur ${statusBadge}</div>
@@ -748,9 +755,14 @@
                     tbody.innerHTML = orders.map(o => {
                         const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
                         const driverText = driver ? driver.name : (o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>');
+                        const isExpired = this.isExpired(o.datetime, o.time);
+                        let sBadge = '';
+                        if (o.status === 'accepted') sBadge = isExpired ? '<span class="status-badge status-cancelled">Verlopen</span>' : '<span class="status-badge status-accepted">Geaccepteerd</span>';
+                        else if (o.status === 'assigned') sBadge = isExpired ? '<span class="status-badge status-cancelled">Verlopen</span>' : '<span class="status-badge status-assigned">Toegewezen</span>';
+
                         return `
                         <tr>
-                            <td><strong>${o.id}</strong><br><span class="status-badge status-accepted">Geaccepteerd</span></td>
+                            <td><strong>${o.id}</strong><br>${sBadge}</td>
                             <td>${o.datetime} ${o.time}</td>
                             <td>${this.escapeHtml(o.name)}</span></td>
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</span></td>
@@ -774,13 +786,20 @@
                 let tbody = document.getElementById('historyTable');
                 if (!tbody) return;
                 if (orders.length === 0) {
-                    tbody.innerHTML = `<td><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
                         const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
                         const driverText = driver ? driver.name : (o.assigned_driver ? o.assigned_driver.name : 'Niet toegewezen');
+                        const isExpired = this.isExpired(o.datetime, o.time);
+                        let sBadge = '';
+                        if (o.status === 'completed') sBadge = '<span class="status-badge status-completed">Voltooid</span>';
+                        else if (o.status === 'cancelled') sBadge = '<span class="status-badge status-cancelled">Geannuleerd</span>';
+                        else if (o.status === 'declined') sBadge = '<span class="status-badge status-declined">Geweigerd</span>';
+                        else if (isExpired) sBadge = '<span class="status-badge status-cancelled">Verlopen</span>';
+
                         return `<tr>
-                            <td><strong>${o.id}</strong></td>
+                            <td><strong>${o.id}</strong><br>${sBadge}</td>
                             <td>${o.datetime} ${o.time}</td>
                             <td>${this.escapeHtml(o.name)}</span></td>
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</span></td>
@@ -1104,23 +1123,33 @@
             
             showBookingFiche(booking) {
                 let driverOptions = '<option value="">-- Selecteer Driver --</option>';
-                let availableDrivers = this.drivers.filter(c => c.partner_id === booking.partner_id);
-                availableDrivers.forEach(d => { driverOptions += `<option value="${d.id}">${this.escapeHtml(d.name)} (${d.vehicle})</option>`; });
+                // If it's a hoofdpartner, they can assign any driver?
+                // Instructions say "load drivers from Supabase table = drivers".
+                // Existing code filtered by partner_id. Let's stick to existing filtering but ensure it works.
+                let availableDrivers = this.drivers.filter(d => String(d.partner_id) === String(booking.partner_id));
+                availableDrivers.forEach(d => {
+                    const selected = (d.id === booking.assigned_driver_id) ? 'selected' : '';
+                    driverOptions += `<option value="${d.id}" ${selected}>${this.escapeHtml(d.name)} (${d.vehicle})</option>`;
+                });
                 let ficheBody = document.getElementById('ficheBody');
                 const isExpired = this.isExpired(booking.datetime, booking.time);
                 
                 let statusDisplay = '';
                 if (booking.status === 'pending') statusDisplay = '⏳ Nieuw';
                 else if (booking.status === 'accepted') statusDisplay = isExpired ? '⏰ Verlopen' : '✅ Geaccepteerd';
-                else if (booking.status === 'completed') statusDisplay = '✓ UITGEVOERD';
+                else if (booking.status === 'assigned') statusDisplay = isExpired ? '⏰ Verlopen' : '👨‍✈️ Toegewezen';
+                else if (booking.status === 'completed') statusDisplay = '✓ Voltooid';
                 else if (booking.status === 'cancelled') statusDisplay = '✗ Geannuleerd';
-                else statusDisplay = '📋 Onbekend';
+                else if (booking.status === 'declined') statusDisplay = '✗ Geweigerd';
+                else statusDisplay = '📋 ' + (booking.status || 'Onbekend');
                 
                 let statusClass = '';
                 if (booking.status === 'pending') statusClass = 'status-pending';
                 else if (booking.status === 'accepted') statusClass = isExpired ? 'status-cancelled' : 'status-accepted';
+                else if (booking.status === 'assigned') statusClass = isExpired ? 'status-cancelled' : 'status-assigned';
                 else if (booking.status === 'completed') statusClass = 'status-completed';
                 else if (booking.status === 'cancelled') statusClass = 'status-cancelled';
+                else if (booking.status === 'declined') statusClass = 'status-declined';
                 
                 ficheBody.innerHTML = `
                     <div class="fiche-section"><h4>Boekingsinformatie</h4>
@@ -1145,10 +1174,20 @@
                         <div class="fiche-row"><span class="fiche-label">Toegewezen driver:</span><span class="fiche-value">${booking.assigned_driver ? booking.assigned_driver.name : (this.drivers.find(d => d.id === booking.assigned_driver_id)?.name || 'Onbekend')}</span></div>
                     </div>
                     ` : ''}
+                    ${(booking.status === 'accepted' || booking.status === 'assigned') && !isExpired ? `
+                    <div class="fiche-section"><h4>👨‍✈️ Driver Toewijzen</h4>
+                        <div class="fiche-row">
+                            <span class="fiche-label">Selecteer Driver:</span>
+                            <span class="fiche-value">
+                                <select id="driverSelect" style="width:100%;">${driverOptions}</select>
+                            </span>
+                        </div>
+                    </div>
+                    ` : ''}
                     <div class="fiche-total"><div class="amount">€ ${(booking.amount || 0).toFixed(2)}</div><div>Betaling: ${booking.payment || 'Onbekend'}</div></div>
                     <div class="fiche-actions">
                         ${booking.status === 'pending' ? `<button class="fiche-btn confirm" onclick="app.confirmBooking('${booking.id}')">Accepteren</button>` : ''}
-                        ${booking.status === 'accepted' && !isExpired ? `<button class="fiche-btn assign" onclick="app.assignDriverToBooking('${booking.id}')">Driver Toewijzen</button>` : ''}
+                        ${(booking.status === 'accepted' || booking.status === 'assigned') && !isExpired ? `<button class="fiche-btn assign" onclick="app.assignDriverToBooking('${booking.id}')">${booking.status === 'assigned' ? 'Update Driver' : 'Bevestig Toewijzing'}</button>` : ''}
                         ${booking.status === 'completed' ? `<button class="fiche-btn confirm" style="background:#10b981; color:white;" disabled>✓ Uitgevoerd</button>` : ''}
                         ${booking.status === 'cancelled' ? `<button class="fiche-btn close" style="background:#ef4444; color:white;" disabled>✗ Geannuleerd</button>` : ''}
                         <button class="fiche-btn close" onclick="app.closeModal()">Sluiten</button>
@@ -1171,32 +1210,43 @@
             },
             
             async confirmBooking(bookingId) {
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('bookings')
                     .update({ status: 'accepted' })
-                    .eq('id', bookingId);
+                    .eq('id', bookingId)
+                    .select()
+                    .single();
                 if (error) {
                     this.showToast('Fout bij accepteren: ' + error.message, true);
                 } else {
+                    comms.dispatch('BOOKING_ACCEPTED', bookingId);
                     this.showToast(`Rit ${bookingId} geaccepteerd`);
                     this.allBookings = await this.fetchBookingsFromSupabase();
                     this.filterAndSortData();
                     this.refreshCurrentTab();
+
+                    // Immediately show assignment UI
+                    if (data) this.showBookingFiche(data);
                 }
-                this.closeModal();
             },
             
             async assignDriverToBooking(bookingId) {
                 const select = document.getElementById('driverSelect');
                 const driverId = select?.value;
                 if (!driverId) { this.showToast('Selecteer een driver', true); return; }
-                const driver = this.drivers.find(c => c.id == driverId);
+                const driver = this.drivers.find(c => String(c.id) === String(driverId));
                 if (!driver) { this.showToast('Driver niet gevonden', true); return; }
                 
+                const assignmentToken = crypto.randomUUID();
+                const now = new Date().toISOString();
+
                 const { error } = await supabase
                     .from('bookings')
                     .update({ 
+                        status: 'assigned',
                         assigned_driver_id: driver.id,
+                        assignment_token: assignmentToken,
+                        assignment_sent_at: now,
                         assigned_driver: {
                             id: driver.id,
                             name: driver.name,
@@ -1208,12 +1258,13 @@
                 if (error) {
                     this.showToast('Fout bij toewijzen driver: ' + error.message, true);
                 } else {
+                    comms.dispatch('DRIVER_ASSIGNED', bookingId);
                     this.showToast(`Driver ${driver.name} toegewezen`);
                     this.allBookings = await this.fetchBookingsFromSupabase();
                     this.filterAndSortData();
                     this.refreshCurrentTab();
+                    this.closeModal();
                 }
-                this.closeModal();
             },
             
             downloadCSV() {
@@ -1272,7 +1323,7 @@
             
             async autoArchiveExpiredRides() {
                 const expiredRides = this.allBookings.filter(b => 
-                    b.status === 'accepted' && this.isExpired(b.datetime, b.time)
+                    (b.status === 'accepted' || b.status === 'assigned') && this.isExpired(b.datetime, b.time)
                 );
                 
                 let changed = false;
@@ -1283,6 +1334,7 @@
                         .eq('id', ride.id);
                     if (!error) {
                         changed = true;
+                        comms.dispatch('COMPLETED', ride.id);
                         console.log(`Rit ${ride.id} automatisch gearchiveerd (verlopen)`);
                     }
                 }
