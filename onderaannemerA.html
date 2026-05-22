@@ -702,16 +702,20 @@
                     if (!pId && b.metadata) pId = b.metadata.partner_id;
                     if (!pId && b.form_data) pId = b.form_data.partner_id;
 
-                    if (pId) {
-                        // Convert to number if it's a numeric string
-                        if (typeof pId === 'string' && /^\d+$/.test(pId)) {
-                            b.partner_id = parseInt(pId);
-                        } else {
-                            b.partner_id = pId;
-                        }
-                    } else {
-                        b.partner_id = 1; // Default fallback for Fleetconnect
-                    }
+                   if (pId !== undefined && pId !== null && pId !== '') {
+
+    if (typeof pId === 'string' && /^\d+$/.test(pId)) {
+        b.partner_id = parseInt(pId);
+    } else {
+        b.partner_id = pId;
+    }
+
+} else {
+
+    // IMPORTANT:
+    // keep NULL instead of forcing 1
+    b.partner_id = null;
+}
 
                     // 2. Normalize status
                     b.status = b.status || 'pending';
@@ -1276,19 +1280,31 @@
 
                 // 1. Determine Normalized Partner ID
                 let normalizedPartnerId =
-                    booking.partner_id ||
-                    booking.metadata?.partner_id ||
-                    booking.form_data?.partner_id ||
-                    1;
+    booking.partner_id ??
+    booking.metadata?.partner_id ??
+    booking.form_data?.partner_id;
 
-                const originalPartnerId = normalizedPartnerId;
-                // Standardize to String for comparison (bridging Int/UUID)
-                const targetPartnerIdStr = String(normalizedPartnerId);
+let availableDrivers = [];
 
-                // 2. Filter Available Drivers
-                let availableDrivers = this.drivers.filter(
-                    c => String(c.partner_id) === targetPartnerIdStr
-                );
+if (
+    normalizedPartnerId !== undefined &&
+    normalizedPartnerId !== null &&
+    normalizedPartnerId !== ''
+) {
+
+    const targetPartnerIdStr = String(normalizedPartnerId);
+
+    availableDrivers = this.drivers.filter(
+        c => String(c.partner_id) === targetPartnerIdStr
+    );
+}
+
+// FALLBACK:
+// if booking has no partner OR no matching drivers
+// show ALL drivers instead of empty dropdown
+if (!availableDrivers.length) {
+    availableDrivers = [...this.drivers];
+}
 
                 console.log('TRACE: showBookingFiche Rendering', {
                     bookingId: booking.id,
@@ -1299,10 +1315,12 @@
                 });
 
                 // 3. Resilience: Fallback to all drivers ONLY if partner-specific list is empty
-                if (!availableDrivers.length && this.drivers.length > 0) {
-                    console.warn('TRACE: showBookingFiche Fallback to ALL drivers');
-                    availableDrivers = [...this.drivers];
-                }
+              if (!normalizedPartnerId) {
+    availableDrivers = [...this.drivers];
+}
+else if (!availableDrivers.length && this.drivers.length > 0) {
+    availableDrivers = [...this.drivers];
+}
 
                 availableDrivers.forEach(d => {
                     // Use loose equality for assigned_driver_id comparison
@@ -1403,6 +1421,22 @@
     .eq('id', bookingId);
 
 if (error) throw error;
+
+                    await this.loadDrivers();
+await this.loadBookings();
+
+this.filterAndSortData();
+
+this.renderOrders();
+this.renderAgenda();
+
+const updatedBooking = this.allBookings.find(
+    b => Number(b.id) === Number(bookingId)
+);
+
+if (updatedBooking) {
+    this.showBookingFiche(updatedBooking);
+}
 
 await this.loadBookings();
 this.filterAndSortData();
