@@ -649,16 +649,50 @@
             
             getRidesByDate(dateStr) { return this.allBookings.filter(b => b.datetime === dateStr); },
             
-            getDriverForBooking(booking) {
-                if (booking.assigned_driver_id) {
-                    const driver = this.drivers.find(d => d.id === booking.assigned_driver_id);
-                    if (driver) return driver;
-                }
-                if (booking.assigned_driver && booking.assigned_driver.name) {
-                    return booking.assigned_driver;
-                }
-                return null;
-            },
+         getDriverForBooking(booking) {
+
+    // 1. direct assigned driver id
+    if (booking.assigned_driver_id) {
+
+        const normalizedAssignedId = Number(booking.assigned_driver_id);
+
+        const driver = this.drivers.find(d =>
+            Number(d.id) === normalizedAssignedId
+        );
+
+        if (driver) {
+            return driver;
+        }
+    }
+
+    // 2. fallback legacy object
+    if (
+        booking.assigned_driver &&
+        typeof booking.assigned_driver === 'object'
+    ) {
+
+        // object contains driver id
+        if (booking.assigned_driver.id) {
+
+            const normalizedLegacyId = Number(booking.assigned_driver.id);
+
+            const driver = this.drivers.find(d =>
+                Number(d.id) === normalizedLegacyId
+            );
+
+            if (driver) {
+                return driver;
+            }
+        }
+
+        // final fallback = raw object
+        if (booking.assigned_driver.name) {
+            return booking.assigned_driver;
+        }
+    }
+
+    return null;
+},
 
             normalizeBookings(bookings) {
                 if (!bookings) return [];
