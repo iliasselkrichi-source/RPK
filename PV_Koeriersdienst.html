@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Alle CSS-stijlen blijven exact hetzelfde als in het origineel */
         :root {
             --bg-body: #f4f7fc;
             --primary: #2c6e9e;
@@ -83,11 +82,7 @@
         .nav-tab { background: var(--card-bg); backdrop-filter: blur(4px); border: 1px solid var(--border-light); padding: 10px 20px; border-radius: 40px; text-decoration: none; color: var(--text-dark); font-weight: 600; font-size: 0.85rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .nav-tab:hover { border-color: var(--primary); transform: translateY(-2px); }
         .nav-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .language-switcher { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 20px; }
-        .lang-btn { background: var(--white); border: 1px solid var(--border-light); padding: 6px 14px; border-radius: 40px; cursor: pointer; font-weight: 600; transition: 0.2s; color: var(--text-dark); }
-        .lang-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
-        .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        @media (max-width: 768px) { .sidebar-trigger { width: 40px; } .page-title { font-size: 1.8rem; } .content-card { padding: 25px; } .price-table th, .price-table td { padding: 10px; font-size: 0.85rem; } .language-switcher { justify-content: center; } }
+        @media (max-width: 768px) { .sidebar-trigger { width: 40px; } .page-title { font-size: 1.8rem; } .content-card { padding: 25px; } .price-table th, .price-table td { padding: 10px; font-size: 0.85rem; } }
     </style>
 </head>
 <body>
@@ -97,14 +92,14 @@
     <div class="sidebar-wrapper">
         <div class="sidebar">
             <div class="sidebar-nav">
-                <a href="PV.html"><i class="fas fa-home"></i><span data-i18n="sidebar-home">Home</span></a>
-                <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span data-i18n="sidebar-exclusive">Exclusieve service</span></a>
-                <a href="PV_Vaste_Prijzen.html"><i class="fas fa-euro-sign"></i><span data-i18n="sidebar-fixed">Vaste prijzen</span></a>
-                <a href="PV_Premium_Vloot.html"><i class="fas fa-car-side"></i><span data-i18n="sidebar-fleet">Premium vloot</span></a>
-                <a href="PV_Luchthavenvervoer.html"><i class="fas fa-plane-departure"></i><span data-i18n="sidebar-airport">Luchthavenvervoer</span></a>
-                <a href="PV_Zakelijk_Vervoer.html"><i class="fas fa-briefcase"></i><span data-i18n="sidebar-business">Zakelijk vervoer</span></a>
-                <a href="PV_Events_Gala.html"><i class="fas fa-glass-cheers"></i><span data-i18n="sidebar-events">Events & Gala</span></a>
-                <a href="PV_Koeriersdienst.html"><i class="fas fa-file-signature"></i><span data-i18n="sidebar-courier">Koeriersdienst</span></a>
+                <a href="PV.html"><i class="fas fa-home"></i><span> Home</span></a>
+                <a href="PV_Exclusieve_Service.html"><i class="fas fa-gem"></i><span> Exclusieve service</span></a>
+                <a href="PV_Vaste_Prijzen.html"><i class="fas fa-euro-sign"></i><span> Vaste prijzen</span></a>
+                <a href="PV_Premium_Vloot.html"><i class="fas fa-car-side"></i><span> Premium vloot</span></a>
+                <a href="PV_Luchthavenvervoer.html"><i class="fas fa-plane-departure"></i><span> Luchthavenvervoer</span></a>
+                <a href="PV_Zakelijk_Vervoer.html"><i class="fas fa-briefcase"></i><span> Zakelijk vervoer</span></a>
+                <a href="PV_Events_Gala.html"><i class="fas fa-glass-cheers"></i><span> Events & Gala</span></a>
+                <a href="PV_Koeriersdienst.html"><i class="fas fa-file-signature"></i><span> Koeriersdienst</span></a>
             </div>
         </div>
     </div>
@@ -112,93 +107,84 @@
 
     <section class="page-hero">
         <div class="container">
-            <div class="language-switcher">
-                <button class="lang-btn" data-lang="nl">NL</button>
-                <button class="lang-btn" data-lang="fr">FR</button>
-                <button class="lang-btn" data-lang="en">EN</button>
-            </div>
-            <div class="breadcrumb">
-                <a href="PV.html" data-i18n="breadcrumb-home">Home</a> 
-                <i class="fas fa-chevron-right"></i> 
-                <span style="color: var(--accent-gold);" data-i18n="breadcrumb-current">Koeriersdienst</span>
-            </div>
-            <h1 class="page-title"><i class="fas fa-file-signature"></i> <span data-i18n="page-title">Koeriersdienst</span></h1>
-            <p class="intro-text" data-i18n="intro-text">Snelle, veilige en betrouwbare levering van documenten en pakketten. Binnen dezelfde dag, of zelfs binnen het uur.</p>
-            <a href="PV.html#booking" class="btn-primary"><i class="fas fa-calendar-check"></i> <span data-i18n="book-btn">Boek een koerier</span></a>
+            <div class="breadcrumb"><a href="PV.html">Home</a> <i class="fas fa-chevron-right"></i> <span style="color: var(--accent-gold);">Koeriersdienst</span></div>
+            <h1 class="page-title"><i class="fas fa-file-signature"></i> Koeriersdienst</h1>
+            <p class="intro-text">Snelle, veilige en betrouwbare levering van documenten en pakketten. Binnen dezelfde dag, of zelfs binnen het uur.</p>
+            <a href="PV.html#booking" class="btn-primary"><i class="fas fa-calendar-check"></i> Boek een koerier</a>
         </div>
     </section>
 
     <div class="container">
         <div class="nav-tabs">
-            <a href="PV.html" class="nav-tab"><i class="fas fa-home"></i> <span data-i18n="tab-home">Home</span></a>
-            <a href="PV_Exclusieve_Service.html" class="nav-tab"><i class="fas fa-gem"></i> <span data-i18n="tab-exclusive">Exclusief</span></a>
-            <a href="PV_Vaste_Prijzen.html" class="nav-tab"><i class="fas fa-euro-sign"></i> <span data-i18n="tab-prices">Prijzen</span></a>
-            <a href="PV_Premium_Vloot.html" class="nav-tab"><i class="fas fa-car-side"></i> <span data-i18n="tab-fleet">Vloot</span></a>
-            <a href="PV_Luchthavenvervoer.html" class="nav-tab"><i class="fas fa-plane-departure"></i> <span data-i18n="tab-airport">Luchthaven</span></a>
-            <a href="PV_Zakelijk_Vervoer.html" class="nav-tab"><i class="fas fa-briefcase"></i> <span data-i18n="tab-business">Zakelijk</span></a>
-            <a href="PV_Events_Gala.html" class="nav-tab"><i class="fas fa-glass-cheers"></i> <span data-i18n="tab-events">Events</span></a>
-            <a href="PV_Koeriersdienst.html" class="nav-tab active"><i class="fas fa-file-signature"></i> <span data-i18n="tab-courier">Koerier</span></a>
+            <a href="PV.html" class="nav-tab"><i class="fas fa-home"></i> Home</a>
+            <a href="PV_Exclusieve_Service.html" class="nav-tab"><i class="fas fa-gem"></i> Exclusief</a>
+            <a href="PV_Vaste_Prijzen.html" class="nav-tab"><i class="fas fa-euro-sign"></i> Prijzen</a>
+            <a href="PV_Premium_Vloot.html" class="nav-tab"><i class="fas fa-car-side"></i> Vloot</a>
+            <a href="PV_Luchthavenvervoer.html" class="nav-tab"><i class="fas fa-plane-departure"></i> Luchthaven</a>
+            <a href="PV_Zakelijk_Vervoer.html" class="nav-tab"><i class="fas fa-briefcase"></i> Zakelijk</a>
+            <a href="PV_Events_Gala.html" class="nav-tab"><i class="fas fa-glass-cheers"></i> Events</a>
+            <a href="PV_Koeriersdienst.html" class="nav-tab active"><i class="fas fa-file-signature"></i> Koerier</a>
         </div>
     </div>
 
     <div class="container">
         <div class="content-section">
             <div class="content-card">
-                <h2><span data-i18n="card-title">📦 Uw betrouwbare partner voor snelle leveringen</span></h2>
-                <p data-i18n="card-intro">Of het nu gaat om juridische documenten, medische monsters of dringende pakketten – Fleetconnect Koeriersdienst zorgt voor een veilige en snelle bezorging. Wij begrijpen dat tijd vaak kritiek is.</p>
+                <h2>📦 Uw betrouwbare partner voor snelle leveringen</h2>
+                <p>Of het nu gaat om juridische documenten, medische monsters of dringende pakketten – Fleetconnect Koeriersdienst zorgt voor een veilige en snelle bezorging. Wij begrijpen dat tijd vaak kritiek is.</p>
                 
                 <div class="highlight-box">
                     <i class="fas fa-star" style="color: var(--accent-gold); font-size: 1.5rem; margin-bottom: 15px; display: inline-block;"></i>
-                    <p style="font-size: 1.1rem; font-weight: 500;" data-i18n="highlight-text">"Uw documenten zijn veilig bij ons – discrete en snelle levering door heel België."</p>
+                    <p style="font-size: 1.1rem; font-weight: 500;">"Uw documenten zijn veilig bij ons – discrete en snelle levering door heel België."</p>
                 </div>
 
-                <h3 data-i18n="delivery-title">⚡ Leveropties</h3>
+                <h3>⚡ Leveropties</h3>
                 <ul class="feature-list">
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="delivery-1-label">Direct Koerier (Spoed)</strong> <span data-i18n="delivery-1-text">– Binnen 2 uur bezorgd (binnen een straal van 30km)</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="delivery-2-label">Zelfde dag levering</strong> <span data-i18n="delivery-2-text">– Voor bestellingen vóór 12:00, gegarandeerd vandaag bezorgd</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="delivery-3-label">Volgende dag levering</strong> <span data-i18n="delivery-3-text">– De voordelige optie voor niet-spoedeisende zendingen</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="delivery-4-label">Medisch transport</strong> <span data-i18n="delivery-4-text">– Gekoeld transport voor bloed, medicijnen en labresultaten</span></li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Direct Koerier (Spoed)</strong> – Binnen 2 uur bezorgd (binnen een straal van 30km)</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Zelfde dag levering</strong> – Voor bestellingen vóór 12:00, gegarandeerd vandaag bezorgd</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Volgende dag levering</strong> – De voordelige optie voor niet-spoedeisende zendingen</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Medisch transport</strong> – Gekoeld transport voor bloed, medicijnen en labresultaten</li>
                 </ul>
 
-                <h3 data-i18n="prices-title">💰 Prijzen koeriersdienst</h3>
-                <table class="price-table" id="price-table">
-                    <thead><tr><th data-i18n="table-header-distance">Afstand</th><th data-i18n="table-header-standard">Standaard (zelfde dag)</th><th data-i18n="table-header-express">Spoed (binnen 2u)</th><th data-i18n="table-header-medical">Medisch transport</th></tr></thead>
+                <h3>💰 Prijzen koeriersdienst</h3>
+                <table class="price-table">
+                    <thead><tr><th>Afstand</th><th>Standaard (zelfde dag)</th><th>Spoed (binnen 2u)</th><th>Medisch transport</th></tr></thead>
                     <tbody>
-                        <tr><td data-i18n="dist-1">0-10 km</td><td>€ 25,00</td><td>€ 40,00</td><td>€ 35,00</td></tr>
-                        <tr><td data-i18n="dist-2">10-25 km</td><td>€ 35,00</td><td>€ 55,00</td><td>€ 50,00</td></tr>
-                        <tr><td data-i18n="dist-3">25-50 km</td><td>€ 50,00</td><td>€ 75,00</td><td>€ 70,00</td></tr>
-                        <tr><td data-i18n="dist-4">50-100 km</td><td>€ 75,00</td><td>€ 110,00</td><td>€ 100,00</td></tr>
-                        <tr><td data-i18n="dist-5">100+ km</td><td>€ 0,90/km</td><td>€ 1,30/km</td><td>€ 1,20/km</td></tr>
+                        <tr><td>0-10 km</td><td>€ 25,00</td><td>€ 40,00</td><td>€ 35,00</td></tr>
+                        <tr><td>10-25 km</td><td>€ 35,00</td><td>€ 55,00</td><td>€ 50,00</td></tr>
+                        <tr><td>25-50 km</td><td>€ 50,00</td><td>€ 75,00</td><td>€ 70,00</td></tr>
+                        <tr><td>50-100 km</td><td>€ 75,00</td><td>€ 110,00</td><td>€ 100,00</td></tr>
+                        <tr><td>100+ km</td><td>€ 0,90/km</td><td>€ 1,30/km</td><td>€ 1,20/km</td></tr>
                     </tbody>
                 </table>
 
-                <h3 data-i18n="cargo-title">📋 Wat wij vervoeren</h3>
+                <h3>📋 Wat wij vervoeren</h3>
                 <ul class="feature-list">
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="cargo-1-label">Documenten</strong> <span data-i18n="cargo-1-text">– Contracten, akten, juridische stukken (vertrouwelijk)</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="cargo-2-label">Medisch</strong> <span data-i18n="cargo-2-text">– Bloedmonsters, medicijnen, laboratoriumuitslagen (gekoeld)</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="cargo-3-label">Pakketten</strong> <span data-i18n="cargo-3-text">– Tot 50kg per zending</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="cargo-4-label">Bankzaken</strong> <span data-i18n="cargo-4-text">– Waardedocumenten en geldtransport (op aanvraag)</span></li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Documenten</strong> – Contracten, akten, juridische stukken (vertrouwelijk)</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Medisch</strong> – Bloedmonsters, medicijnen, laboratoriumuitslagen (gekoeld)</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Pakketten</strong> – Tot 50kg per zending</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Bankzaken</strong> – Waardedocumenten en geldtransport (op aanvraag)</li>
                 </ul>
 
-                <h3 data-i18n="safety-title">🔒 Veiligheid en tracking</h3>
+                <h3>🔒 Veiligheid en tracking</h3>
                 <ul class="feature-list">
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="safety-1-label">Track & Trace</strong> <span data-i18n="safety-1-text">– Real-time volgen van uw zending</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="safety-2-label">Handtekening bij ontvangst</strong> <span data-i18n="safety-2-text">– Bewijs van levering</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="safety-3-label">Verzekerd transport</strong> <span data-i18n="safety-3-text">– Tot € 2.500 standaard verzekerd</span></li>
-                    <li><i class="fas fa-check-circle"></i> <strong data-i18n="safety-4-label">Discrete verpakking</strong> <span data-i18n="safety-4-text">– Geen herkenbare branding op leveringen</span></li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Track & Trace</strong> – Real-time volgen van uw zending</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Handtekening bij ontvangst</strong> – Bewijs van levering</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Verzekerd transport</strong> – Tot € 2.500 standaard verzekerd</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Discrete verpakking</strong> – Geen herkenbare branding op leveringen</li>
                 </ul>
 
-                <h3 data-i18n="faq-title">❓ Veelgestelde vragen koerier</h3>
+                <h3>❓ Veelgestelde vragen koerier</h3>
                 <ul class="feature-list">
-                    <li><i class="fas fa-question-circle"></i> <strong data-i18n="faq-q1">Hoe snel kan een koerier bij mij zijn?</strong> <span data-i18n="faq-a1">- Binnen 30 minuten in stedelijke gebieden.</span></li>
-                    <li><i class="fas fa-question-circle"></i> <strong data-i18n="faq-q2">Kan ik een zending laten ophalen bij een klant?</strong> <span data-i18n="faq-a2">- Ja, wij doen zowel pick-up als delivery.</span></li>
-                    <li><i class="fas fa-question-circle"></i> <strong data-i18n="faq-q3">Worden medische zendingen gekoeld vervoerd?</strong> <span data-i18n="faq-a3">- Ja, wij beschikken over gekoelde transportboxen.</span></li>
-                    <li><i class="fas fa-question-circle"></i> <strong data-i18n="faq-q4">Wat kost een internationale koerier?</strong> <span data-i18n="faq-a4">- Neem contact op voor een offerte.</span></li>
+                    <li><i class="fas fa-question-circle"></i> <strong>Hoe snel kan een koerier bij mij zijn?</strong> - Binnen 30 minuten in stedelijke gebieden.</li>
+                    <li><i class="fas fa-question-circle"></i> <strong>Kan ik een zending laten ophalen bij een klant?</strong> - Ja, wij doen zowel pick-up als delivery.</li>
+                    <li><i class="fas fa-question-circle"></i> <strong>Worden medische zendingen gekoeld vervoerd?</strong> - Ja, wij beschikken over gekoelde transportboxen.</li>
+                    <li><i class="fas fa-question-circle"></i> <strong>Wat kost een internationale koerier?</strong> - Neem contact op voor een offerte.</li>
                 </ul>
 
                 <div class="nav-pagination">
-                    <a href="PV_Events_Gala.html"><i class="fas fa-arrow-left"></i> <span data-i18n="prev-link">Vorige: Events & Gala</span></a>
-                    <a href="PV.html"><span data-i18n="next-link">Terug naar Home</span> <i class="fas fa-arrow-right"></i></a>
+                    <a href="PV_Events_Gala.html"><i class="fas fa-arrow-left"></i> Vorige: Events & Gala</a>
+                    <a href="PV.html">Terug naar Home <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
@@ -207,161 +193,17 @@
     <footer class="footer-dark">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-brand"><h4><i class="fas fa-crown"></i> Fleetconnect</h4><p data-i18n="footer-brand-text">Premium taxivervoer in België – Stijl, stiptheid en service.</p></div>
-                <div class="footer-ryz3n"><h4>Ryz3n | Digital Supremacy</h4><a href="#" data-i18n="footer-control">Control Panel</a><a href="#" data-i18n="footer-dispatch">Taxi Dispatch</a><a href="#" data-i18n="footer-legal">Legal & Privacy</a></div>
-                <div class="footer-legal"><h4 data-i18n="footer-legal-title">Juridisch</h4><a href="#" data-i18n="footer-tos">Algemene voorwaarden</a><a href="#" data-i18n="footer-privacy">Privacy</a><a href="#" data-i18n="footer-cookies">Cookiebeleid</a></div>
-                <div class="footer-partners"><h4 data-i18n="footer-partners-title">Partners</h4><a href="#">Horizon Of Infinity</a></div>
+                <div class="footer-brand"><h4><i class="fas fa-crown"></i> Fleetconnect</h4><p>Premium taxivervoer in België – Stijl, stiptheid en service.</p></div>
+                <div class="footer-ryz3n"><h4>Ryz3n | Digital Supremacy</h4><a href="#">Control Panel</a><a href="#">Taxi Dispatch</a><a href="#">Legal & Privacy</a></div>
+                <div class="footer-legal"><h4>Juridisch</h4><a href="#">Algemene voorwaarden</a><a href="#">Privacy</a><a href="#">Cookiebeleid</a></div>
+                <div class="footer-partners"><h4>Partners</h4><a href="#">Horizon Of Infinity</a></div>
             </div>
-            <div class="footer-bottom"><span data-i18n="footer-copyright">© 2026 Fleetconnect – </span><a href="#">Ryz3n</a></div>
+            <div class="footer-bottom">© 2026 Fleetconnect – <a href="#">Ryz3n</a></div>
         </div>
     </footer>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const translations = {
-        nl: {
-            "sidebar-home": "Home", "sidebar-exclusive": "Exclusieve service", "sidebar-fixed": "Vaste prijzen", "sidebar-fleet": "Premium vloot",
-            "sidebar-airport": "Luchthavenvervoer", "sidebar-business": "Zakelijk vervoer", "sidebar-events": "Events & Gala", "sidebar-courier": "Koeriersdienst",
-            "breadcrumb-home": "Home", "breadcrumb-current": "Koeriersdienst", "page-title": "Koeriersdienst",
-            "intro-text": "Snelle, veilige en betrouwbare levering van documenten en pakketten. Binnen dezelfde dag, of zelfs binnen het uur.",
-            "book-btn": "Boek een koerier",
-            "tab-home": "Home", "tab-exclusive": "Exclusief", "tab-prices": "Prijzen", "tab-fleet": "Vloot", "tab-airport": "Luchthaven", "tab-business": "Zakelijk", "tab-events": "Events", "tab-courier": "Koerier",
-            "card-title": "📦 Uw betrouwbare partner voor snelle leveringen",
-            "card-intro": "Of het nu gaat om juridische documenten, medische monsters of dringende pakketten – Fleetconnect Koeriersdienst zorgt voor een veilige en snelle bezorging. Wij begrijpen dat tijd vaak kritiek is.",
-            "highlight-text": "\"Uw documenten zijn veilig bij ons – discrete en snelle levering door heel België.\"",
-            "delivery-title": "⚡ Leveropties",
-            "delivery-1-label": "Direct Koerier (Spoed)", "delivery-1-text": "– Binnen 2 uur bezorgd (binnen een straal van 30km)",
-            "delivery-2-label": "Zelfde dag levering", "delivery-2-text": "– Voor bestellingen vóór 12:00, gegarandeerd vandaag bezorgd",
-            "delivery-3-label": "Volgende dag levering", "delivery-3-text": "– De voordelige optie voor niet-spoedeisende zendingen",
-            "delivery-4-label": "Medisch transport", "delivery-4-text": "– Gekoeld transport voor bloed, medicijnen en labresultaten",
-            "prices-title": "💰 Prijzen koeriersdienst",
-            "table-header-distance": "Afstand", "table-header-standard": "Standaard (zelfde dag)", "table-header-express": "Spoed (binnen 2u)", "table-header-medical": "Medisch transport",
-            "dist-1": "0-10 km", "dist-2": "10-25 km", "dist-3": "25-50 km", "dist-4": "50-100 km", "dist-5": "100+ km",
-            "cargo-title": "📋 Wat wij vervoeren",
-            "cargo-1-label": "Documenten", "cargo-1-text": "– Contracten, akten, juridische stukken (vertrouwelijk)",
-            "cargo-2-label": "Medisch", "cargo-2-text": "– Bloedmonsters, medicijnen, laboratoriumuitslagen (gekoeld)",
-            "cargo-3-label": "Pakketten", "cargo-3-text": "– Tot 50kg per zending",
-            "cargo-4-label": "Bankzaken", "cargo-4-text": "– Waardedocumenten en geldtransport (op aanvraag)",
-            "safety-title": "🔒 Veiligheid en tracking",
-            "safety-1-label": "Track & Trace", "safety-1-text": "– Real-time volgen van uw zending",
-            "safety-2-label": "Handtekening bij ontvangst", "safety-2-text": "– Bewijs van levering",
-            "safety-3-label": "Verzekerd transport", "safety-3-text": "– Tot € 2.500 standaard verzekerd",
-            "safety-4-label": "Discrete verpakking", "safety-4-text": "– Geen herkenbare branding op leveringen",
-            "faq-title": "❓ Veelgestelde vragen koerier",
-            "faq-q1": "Hoe snel kan een koerier bij mij zijn?", "faq-a1": "- Binnen 30 minuten in stedelijke gebieden.",
-            "faq-q2": "Kan ik een zending laten ophalen bij een klant?", "faq-a2": "- Ja, wij doen zowel pick-up als delivery.",
-            "faq-q3": "Worden medische zendingen gekoeld vervoerd?", "faq-a3": "- Ja, wij beschikken over gekoelde transportboxen.",
-            "faq-q4": "Wat kost een internationale koerier?", "faq-a4": "- Neem contact op voor een offerte.",
-            "prev-link": "Vorige: Events & Gala", "next-link": "Terug naar Home",
-            "footer-brand-text": "Premium taxivervoer in België – Stijl, stiptheid en service.",
-            "footer-control": "Control Panel", "footer-dispatch": "Taxi Dispatch", "footer-legal": "Legal & Privacy",
-            "footer-legal-title": "Juridisch", "footer-tos": "Algemene voorwaarden", "footer-privacy": "Privacy", "footer-cookies": "Cookiebeleid",
-            "footer-partners-title": "Partners", "footer-copyright": "© 2026 Fleetconnect – "
-        },
-        fr: {
-            "sidebar-home": "Accueil", "sidebar-exclusive": "Service exclusif", "sidebar-fixed": "Prix fixes", "sidebar-fleet": "Flotte premium",
-            "sidebar-airport": "Transport aéroport", "sidebar-business": "Transport d'affaires", "sidebar-events": "Événements & Gala", "sidebar-courier": "Messagerie",
-            "breadcrumb-home": "Accueil", "breadcrumb-current": "Service de messagerie", "page-title": "Service de messagerie",
-            "intro-text": "Livraison rapide, sécurisée et fiable de documents et colis. Le jour même, voire dans l'heure.",
-            "book-btn": "Réserver un coursier",
-            "tab-home": "Accueil", "tab-exclusive": "Exclusif", "tab-prices": "Prix fixes", "tab-fleet": "Flotte", "tab-airport": "Aéroport", "tab-business": "Affaires", "tab-events": "Événements", "tab-courier": "Messagerie",
-            "card-title": "📦 Votre partenaire fiable pour les livraisons rapides",
-            "card-intro": "Qu'il s'agisse de documents juridiques, d'échantillons médicaux ou de colis urgents – le service de messagerie Fleetconnect garantit une livraison sûre et rapide. Nous savons que le temps est souvent critique.",
-            "highlight-text": "\"Vos documents sont en sécurité chez nous – livraison discrète et rapide dans toute la Belgique.\"",
-            "delivery-title": "⚡ Options de livraison",
-            "delivery-1-label": "Coursier express (urgence)", "delivery-1-text": "– Livré dans les 2 heures (rayon de 30 km)",
-            "delivery-2-label": "Livraison le jour même", "delivery-2-text": "– Pour les commandes avant 12h00, livraison garantie aujourd'hui",
-            "delivery-3-label": "Livraison le lendemain", "delivery-3-text": "– L'option économique pour les envois non urgents",
-            "delivery-4-label": "Transport médical", "delivery-4-text": "– Transport réfrigéré pour sang, médicaments et résultats de laboratoire",
-            "prices-title": "💰 Tarifs du service de messagerie",
-            "table-header-distance": "Distance", "table-header-standard": "Standard (jour même)", "table-header-express": "Express (2h)", "table-header-medical": "Transport médical",
-            "dist-1": "0-10 km", "dist-2": "10-25 km", "dist-3": "25-50 km", "dist-4": "50-100 km", "dist-5": "100+ km",
-            "cargo-title": "📋 Ce que nous transportons",
-            "cargo-1-label": "Documents", "cargo-1-text": "– Contrats, actes, pièces juridiques (confidentiel)",
-            "cargo-2-label": "Médical", "cargo-2-text": "– Échantillons sanguins, médicaments, résultats de laboratoire (réfrigéré)",
-            "cargo-3-label": "Colis", "cargo-3-text": "– Jusqu'à 50 kg par envoi",
-            "cargo-4-label": "Opérations bancaires", "cargo-4-text": "– Documents de valeur et transport d'argent (sur demande)",
-            "safety-title": "🔒 Sécurité et suivi",
-            "safety-1-label": "Track & Trace", "safety-1-text": "– Suivi en temps réel de votre envoi",
-            "safety-2-label": "Signature à la réception", "safety-2-text": "– Preuve de livraison",
-            "safety-3-label": "Transport assuré", "safety-3-text": "– Jusqu'à 2 500 € d'assurance standard",
-            "safety-4-label": "Emballage discret", "safety-4-text": "– Pas de branding reconnaissable sur les livraisons",
-            "faq-title": "❓ FAQ messagerie",
-            "faq-q1": "À quelle vitesse un coursier peut-il arriver ?", "faq-a1": "- Dans les 30 minutes en zone urbaine.",
-            "faq-q2": "Puis-je faire ramasser un colis chez un client ?", "faq-a2": "- Oui, nous assurons à la fois l'enlèvement et la livraison.",
-            "faq-q3": "Les envois médicaux sont-ils transportés réfrigérés ?", "faq-a3": "- Oui, nous disposons de boîtes de transport réfrigérées.",
-            "faq-q4": "Combien coûte un coursier international ?", "faq-a4": "- Contactez-nous pour un devis.",
-            "prev-link": "Précédent: Événements & Gala", "next-link": "Retour à l'accueil",
-            "footer-brand-text": "Service de taxi premium en Belgique – Style, ponctualité et service.",
-            "footer-control": "Panneau de contrôle", "footer-dispatch": "Répartition des taxis", "footer-legal": "Juridique et confidentialité",
-            "footer-legal-title": "Juridique", "footer-tos": "Conditions générales", "footer-privacy": "Confidentialité", "footer-cookies": "Politique de cookies",
-            "footer-partners-title": "Partenaires", "footer-copyright": "© 2026 Fleetconnect – "
-        },
-        en: {
-            "sidebar-home": "Home", "sidebar-exclusive": "Exclusive service", "sidebar-fixed": "Fixed prices", "sidebar-fleet": "Premium fleet",
-            "sidebar-airport": "Airport transport", "sidebar-business": "Business transport", "sidebar-events": "Events & Gala", "sidebar-courier": "Courier service",
-            "breadcrumb-home": "Home", "breadcrumb-current": "Courier service", "page-title": "Courier service",
-            "intro-text": "Fast, secure and reliable delivery of documents and parcels. Same day, or even within the hour.",
-            "book-btn": "Book a courier",
-            "tab-home": "Home", "tab-exclusive": "Exclusive", "tab-prices": "Prices", "tab-fleet": "Fleet", "tab-airport": "Airport", "tab-business": "Business", "tab-events": "Events", "tab-courier": "Courier",
-            "card-title": "📦 Your reliable partner for fast deliveries",
-            "card-intro": "Whether it's legal documents, medical samples or urgent parcels – Fleetconnect Courier Service ensures safe and fast delivery. We understand that time is often critical.",
-            "highlight-text": "\"Your documents are safe with us – discreet and fast delivery throughout Belgium.\"",
-            "delivery-title": "⚡ Delivery options",
-            "delivery-1-label": "Direct Courier (Express)", "delivery-1-text": "– Delivered within 2 hours (within a 30km radius)",
-            "delivery-2-label": "Same day delivery", "delivery-2-text": "– For orders before 12:00, guaranteed delivery today",
-            "delivery-3-label": "Next day delivery", "delivery-3-text": "– The budget option for non-urgent shipments",
-            "delivery-4-label": "Medical transport", "delivery-4-text": "– Cooled transport for blood, medicines and lab results",
-            "prices-title": "💰 Courier service prices",
-            "table-header-distance": "Distance", "table-header-standard": "Standard (same day)", "table-header-express": "Express (within 2h)", "table-header-medical": "Medical transport",
-            "dist-1": "0-10 km", "dist-2": "10-25 km", "dist-3": "25-50 km", "dist-4": "50-100 km", "dist-5": "100+ km",
-            "cargo-title": "📋 What we transport",
-            "cargo-1-label": "Documents", "cargo-1-text": "– Contracts, deeds, legal papers (confidential)",
-            "cargo-2-label": "Medical", "cargo-2-text": "– Blood samples, medicines, lab results (cooled)",
-            "cargo-3-label": "Parcels", "cargo-3-text": "– Up to 50kg per shipment",
-            "cargo-4-label": "Banking", "cargo-4-text": "– Valuable documents and cash transport (on request)",
-            "safety-title": "🔒 Safety and tracking",
-            "safety-1-label": "Track & Trace", "safety-1-text": "– Real-time tracking of your shipment",
-            "safety-2-label": "Signature on delivery", "safety-2-text": "– Proof of delivery",
-            "safety-3-label": "Insured transport", "safety-3-text": "– Up to €2,500 standard insurance",
-            "safety-4-label": "Discreet packaging", "safety-4-text": "– No recognizable branding on deliveries",
-            "faq-title": "❓ Courier FAQ",
-            "faq-q1": "How fast can a courier reach me?", "faq-a1": "- Within 30 minutes in urban areas.",
-            "faq-q2": "Can I have a shipment picked up at a customer's location?", "faq-a2": "- Yes, we do both pick-up and delivery.",
-            "faq-q3": "Are medical shipments transported cooled?", "faq-a3": "- Yes, we have cooled transport boxes.",
-            "faq-q4": "How much does an international courier cost?", "faq-a4": "- Contact us for a quote.",
-            "prev-link": "Previous: Events & Gala", "next-link": "Back to Home",
-            "footer-brand-text": "Premium taxi transport in Belgium – Style, punctuality and service.",
-            "footer-control": "Control Panel", "footer-dispatch": "Taxi Dispatch", "footer-legal": "Legal & Privacy",
-            "footer-legal-title": "Legal", "footer-tos": "Terms & Conditions", "footer-privacy": "Privacy", "footer-cookies": "Cookie Policy",
-            "footer-partners-title": "Partners", "footer-copyright": "© 2026 Fleetconnect – "
-        }
-    };
-
-    function setLanguage(lang) {
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (translations[lang] && translations[lang][key]) {
-                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = translations[lang][key];
-                else el.innerHTML = translations[lang][key];
-            }
-        });
-        document.documentElement.lang = lang;
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            if (btn.getAttribute('data-lang') === lang) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
-        localStorage.setItem('preferredLanguage', lang);
-    }
-
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => setLanguage(btn.getAttribute('data-lang')));
-    });
-
-    const savedLang = localStorage.getItem('preferredLanguage');
-    setLanguage(savedLang && translations[savedLang] ? savedLang : 'nl');
-
-    // Leaflet map
     var bgMap = L.map('background-map').setView([50.8503, 4.3517], 7);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attribution">CARTO</a>',

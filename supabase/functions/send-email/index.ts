@@ -31,19 +31,25 @@ serve(async (req) => {
     if (!html) throw new Error('Missing html content')
 
     // Simple email format check for strings
-    if (typeof to === 'string' && !to.includes('@')) {
-      throw new Error('Invalid email format')
+    const recipients = Array.isArray(to) ? to : [to];
+    for (const email of recipients) {
+      if (!email.includes('@')) {
+        throw new Error(`Invalid email format: ${email}`)
+      }
     }
 
-    console.log(`[Email Dispatch] Trigger: ${metadata?.trigger || 'Unknown'} | To: ${Array.isArray(to) ? to.join(', ') : to}`)
+    console.log(`[Email Dispatch] Trigger: ${metadata?.trigger || 'Unknown'} | To: ${recipients.join(', ')}`);
 
     // 3. Dispatch via Resend
+    // FORCE canonical sender if not provided or doesn't match FleetConnect domain
+    const sender = 'FleetConnect <fleetconnect.os@gmail.com>';
+
     const { data, error } = await resend.emails.send({
-      from: from || 'FleetConnect <fleetconnect.os@gmail.com>',
+      from: sender,
       to: to,
       subject: subject,
       html: html,
-      reply_to: reply_to,
+      reply_to: reply_to || 'fleetconnect.os@gmail.com',
       // Pass metadata as tags for Resend dashboard tracking
       tags: metadata ? Object.entries(metadata).map(([name, value]) => ({
         name: name.substring(0, 40),

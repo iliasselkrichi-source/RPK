@@ -27,6 +27,9 @@ export class CommunicationService {
      * @param {object} supabaseClient - Shared supabase client
      */
     async trigger(trigger, bookingId, supabaseClient) {
+        const startTime = performance.now();
+        console.log(`[CommunicationService] START Trigger: ${trigger} | ID: ${bookingId}`);
+
         if (!bookingId || !supabaseClient) {
             console.error(`❌ CommunicationService: Missing ID or client for ${trigger}`);
             return;
@@ -35,7 +38,10 @@ export class CommunicationService {
         try {
             // 1. Full Relational Rehydration
             const snapshot = await DataNormalizer.rehydrateBookingSnapshot(bookingId, supabaseClient);
-            if (!snapshot) throw new Error('Failed to rehydrate snapshot');
+            if (!snapshot) {
+                console.error(`❌ [CommunicationService] Rehydration failed for ${bookingId}`);
+                throw new Error('Failed to rehydrate snapshot');
+            }
 
             // 2. Localization Settings
             const lang = LanguageEngine.detectLanguage(snapshot, snapshot.customer);
@@ -55,10 +61,17 @@ export class CommunicationService {
             const to = snapshot.customer?.email || snapshot.email;
             if (!to) throw new Error('Recipient email missing');
 
+            console.log(`[CommunicationService] Sending ${trigger} to ${to} via ${this.activeProvider.constructor.name}`);
+
             const result = await this.activeProvider.send(to, subject, html, {
                 bookingId: snapshot.id,
-                trigger: trigger
+                trigger: trigger,
+                supabaseUrl: supabaseClient.supabaseUrl,
+                supabaseKey: supabaseClient.supabaseKey
             });
+
+            const duration = (performance.now() - startTime).toFixed(2);
+            console.log(`[CommunicationService] END Trigger: ${trigger} | To: ${to} | Status: ${result.success ? 'SUCCESS' : 'FAILED'} | Duration: ${duration}ms`);
 
             // 6. Logging
             CommunicationLogger.log({
@@ -75,7 +88,9 @@ export class CommunicationService {
             return result;
 
         } catch (error) {
-            console.error(`❌ CommunicationService [${trigger}]:`, error.message);
+            const duration = (performance.now() - startTime).toFixed(2);
+            console.error(`❌ [CommunicationService] FATAL ERROR [${trigger}] for ${bookingId} after ${duration}ms:`, error.message);
+
             CommunicationLogger.log({
                 trigger,
                 status: 'error',

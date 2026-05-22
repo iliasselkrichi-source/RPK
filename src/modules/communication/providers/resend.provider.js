@@ -24,26 +24,37 @@ export class ResendProvider extends BaseEmailProvider {
             to: Array.isArray(to) ? to : [to],
             subject: subject,
             html: html,
-            metadata: options.metadata || {}
+            metadata: {
+                bookingId: options.bookingId,
+                trigger: options.trigger
+            }
         };
 
         try {
-            // Attempt to call the secure backend endpoint (Supabase Edge Function)
-            const baseUrl = CommunicationConfig.settings.supabaseUrl;
-            const functionBase = CommunicationConfig.settings.edgeFunctionBase;
+            // Use Supabase credentials from context if available, otherwise fallback to config
+            const baseUrl = options.supabaseUrl || CommunicationConfig.settings.supabaseUrl;
+            const supabaseKey = options.supabaseKey || CommunicationConfig.settings.supabaseKey || '';
+            const functionBase = CommunicationConfig.settings.edgeFunctionBase || '/functions/v1';
             const endpoint = this.config.endpoint;
 
-            const response = await fetch(`${baseUrl}${functionBase}${endpoint}`, {
+            // Handle potential double-slashes during path construction
+            const cleanFunctionBase = functionBase.endsWith('/') ? functionBase.slice(0, -1) : functionBase;
+            const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+            const fullUrl = `${baseUrl}${cleanFunctionBase}${cleanEndpoint}`;
+
+            const response = await fetch(fullUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${supabaseKey}`
                 },
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
-                throw new Error(data.message || `HTTP ${response.status}: Failed to dispatch via backend`);
+                throw new Error(data.error || data.message || `HTTP ${response.status}: Dispatch failed via backend`);
             }
 
             const data = await response.json();

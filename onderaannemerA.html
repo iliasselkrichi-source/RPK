@@ -580,22 +580,33 @@
             },
             
             async loadDrivers() {
-                const { data, error } = await supabase
-                    .from('drivers')
-                    .select('*');
+                if (this._loadingDrivers) return this._loadingDrivers;
 
-                console.log('TRACE: loadDrivers', {
-                    data,
-                    error,
-                    count: data?.length,
-                    authRole: (await supabase.auth.getUser())?.data?.user?.role
-                });
+                this._loadingDrivers = (async () => {
+                    try {
+                        const { data, error } = await supabase
+                            .from('drivers')
+                            .select('*');
 
-                if (error) {
-                    this.showToast('Fout bij laden drivers: ' + error.message, true);
-                    return;
-                }
-                this.drivers = data || [];
+                        console.log('TRACE: loadDrivers', {
+                            count: data?.length,
+                            timestamp: new Date().toISOString()
+                        });
+
+                        if (error) throw error;
+                        this.drivers = data || [];
+                        return this.drivers;
+                    } catch (error) {
+                        console.error('❌ loadDrivers Error:', error.message);
+                        this.showToast('Fout bij laden drivers: ' + error.message, true);
+                        this.drivers = [];
+                        return [];
+                    } finally {
+                        this._loadingDrivers = null;
+                    }
+                })();
+
+                return this._loadingDrivers;
             },
             
             switchToWoningen() { window.location.href = 'commander.html'; },
@@ -807,7 +818,7 @@
                             <td>${this.escapeHtml(o.pickup)} → ${this.escapeHtml(o.destination)}</span></td>
                             <td>${o.vehicle}</span></td>
                             <td>€${(o.amount || 0).toFixed(2)}</span></td>
-                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></span></td>
+                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></td>
                         </tr>
                     `).join('');
                 }
@@ -840,7 +851,7 @@
                             <td>${o.vehicle}</span></td>
                             <td>€${(o.amount || 0).toFixed(2)}</span></td>
                             <td>${driverText}</span></td>
-                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></span></td>
+                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></td>
                         </tr>
                     `;}).join('');
                 }
@@ -877,7 +888,7 @@
                             <td>${o.vehicle}</span></td>
                             <td>€${(o.amount || 0).toFixed(2)}</span></td>
                             <td>${driverText}</span></td>
-                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></span></td>
+                            <td><button class="action-btn" onclick='app.showBookingFiche(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Bekijk Fiche</button></td>
                         </tr>`;
                     }).join('');
                 }
@@ -1216,10 +1227,18 @@
             },
             resetFiltersHistory() { let o = document.getElementById("filterOrderHistory"); let n = document.getElementById("filterNameHistory"); if(o) o.value = ""; if(n) n.value = ""; this.renderHistoryTable(this.historyOrders); },
             
-            showBookingFiche(booking) {
+            async showBookingFiche(booking) {
+                console.log('TRACE: showBookingFiche Start', { bookingId: booking.id, currentDriversCount: this.drivers?.length });
+
+                // Ensure drivers are loaded (Race condition guard)
+                if (!this.drivers || this.drivers.length === 0) {
+                    console.log('TRACE: showBookingFiche - Drivers missing, awaiting reload...');
+                    await this.loadDrivers();
+                }
+
                 let driverOptions = this.drivers.length > 0
                     ? '<option value="">-- Selecteer Driver --</option>'
-                    : '<option value="">-- Geen drivers geladen --</option>';
+                    : '<option value="">-- Geen drivers gevonden --</option>';
 
                 // 1. Determine Normalized Partner ID
                 let normalizedPartnerId =
@@ -1229,28 +1248,25 @@
                     1;
 
                 const originalPartnerId = normalizedPartnerId;
-                // Standardize to String for comparison
+                // Standardize to String for comparison (bridging Int/UUID)
                 const targetPartnerIdStr = String(normalizedPartnerId);
 
                 // 2. Filter Available Drivers
-                // Defensive check: handle possible numeric/string mix in driver.partner_id
                 let availableDrivers = this.drivers.filter(
                     c => String(c.partner_id) === targetPartnerIdStr
                 );
 
-                console.log('TRACE: showBookingFiche Filtering', {
+                console.log('TRACE: showBookingFiche Rendering', {
                     bookingId: booking.id,
-                    originalPartnerId,
                     targetPartnerIdStr,
                     availableDriversCount: availableDrivers.length,
                     totalDriversCount: this.drivers.length,
-                    driverPartnerIds: this.drivers.map(d => d.partner_id)
+                    timestamp: new Date().toISOString()
                 });
 
-                // 3. Resilience: If no drivers found for this partner, fallback to all drivers
-                // This prevents the "Geen drivers gevonden" regression if partner_id is misaligned.
+                // 3. Resilience: Fallback to all drivers ONLY if partner-specific list is empty
                 if (!availableDrivers.length && this.drivers.length > 0) {
-                    console.warn('TRACE: showBookingFiche Fallback to ALL drivers (Filtering returned 0)');
+                    console.warn('TRACE: showBookingFiche Fallback to ALL drivers');
                     availableDrivers = [...this.drivers];
                 }
 
@@ -1339,28 +1355,43 @@
             },
             
             async confirmBooking(bookingId) {
-                const { error } = await supabase
-                    .from('bookings')
-                    .update({ status: 'accepted' })
-                    .eq('id', bookingId);
-                if (error) {
-                    this.showToast('Fout bij accepteren: ' + error.message, true);
-                } else {
+                console.log('TRACE: confirmBooking Start', { bookingId });
+                try {
+                    const { error } = await supabase
+                        .from('bookings')
+                        .update({ status: 'accepted' })
+                        .eq('id', bookingId);
+
+                    if (error) throw error;
+
                     this.showToast(`Rit ${bookingId} geaccepteerd`);
 
                     // Email trigger (non-blocking)
                     comms.trigger('BOOKING_ACCEPTED', bookingId, supabase);
 
-                    this.allBookings = await this.fetchBookingsFromSupabase(); // Returns normalized data
+                    // 1. Refresh bookings data
+                    const bookings = await this.fetchBookingsFromSupabase();
+                    this.allBookings = bookings;
                     this.filterAndSortData();
+
+                    // 2. Ensure drivers are available before re-opening fiche
+                    if (!this.drivers || this.drivers.length === 0) {
+                        await this.loadDrivers();
+                    }
+
+                    // 3. Update the UI
                     this.refreshCurrentTab();
 
-                    // Heropen de fiche met de actuele data uit allBookings (already normalized)
+                    // 4. Heropen de fiche met de actuele data
                     const updatedBooking = this.allBookings.find(b => b.id === bookingId);
                     if (updatedBooking) {
-                        this.showBookingFiche(updatedBooking);
-                        return; // Sla closeModal over
+                        console.log('TRACE: confirmBooking - Re-opening fiche', { bookingId });
+                        await this.showBookingFiche(updatedBooking);
+                        return; // Modal stays open
                     }
+                } catch (error) {
+                    console.error('❌ confirmBooking Error:', error.message);
+                    this.showToast('Fout bij accepteren: ' + error.message, true);
                 }
                 this.closeModal();
             },
@@ -1387,22 +1418,22 @@
             },
             
             async assignDriverToBooking(bookingId) {
+                console.log('TRACE: assignDriverToBooking Start', { bookingId });
+
                 const assignBtn = document.querySelector('.fiche-btn.assign');
+                const select = document.getElementById('driverSelect');
+                const driverId = select?.value;
+
+                if (!driverId) {
+                    this.showToast('Selecteer een driver', true);
+                    return;
+                }
+
                 if (assignBtn) {
                     assignBtn.disabled = true;
                     assignBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Bezig...';
                 }
 
-                const select = document.getElementById('driverSelect');
-                const driverId = select?.value;
-
-                console.log('TRACE: assignDriverToBooking Start', {
-                    bookingId,
-                    driverId,
-                    availableDriversCount: this.drivers.length
-                });
-
-                if (!driverId) { this.showToast('Selecteer een driver', true); return; }
                 const driver = this.drivers.find(c => String(c.id) === String(driverId));
                 if (!driver) {
                     console.error('TRACE: Driver mismatch', { driverId, ids: this.drivers.map(d => d.id) });
