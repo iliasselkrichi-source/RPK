@@ -299,11 +299,13 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  import { CommunicationService } from './src/modules/communication/core/service.js';
 
   // SUPABASE (jouw keys)
   const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const comms = new CommunicationService(supabase);
 
   let map, pickupCoord = null, dropoffCoord = null, routeLayer = null, pickupMarker = null, dropoffMarker = null;
   let currentRouteData = null, currentRoundTrip = false, currentDateTime = "", currentReturnDateTime = "";
@@ -586,6 +588,7 @@
 
     const success = await sendToSupabase(bookingData);
     if (success) {
+      comms.dispatch('BOOKING_CONFIRMATION', bookingData.id);
       alert(`✅ Réservation confirmée !\n\n📋 Numéro : ${bookingData.id}\n💰 Montant : € ${totalAmount.toFixed(2)}\n\nUn email de confirmation vous a été envoyé (simulation).`);
       resetAll();
     } else {
