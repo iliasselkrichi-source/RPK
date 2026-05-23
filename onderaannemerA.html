@@ -1337,7 +1337,7 @@ ${['accepted','assigned'].includes(
         ? `<button class="fiche-btn confirm" onclick="app.confirmBooking('${booking.id}')">Accepteren</button>`
         : ''}
 
-    ${(['accepted','assigned'].includes(normalizedStatus) && !isExpired)
+    ${(['accepted','assigned'].includes(normalizedStatus))
         ? `<button class="fiche-btn assign" onclick="app.assignDriverToBooking('${booking.id}')">${normalizedStatus === 'assigned' ? 'Update Driver' : 'Bevestig Toewijzing'}</button>`
         : ''}
 
