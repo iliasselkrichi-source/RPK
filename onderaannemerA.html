@@ -1305,30 +1305,26 @@ console.log('BOOKING STATUS NORMALIZED:', String(booking.status || '').trim().to
 </div>
 ` : ''}
 
-${['accepted','assigned'].includes(
-    String(booking.status || '').trim().toLowerCase()
-) ? `
+${['accepted','assigned'].includes(normalizedStatus) ? `
 <div class="fiche-section">
     <h4>👨‍✈️ Driver Toewijzen</h4>
-<div class="fiche-row" style="display:flex; flex-direction:column; gap:8px;">
-    <label for="driverSelect" class="fiche-label">Selecteer Driver:</label>
-    <select 
-        id="driverSelect"
-        style="
-            display:block !important;
-            width:100% !important;
-            min-height:42px !important;
-            padding:10px !important;
-            border:1px solid #ccc !important;
-            border-radius:8px !important;
-            background:white !important;
-            visibility:visible !important;
-            opacity:1 !important;
-        "
-    >
-        ${driverOptions || '<option value="">-- Selecteer Driver --</option>'}
-    </select>
-</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+        <label for="driverSelect" class="fiche-label">Selecteer Driver:</label>
+        <select id="driverSelect"
+            style="
+                display:block !important;
+                width:100% !important;
+                min-height:42px !important;
+                padding:10px !important;
+                border:1px solid #ccc !important;
+                border-radius:8px !important;
+                background:white !important;
+                visibility:visible !important;
+                opacity:1 !important;
+            ">
+            ${driverOptions}
+        </select>
+    </div>
 </div>
 ` : ''}
                         <div class="fiche-total"><div class="amount">€ ${(booking.amount || 0).toFixed(2)}</div><div>Betaling: ${booking.payment || 'Onbekend'}</div></div>
