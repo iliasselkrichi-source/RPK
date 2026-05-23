@@ -1227,9 +1227,7 @@ console.log('BOOKING STATUS NORMALIZED:', String(booking.status || '').trim().to
                     const targetPartnerId = normalizedPartnerId;
 
                     // 2. Filter Available Drivers
-                    let availableDrivers = this.drivers.filter(
-                        c => String(c.partner_id) === String(targetPartnerId)
-                    );
+                   let availableDrivers = [...this.drivers];
 
                     console.log('TRACE: showBookingFiche Rendering', {
                         bookingId: booking.id,
@@ -1238,12 +1236,6 @@ console.log('BOOKING STATUS NORMALIZED:', String(booking.status || '').trim().to
                         totalDriversCount: this.drivers.length,
                         timestamp: new Date().toISOString()
                     });
-
-                    // 3. Resilience: Fallback to all drivers ONLY if partner-specific list is empty
-                    if (!availableDrivers.length && this.drivers.length > 0) {
-                        console.warn('TRACE: showBookingFiche Fallback to ALL drivers');
-                        availableDrivers = [...this.drivers];
-                    }
 
                     availableDrivers.forEach(d => { 
                         const selected = (String(d.id) === String(booking.assigned_driver_id)) ? 'selected' : '';
