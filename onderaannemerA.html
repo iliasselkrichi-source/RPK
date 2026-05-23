@@ -1124,6 +1124,43 @@
                 this.showToast('Fout bij toewijzen driver: ' + err.message, true);
             }
         },
+        async confirmBooking(bookingId) {
+    try {
+        console.log('confirmBooking called for:', bookingId);
+        
+        const { error } = await supabase
+            .from('bookings')
+            .update({ status: 'accepted' })
+            .eq('id', bookingId);
+        
+        if (error) throw error;
+        
+        this.showToast(`Rit ${bookingId} geaccepteerd`);
+        
+        // Refresh all data
+        await this.loadPartners();
+        await this.loadDrivers();
+        this.allBookings = await this.fetchBookingsFromSupabase();
+        this.filterAndSortData();
+        await this.refreshCurrentTab();
+        
+        // Find and reopen the updated booking
+        const updatedBooking = this.allBookings.find(b => String(b.id) === String(bookingId));
+        if (updatedBooking) {
+            // Close current modal
+            this.closeModal();
+            // Small delay to ensure clean state
+            await new Promise(resolve => setTimeout(resolve, 100));
+            // Reopen with updated booking (status now 'accepted')
+            await this.showBookingFiche(updatedBooking);
+        } else {
+            this.showToast('Booking niet gevonden na accept', true);
+        }
+    } catch (err) {
+        console.error('confirmBooking Error:', err);
+        this.showToast('Fout bij accepteren: ' + err.message, true);
+    }
+},
         
         downloadCSV() {
             let headers = ["ID","Datum","Tijd","Naam","Pickup","Destination","Bedrag","Betaling","Status"];
