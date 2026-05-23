@@ -705,7 +705,7 @@
                 let rides = this.getRidesByDate(dateStr).sort((a,b) => a.time.localeCompare(b.time));
                 let formattedDate = this.selectedDate.toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 let ridesHtml = rides.length === 0 ? '<div class="empty-planning">Geen ritten op deze dag</div>' : rides.map(r => {
-                    const driver = this.drivers.find(d => d.id === r.assigned_driver_id);
+                    const driver = this.drivers.find(d => String(d.id) === String(r.assigned_driver_id));
                     const driverText = driver ? `${driver.name} (${driver.vehicle})` : (r.assigned_driver ? `${r.assigned_driver.name} (${r.assigned_driver.vehicle})` : null);
                     const isExpired = r.status === 'accepted' && this.isExpired(r.datetime, r.time);
                     const expiredClass = isExpired ? 'expired' : '';
@@ -774,7 +774,7 @@
                     tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
-                        const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
+                        const driver = this.drivers.find(d => String(d.id) === String(o.assigned_driver_id));
                         const driverText = driver ? driver.name : (o.assigned_driver ? o.assigned_driver.name : '<span style="color:#f59e0b;">Niet toegewezen</span>');
                         const isExpired = this.isExpired(o.datetime, o.time);
                         let sBadge = '';
@@ -810,7 +810,7 @@
                     tbody.innerHTML = `<tr><td colspan="8" class="empty-planning">${this.renderEmptyTable()}</td></tr>`;
                 } else {
                     tbody.innerHTML = orders.map(o => {
-                        const driver = this.drivers.find(d => d.id === o.assigned_driver_id);
+                        const driver = this.drivers.find(d => String(d.id) === String(o.assigned_driver_id));
                         const driverText = driver ? driver.name : (o.assigned_driver ? o.assigned_driver.name : 'Niet toegewezen');
                         const isExpired = this.isExpired(o.datetime, o.time);
                         let sBadge = '';
@@ -1165,7 +1165,7 @@
 
                     // 2. Filter Available Drivers
                     let availableDrivers = this.drivers.filter(
-                        c => Number(c.partner_id) === Number(targetPartnerId)
+                        c => String(c.partner_id) === String(targetPartnerId)
                     );
 
                     console.log('TRACE: showBookingFiche Rendering', {
@@ -1230,7 +1230,7 @@
                             <div class="fiche-row"><span class="fiche-label">Toegewezen driver:</span><span class="fiche-value">${booking.assigned_driver ? booking.assigned_driver.name : (this.drivers.find(d => String(d.id) === String(booking.assigned_driver_id))?.name || 'Onbekend')}</span></div>
                         </div>
                         ` : ''}
-                        ${(booking.status === 'accepted' || booking.status === 'assigned') && !isExpired ? `
+${String(booking.status).trim().toLowerCase() !== 'pending' && !isExpired ? `
                         <div class="fiche-section"><h4>👨‍✈️ Driver Toewijzen</h4>
                             <div class="fiche-row">
                                 <span class="fiche-label">Selecteer Driver:</span>
