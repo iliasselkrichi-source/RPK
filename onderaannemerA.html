@@ -1277,7 +1277,9 @@
 </div>
 ` : ''}
 
-${['accepted','assigned'].includes(String(booking.status).trim().toLowerCase()) && !isExpired ? `
+${['accepted','assigned'].includes(
+    String(booking.status || '').trim().toLowerCase()
+) && !this.isExpired(booking.datetime, booking.time) ? `
 <div class="fiche-section">
     <h4>👨‍✈️ Driver Toewijzen</h4>
 <div class="fiche-row" style="display:flex; flex-direction:column; gap:8px;">
