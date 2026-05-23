@@ -1238,28 +1238,39 @@
                             <div class="fiche-row"><span class="fiche-label">Voertuig:</span><span class="fiche-value">${booking.vehicle}</span></div>
                             <div class="fiche-row"><span class="fiche-label">Extra's:</span><span class="fiche-value">${booking.extras || '-'}</span></div>
                         </div>
-                        ${booking.assigned_driver_id || booking.assigned_driver ? `
-                        <div class="fiche-section"><h4>👨‍✈️ Driver</h4>
-                            <div class="fiche-row"><span class="fiche-label">Toegewezen driver:</span><span class="fiche-value">${booking.assigned_driver ? booking.assigned_driver.name : (this.drivers.find(d => String(d.id) === String(booking.assigned_driver_id))?.name || 'Onbekend')}</span></div>
-                        </div>
-                        ` : ''}
-${(
-    String(booking.status).trim().toLowerCase() === 'accepted' ||
-    String(booking.status).trim().toLowerCase() === 'assigned'
-) && !this.isExpired(booking.datetime, booking.time) ? `
-                        <div class="fiche-section" style="margin-top:20px; display:block;"><h4>👨‍✈️ Driver Toewijzen</h4>
-                            <div class="fiche-row">
-                                <span class="fiche-label">Selecteer Driver:</span>
-                                <span class="fiche-value">
-                                    <select id="driverSelect" style="width:100%;">${driverOptions}</select>
-                                </span>
-                            </div>
-                        </div>
-                        ` : ''}
+         ${(booking.assigned_driver_id || booking.assigned_driver) ? `
+<div class="fiche-section">
+    <h4>👨‍✈️ Driver</h4>
+    <div class="fiche-row">
+        <span class="fiche-label">Toegewezen driver:</span>
+        <span class="fiche-value">
+            ${
+                booking.assigned_driver?.name ||
+                this.drivers.find(d => String(d.id) === String(booking.assigned_driver_id))?.name ||
+                'Onbekend'
+            }
+        </span>
+    </div>
+</div>
+` : ''}
+
+${['accepted','assigned'].includes(String(booking.status).trim().toLowerCase()) && !isExpired ? `
+<div class="fiche-section">
+    <h4>👨‍✈️ Driver Toewijzen</h4>
+    <div class="fiche-row">
+        <span class="fiche-label">Selecteer Driver:</span>
+        <span class="fiche-value">
+            <select id="driverSelect" style="width:100%; display:block;">
+                ${driverOptions}
+            </select>
+        </span>
+    </div>
+</div>
+` : ''}
                         <div class="fiche-total"><div class="amount">€ ${(booking.amount || 0).toFixed(2)}</div><div>Betaling: ${booking.payment || 'Onbekend'}</div></div>
                         <div class="fiche-actions">
                             ${booking.status === 'pending' ? `<button class="fiche-btn confirm" onclick="app.confirmBooking('${booking.id}')">Accepteren</button>` : ''}
-                          ${(booking.status === 'accepted' || booking.status === 'assigned') && !this.isExpired(booking.datetime, booking.time) ? `
+                          ${(booking.status === 'accepted' || booking.status === 'assigned') && !isExpired ? `
                                 <button class="fiche-btn assign" onclick="app.assignDriverToBooking('${booking.id}')">${booking.status === 'assigned' ? 'Update Driver' : 'Bevestig Toewijzing'}</button>
                             ` : ''}
                             ${booking.status === 'completed' ? `<button class="fiche-btn confirm" style="background:#10b981; color:white;" disabled>✓ Voltooid</button>` : ''}
