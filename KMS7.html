@@ -299,6 +299,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  import { comms } from './src/modules/communication/index.js';
 
   // SUPABASE (jouw keys)
   const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
@@ -527,6 +528,10 @@
       const { error } = await supabase.from('bookings').insert([bookingData]);
       if (error) throw error;
       console.log('✅ Réservation enregistrée');
+
+      // Trigger confirmation email
+      comms.trigger('BOOKING_CONFIRMATION', bookingData.id, supabase);
+
       return true;
     } catch (error) {
       console.error('❌ Erreur Supabase:', error.message);
