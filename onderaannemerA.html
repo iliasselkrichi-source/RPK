@@ -628,6 +628,14 @@
             isExpired(dateStr, timeStr) { return this.parseDate(dateStr, timeStr) < new Date(); },
             
             escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); },
+            getDriverFilterOptions() {
+                if (!this.drivers || this.drivers.length === 0) {
+                    return '<option value="">-- Geen drivers --</option>';
+                }
+                return this.drivers.map(driver =>
+                    `<option value="${driver.id}">${this.escapeHtml(driver.name)} (${driver.vehicle})</option>`
+                ).join('');
+            },
             closeModal() { document.getElementById('bookingModal').style.display = 'none'; },
             closePartnerModal() { document.getElementById('partnerModal').style.display = 'none'; },
             
@@ -837,7 +845,18 @@
             },
             
             renderOrders() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderOrders" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameOrders" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersOrders()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersOrders()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="ordersTable"></tbody>}</div>`;
+                let html = `<div class="filter-bar">
+                    <div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderOrders" placeholder="Zoek op ID"></div>
+                    <div class="filter-group"><label>Naam</label><input type="text" id="filterNameOrders" placeholder="Klant"></div>
+                    <div class="filter-group"><label>Driver</label>
+                        <select id="filterDriverOrders" style="padding: 6px 0; background: transparent; border: none; font-family: 'Inter', sans-serif; font-size: 0.8rem; outline: none;">
+                            <option value="">-- Alle drivers --</option>
+                            ${this.getDriverFilterOptions()}
+                        </select>
+                    </div>
+                    <div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersOrders()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersOrders()">Reset</button></div>
+                </div>
+                <div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="ordersTable"></tbody></table></div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderOrdersTable(this.ordersList);
                 document.getElementById('pageTitle').innerHTML = `Orders <span class="order-count">${this.ordersList.length}</span>`;
@@ -876,7 +895,18 @@
             },
             
             renderHistory() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="historyTable"></tbody>}</div>`;
+                let html = `<div class="filter-bar">
+                    <div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoek op ID"></div>
+                    <div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div>
+                    <div class="filter-group"><label>Driver</label>
+                        <select id="filterDriverHistory" style="padding: 6px 0; background: transparent; border: none; font-family: 'Inter', sans-serif; font-size: 0.8rem; outline: none;">
+                            <option value="">-- Alle drivers --</option>
+                            ${this.getDriverFilterOptions()}
+                        </select>
+                    </div>
+                    <div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoek</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div>
+                </div>
+                <div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>Order ID</th><th>Datum & Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="historyTable"></tbody></table></div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderHistoryTable(this.historyOrders);
                 document.getElementById('pageTitle').innerHTML = `History <span class="order-count">${this.historyOrders.length}</span>`;
@@ -1253,17 +1283,51 @@
             applyFiltersOrders() {
                 let orderFilter = document.getElementById("filterOrderOrders")?.value.toLowerCase() || "";
                 let nameFilter = document.getElementById("filterNameOrders")?.value.toLowerCase() || "";
-                let filtered = this.ordersList.filter(o => (orderFilter === "" || o.id?.toLowerCase().includes(orderFilter)) && (nameFilter === "" || o.name?.toLowerCase().includes(nameFilter)));
+                let driverFilter = document.getElementById("filterDriverOrders")?.value || "";
+                let filtered = this.ordersList.filter(o => {
+                    if (orderFilter !== "" && !o.id?.toLowerCase().includes(orderFilter)) return false;
+                    if (nameFilter !== "" && !o.name?.toLowerCase().includes(nameFilter)) return false;
+                    if (driverFilter !== "") {
+                        const driver = this.getDriverForBooking(o);
+                        if (!driver || String(driver.id) !== driverFilter) return false;
+                    }
+                    return true;
+                });
                 this.renderOrdersTable(filtered);
             },
-            resetFiltersOrders() { let o = document.getElementById("filterOrderOrders"); let n = document.getElementById("filterNameOrders"); if(o) o.value = ""; if(n) n.value = ""; this.renderOrdersTable(this.ordersList); },
+            resetFiltersOrders() {
+                let o = document.getElementById("filterOrderOrders");
+                let n = document.getElementById("filterNameOrders");
+                let d = document.getElementById("filterDriverOrders");
+                if(o) o.value = "";
+                if(n) n.value = "";
+                if(d) d.value = "";
+                this.renderOrdersTable(this.ordersList);
+            },
             applyFiltersHistory() {
                 let orderFilter = document.getElementById("filterOrderHistory")?.value.toLowerCase() || "";
                 let nameFilter = document.getElementById("filterNameHistory")?.value.toLowerCase() || "";
-                let filtered = this.historyOrders.filter(o => (orderFilter === "" || o.id?.toLowerCase().includes(orderFilter)) && (nameFilter === "" || o.name?.toLowerCase().includes(nameFilter)));
+                let driverFilter = document.getElementById("filterDriverHistory")?.value || "";
+                let filtered = this.historyOrders.filter(o => {
+                    if (orderFilter !== "" && !o.id?.toLowerCase().includes(orderFilter)) return false;
+                    if (nameFilter !== "" && !o.name?.toLowerCase().includes(nameFilter)) return false;
+                    if (driverFilter !== "") {
+                        const driver = this.getDriverForBooking(o);
+                        if (!driver || String(driver.id) !== driverFilter) return false;
+                    }
+                    return true;
+                });
                 this.renderHistoryTable(filtered);
             },
-            resetFiltersHistory() { let o = document.getElementById("filterOrderHistory"); let n = document.getElementById("filterNameHistory"); if(o) o.value = ""; if(n) n.value = ""; this.renderHistoryTable(this.historyOrders); },
+            resetFiltersHistory() {
+                let o = document.getElementById("filterOrderHistory");
+                let n = document.getElementById("filterNameHistory");
+                let d = document.getElementById("filterDriverHistory");
+                if(o) o.value = "";
+                if(n) n.value = "";
+                if(d) d.value = "";
+                this.renderHistoryTable(this.historyOrders);
+            },
             
             async showBookingFiche(booking) {
                 console.log('TRACE: showBookingFiche Start', { bookingId: booking.id, currentDriversCount: this.drivers?.length });
