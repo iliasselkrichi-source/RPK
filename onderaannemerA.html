@@ -1474,7 +1474,10 @@
                 try {
                     const { error } = await supabase
                         .from('bookings')
-                        .update({ status: 'accepted' })
+                        .update({
+                            status: 'accepted',
+                            assignment_status: 'unassigned'
+                        })
                         .eq('id', bookingId);
 
                     if (error) throw error;
@@ -1539,6 +1542,7 @@
                         .from('bookings')
                         .update({
                             status: 'accepted',
+                            assignment_status: 'unassigned',
                             assigned_driver_id: null,
                             assigned_driver: null,
                             assignment_token: null,
@@ -1594,6 +1598,7 @@
                     .from('bookings')
                     .update({ 
                         status: 'assigned',
+                        assignment_status: 'sent',
                         assigned_driver_id: driver.id,
                         assignment_token: assignmentToken,
                         assignment_sent_at: assignmentSentAt,
@@ -1821,7 +1826,10 @@
                 for (const ride of expiredRides) {
                     const { error } = await supabase
                         .from('bookings')
-                        .update({ status: 'completed' })
+                        .update({
+                            status: 'completed',
+                            assignment_status: 'expired'
+                        })
                         .eq('id', ride.id);
                     if (!error) {
                         changed = true;

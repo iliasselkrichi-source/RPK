@@ -110,6 +110,7 @@
                     .from('bookings')
                     .update({
                         assignment_accepted_at: new Date().toISOString(),
+                        assignment_status: 'accepted',
                         status: 'assigned'
                     })
                     .eq('id', booking.id);

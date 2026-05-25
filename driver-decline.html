@@ -106,6 +106,7 @@
                     .from('bookings')
                     .update({
                         assignment_declined_at: new Date().toISOString(),
+                        assignment_status: 'declined',
                         status: 'accepted', // Revert to accepted for reassignment
                         assigned_driver_id: null,
                         assigned_driver: null,

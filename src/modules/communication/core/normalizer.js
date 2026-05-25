@@ -117,6 +117,8 @@ export class DataNormalizer {
                 metadata: booking.metadata || {},
                 form_data: booking.form_data || {},
                 assignment_token: booking.assignment_token,
+                assignment_status: booking.assignment_status,
+                assignment_sent_at: booking.assignment_sent_at,
                 assignment_accepted_at: booking.assignment_accepted_at,
                 assignment_declined_at: booking.assignment_declined_at,
                 is_registered: !!customer
