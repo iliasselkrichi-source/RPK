@@ -392,6 +392,30 @@
         .footer-dark { background: #0d1f2c; color: #e0edf5; padding: 48px 0 24px; margin-top: 40px; }
         .footer-grid { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; padding: 0 2rem; }
         .hidden { display: none !important; }
+        .profile-checkbox-wrapper {
+            background: #f0f9ff;
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .profile-checkbox-wrapper input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .profile-checkbox-wrapper label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-transform: none;
+            color: var(--primary);
+            font-weight: 600;
+        }
         @media (max-width:800px) { .vehicle-grid { grid-template-columns: repeat(2,1fr); } .carousel-page { padding: 20px; } }
     </style>
 </head>
@@ -544,7 +568,15 @@
                         <div id="page3Error" class="error"></div>
                     </div>
                     <div id="page4" class="carousel-page">
-                        <h1>📋 Uw gegevens</h1><div class="sub">Vul uw contactgegevens in</div>
+                        <h1>📋 Uw gegevens</h1>
+                        <div class="sub">Vul uw contactgegevens in</div>
+                        
+                        <!-- NIEUW: Checkbox voor profielgegevens -->
+                        <div class="profile-checkbox-wrapper" id="useProfileCheckboxWrapper">
+                            <input type="checkbox" id="useProfileDataCheckbox">
+                            <label for="useProfileDataCheckbox">👤 Gebruik mijn profielgegevens voor deze boeking</label>
+                        </div>
+                        
                         <div class="field"><label>Voornaam <span class="required-star">*</span></label><input type="text" id="firstName"></div>
                         <div class="field"><label>Achternaam <span class="required-star">*</span></label><input type="text" id="lastName"></div>
                         <div class="field"><label>GSM <span class="required-star">*</span></label><input type="tel" id="phone" placeholder="+32 4xx xx xx xx"></div>
@@ -679,26 +711,17 @@
     // ============================================
     async function performLogout() {
         try {
-            // 1. Supabase auth uitloggen
             if (supabase) {
                 await supabase.auth.signOut();
             }
-            
-            // 2. Alle lokale storage wissen
             localStorage.clear();
             sessionStorage.clear();
-            
-            // 3. Cookies verwijderen
             document.cookie.split(";").forEach(c => {
                 document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
             });
-            
-            // 4. Doorsturen naar login pagina met logout parameter
             window.location.replace('index.html?logout=success');
-            
         } catch (err) {
             console.error('Logout error:', err);
-            // Forceer doorsturen
             window.location.replace('index.html?logout=success');
         }
     }
@@ -728,9 +751,20 @@
                 currentUser.full_name = customer.name;
                 currentUser.phone = customer.phone;
                 currentUser.default_pickup_address = customer.default_pickup_address || '';
+                currentUser.email = customer.email || session.user.email;
             }
             loadUserProfile();
             loadUserBookings();
+            
+            // Laad checkbox voorkeur uit localStorage
+            const savedPref = localStorage.getItem('useProfileDataPref');
+            const checkbox = document.getElementById('useProfileDataCheckbox');
+            if (checkbox && savedPref !== null) {
+                checkbox.checked = savedPref === 'true';
+                if (checkbox.checked) {
+                    fillWithProfileData();
+                }
+            }
         }
     }
     checkAuth();
@@ -821,28 +855,116 @@
     }));
     
     // ============================================
-    // PROFIEL FUNCTIES
+    // PROFIEL FUNCTIES (met currentUser update)
     // ============================================
     async function loadUserProfile() {
         document.getElementById('fullName').value = currentUser.full_name;
         document.getElementById('profileEmail').value = currentUser.email;
         document.getElementById('profilePhone').value = currentUser.phone;
         document.getElementById('defaultPickup').value = currentUser.default_pickup_address;
-        document.getElementById('firstName').value = currentUser.full_name.split(' ')[0] || '';
-        document.getElementById('lastName').value = currentUser.full_name.split(' ').slice(1).join(' ') || '';
-        document.getElementById('phone').value = currentUser.phone;
-        document.getElementById('email').value = currentUser.email;
+        
+        // Ook stap 4 velden vullen indien checkbox aangevinkt
+        const checkbox = document.getElementById('useProfileDataCheckbox');
+        if (checkbox && checkbox.checked) {
+            fillWithProfileData();
+        }
+    }
+    
+    // NIEUW: Vul stap 4 met profielgegevens
+    function fillWithProfileData() {
+        if (!currentUser) return;
+        
+        // Splits full_name in voornaam en achternaam
+        const fullName = currentUser.full_name || '';
+        const spaceIndex = fullName.indexOf(' ');
+        let firstName = fullName;
+        let lastName = '';
+        if (spaceIndex > 0) {
+            firstName = fullName.substring(0, spaceIndex);
+            lastName = fullName.substring(spaceIndex + 1);
+        } else {
+            lastName = '';
+        }
+        
+        const firstNameInput = document.getElementById('firstName');
+        const lastNameInput = document.getElementById('lastName');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+        
+        if (firstNameInput) firstNameInput.value = firstName;
+        if (lastNameInput) lastNameInput.value = lastName;
+        if (phoneInput) phoneInput.value = currentUser.phone || '';
+        if (emailInput) emailInput.value = currentUser.email || '';
+    }
+    
+    // NIEUW: Leeg de stap 4 velden
+    function clearBookingFormData() {
+        document.getElementById('firstName').value = '';
+        document.getElementById('lastName').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('vat').value = '';
     }
     
     document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        currentUser.full_name = document.getElementById('fullName').value;
-        currentUser.email = document.getElementById('profileEmail').value;
-        currentUser.phone = document.getElementById('profilePhone').value;
-        currentUser.default_pickup_address = document.getElementById('defaultPickup').value;
-        alert('Profiel opgeslagen');
-        loadUserProfile();
+        const newName = document.getElementById('fullName').value;
+        const newEmail = document.getElementById('profileEmail').value;
+        const newPhone = document.getElementById('profilePhone').value;
+        const newDefaultPickup = document.getElementById('defaultPickup').value;
+        
+        // Update currentUser
+        currentUser.full_name = newName;
+        currentUser.email = newEmail;
+        currentUser.phone = newPhone;
+        currentUser.default_pickup_address = newDefaultPickup;
+        
+        // Opslaan in Supabase
+        if (initSupabase() && supabase) {
+            const { error } = await supabase
+                .from('customers')
+                .upsert({
+                    user_id: currentUser.id,
+                    name: newName,
+                    email: newEmail,
+                    phone: newPhone,
+                    default_pickup_address: newDefaultPickup
+                }, { onConflict: 'user_id' });
+            
+            if (error) {
+                console.error('Save error:', error);
+                alert('Fout bij opslaan: ' + error.message);
+            } else {
+                alert('Profiel opgeslagen');
+            }
+        } else {
+            alert('Profiel lokaal opgeslagen');
+        }
+        
+        // Als checkbox aangevinkt is, update ook stap 4
+        const checkbox = document.getElementById('useProfileDataCheckbox');
+        if (checkbox && checkbox.checked) {
+            fillWithProfileData();
+        }
     });
+    
+    // ============================================
+    // CHECKBOX VOOR PROFIELGEGEVENS
+    // ============================================
+    function initProfileCheckbox() {
+        const checkbox = document.getElementById('useProfileDataCheckbox');
+        if (!checkbox) return;
+        
+        checkbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                fillWithProfileData();
+            } else {
+                clearBookingFormData();
+            }
+            // Bewaar voorkeur in localStorage
+            localStorage.setItem('useProfileDataPref', e.target.checked);
+        });
+    }
     
     // ============================================
     // BETALINGEN FUNCTIES
@@ -934,7 +1056,7 @@
                             <button class="repeat-booking" data-id='${JSON.stringify(b)}'><i class="fas fa-redo-alt btn-icon"></i></button>
                             <button class="view-fiche" data-id='${JSON.stringify(b)}'><i class="fas fa-eye btn-icon"></i></button>
                             <button class="download-pdf" data-id='${JSON.stringify(b)}'><i class="fas fa-download btn-icon"></i></button>
-                        </td>
+                         </td>
                     </tr>
                 `).join('');
             }
@@ -960,7 +1082,7 @@
     }
     
     // ============================================
-    // ADRES AUTOCOMPLETE (OpenStreetMap Nominatim)
+    // ADRES AUTOCOMPLETE (OpenStreetMap Nominatim) - BEHOUDEN
     // ============================================
     async function fetchAddresses(query, wrapId) {
         const wrap = document.getElementById(wrapId);
@@ -1317,6 +1439,7 @@
     initMap();
     initVehicleSelection();
     initAutocomplete();
+    initProfileCheckbox();
     showPage(1);
     loadUserProfile();
     loadUserBookings();
