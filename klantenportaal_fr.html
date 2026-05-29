@@ -13,7 +13,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    <!-- Sélecteur de langue CSS -->
     <style>
         .language-switcher {
             position: fixed;
@@ -43,9 +42,6 @@
             color: white;
             border-color: #2c6e9e;
         }
-    </style>
-    
-    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2c6e9e;
@@ -122,8 +118,6 @@
         }
         .logout-tab-btn:hover { color: #7f1d1d; border-bottom-color: #b91c1c; }
         .tab-container.hidden { display: none; }
-        
-        /* Styles des blocs de grille */
         .uitleg-grid {
             display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;
             padding: 50px 0 30px;
@@ -139,7 +133,6 @@
         .uitleg-item i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
         .uitleg-item h3 { margin-bottom: 10px; }
         .service-summary { font-size: 0.85rem; color: var(--text-light); margin: 10px 0; }
-        
         .services-grid {
             display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;
             padding: 50px 0 30px;
@@ -154,7 +147,6 @@
         .service-card:hover { transform: translateY(-6px); border-color: var(--primary); }
         .service-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
         .service-card h3 { margin-bottom: 10px; }
-        
         .one-grid-block {
             max-width: 850px; width: 100%; background: var(--white);
             border: 1px solid var(--border-light); box-shadow: var(--shadow);
@@ -263,7 +255,6 @@
 <body>
 <div id="background-map"></div>
 
-<!-- Sélecteur de langue -->
 <div class="language-switcher">
     <button class="lang-btn" data-lang="nl">NL</button>
     <button class="lang-btn" data-lang="fr">FR</button>
@@ -277,7 +268,7 @@
             <a href="#" data-nav="home"><i class="fas fa-home"></i> Accueil</a>
             <a href="#" data-nav="portal"><i class="fas fa-user-circle"></i> Mon Portail</a>
             <a href="#" data-nav="contact"><i class="fas fa-envelope"></i> Contact</a>
-            <a href="index.html" id="logoutBtnSidebar"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            <a href="#" id="logoutSidebarBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </div>
     </div>
 
@@ -290,7 +281,6 @@
         </div>
     </section>
 
-    <!-- ========== 3 BLOCS DE GRILLE avec LIENS (+ paramètre langue) ========== -->
     <div class="container">
         <div class="uitleg-grid">
             <a href="PV_Exclusieve_Service.html?lang=fr" class="uitleg-item">
@@ -319,7 +309,7 @@
             <button class="tab-btn active" data-tab="new-booking">📝 Nouveau Trajet</button>
             <button class="tab-btn" data-tab="profile">👤 Mon Profil</button>
             <button class="tab-btn" data-tab="dashboard">📊 Tableau de bord & Trajets</button>
-            <a href="index.html" id="logoutTabBtn" class="logout-tab-btn" style="text-decoration:none;"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            <button id="logoutTabBtn" class="logout-tab-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
         </div>
 
         <div id="new-booking-container" class="tab-container">
@@ -412,7 +402,6 @@
             </div>
         </div>
 
-        <!-- ========== 4 BLOCS DE GRILLE avec LIENS (+ paramètre langue) ========== -->
         <h2 style="text-align:center;margin:40px 0 20px;"><i class="fas fa-concierge-bell"></i> Nos services</h2>
         <div class="services-grid">
             <a href="PV_Luchthavenvervoer.html?lang=fr" class="service-card">
@@ -480,10 +469,96 @@
 </div>
 <div id="ritModal" class="modal"><div class="modal-content" id="modalContent"></div></div>
 
+<script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    window.createClient = createClient;
+</script>
 <script>
-    // Fonctionnalité du sélecteur de langue
+    // ============================================
+    // SUPABASE INITIALISATION
+    // ============================================
+    const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
+    
+    let supabase;
+    const initSupabase = () => {
+        if (window.createClient) {
+            if (!supabase) supabase = window.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            return true;
+        }
+        return false;
+    };
+
+    // ============================================
+    // AUTH GUARD & SESSION
+    // ============================================
+    let currentUser = { id: '', full_name: '', email: '', phone: '', default_pickup_address: '' };
+    let userBookings = [];
+    let bookingMap, pickupCoord = null, dropoffCoord = null, routeLayer, currentRouteData = null, currentRoundTrip = false, currentReturnDateTime = "";
+    let selectedVehicle = 'Standard', selectedVehicleExtra = 0, currentPage = 1;
+    let debounceTimer;
+
+    async function checkAuth() {
+        if (!initSupabase()) {
+            setTimeout(checkAuth, 100);
+            return;
+        }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.replace('index.html');
+        } else {
+            currentUser.id = session.user.id;
+            currentUser.email = session.user.email;
+            // Charger le profil depuis la table customers
+            const { data: customer } = await supabase.from('customers').select('*').eq('user_id', session.user.id).maybeSingle();
+            if (customer) {
+                currentUser.full_name = customer.name || '';
+                currentUser.phone = customer.phone || '';
+                currentUser.default_pickup_address = customer.default_pickup_address || '';
+            } else {
+                // Créer un profil vide si inexistant
+                await supabase.from('customers').insert([{ user_id: session.user.id, email: session.user.email, name: '', phone: '' }]);
+            }
+            loadUserProfile();
+            loadUserBookings();
+        }
+    }
+    checkAuth();
+
+    // ============================================
+    // DÉCONNEXION COMPLÈTE
+    // ============================================
+    async function performLogout() {
+        try {
+            if (supabase) await supabase.auth.signOut();
+            localStorage.clear();
+            sessionStorage.clear();
+            document.cookie.split(";").forEach(c => {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+            window.location.replace('index.html?logout=success');
+        } catch (err) {
+            console.error('Logout error:', err);
+            window.location.replace('index.html?logout=success');
+        }
+    }
+
+    // ============================================
+    // BOUTONS DE DÉCONNEXION
+    // ============================================
+    document.getElementById('logoutTabBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        performLogout();
+    });
+    document.getElementById('logoutSidebarBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        performLogout();
+    });
+
+    // ============================================
+    // LANGUE (sélecteur)
+    // ============================================
     function setLanguage(lang) {
-        // Mettre à jour tous les liens de grille avec le bon paramètre de langue
         document.querySelectorAll('.uitleg-grid a, .services-grid a, .footer-legal a').forEach(link => {
             const href = link.getAttribute('href');
             if (href && (href.includes('.html') || href.includes('PV_'))) {
@@ -491,11 +566,7 @@
                 link.setAttribute('href', `${cleanHref}?lang=${lang}`);
             }
         });
-        
-        // Sauvegarder la langue dans localStorage
         localStorage.setItem('preferredLanguage', lang);
-        
-        // Mettre à jour le style des boutons actifs
         document.querySelectorAll('.lang-btn').forEach(btn => {
             if (btn.getAttribute('data-lang') === lang) {
                 btn.classList.add('active');
@@ -507,108 +578,103 @@
                 btn.style.color = '#1a2a3a';
             }
         });
-        
         document.documentElement.lang = lang;
     }
-    
+
     function getInitialLanguage() {
         const urlParams = new URLSearchParams(window.location.search);
         const langParam = urlParams.get('lang');
-        if (langParam && (langParam === 'nl' || langParam === 'fr' || langParam === 'en')) {
-            return langParam;
-        }
+        if (langParam && (langParam === 'nl' || langParam === 'fr' || langParam === 'en')) return langParam;
         const savedLang = localStorage.getItem('preferredLanguage');
-        if (savedLang && (savedLang === 'nl' || savedLang === 'fr' || savedLang === 'en')) {
-            return savedLang;
-        }
+        if (savedLang && (savedLang === 'nl' || savedLang === 'fr' || savedLang === 'en')) return savedLang;
         return 'fr';
     }
-    
-    // Écouteurs d'événements du sélecteur de langue
+
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const lang = btn.getAttribute('data-lang');
             setLanguage(lang);
-            // Mettre à jour le paramètre d'URL
             const url = new URL(window.location.href);
             url.searchParams.set('lang', lang);
             window.history.pushState({}, '', url);
         });
     });
-    
-    // Initialiser la langue au chargement
-    const initialLang = getInitialLanguage();
-    setLanguage(initialLang);
-    
-    // Configuration Supabase
-    const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
-    
-    let currentUser = { id: 'demo-user', full_name: 'Utilisateur Démo', email: 'demo@fleetconnect.be', phone: '+32 470 12 34 56', default_pickup_address: '' };
-    let userBookings = [];
-    let bookingMap, pickupCoord = null, dropoffCoord = null, routeLayer, currentRouteData = null, currentRoundTrip = false, currentReturnDateTime = "";
-    let selectedVehicle = 'Standard', selectedVehicleExtra = 0, currentPage = 1;
-    let debounceTimer;
-    
-    // Fonctions sidebar
-    function closeSidebar() {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) sidebar.style.right = '-280px';
-    }
-    
-    // Fonctions onglets
+    setLanguage(getInitialLanguage());
+
+    // ============================================
+    // ONGLETS, PROFIL, TABLEAU DE BORD
+    // ============================================
     function switchToTab(tabName) {
         document.querySelectorAll('.tab-container').forEach(c => c.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`${tabName}-container`).classList.remove('hidden');
-        document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
+        const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+        if (tabBtn) tabBtn.classList.add('active');
         if (tabName === 'dashboard') renderDashboard();
         if (tabName === 'profile') loadUserProfile();
     }
-    
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchToTab(btn.getAttribute('data-tab'))));
+
+    document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => btn.addEventListener('click', () => switchToTab(btn.getAttribute('data-tab'))));
     document.querySelectorAll('[data-nav]').forEach(link => link.addEventListener('click', (e) => {
         const nav = e.currentTarget.getAttribute('data-nav');
         if (nav === 'home' || nav === 'portal') switchToTab('new-booking');
         if (nav === 'contact') alert('📧 info@fleetconnect.be | 📞 +32 470 12 34 56');
-        closeSidebar();
+        document.querySelector('.sidebar').style.right = '-280px';
     }));
-    
-    // Fonctions profil
+
+    // Profil
     async function loadUserProfile() {
         document.getElementById('fullName').value = currentUser.full_name;
         document.getElementById('profileEmail').value = currentUser.email;
         document.getElementById('profilePhone').value = currentUser.phone;
         document.getElementById('defaultPickup').value = currentUser.default_pickup_address;
-        document.getElementById('firstName').value = currentUser.full_name.split(' ')[0] || '';
-        document.getElementById('lastName').value = currentUser.full_name.split(' ').slice(1).join(' ') || '';
+        const nameParts = currentUser.full_name.split(' ');
+        document.getElementById('firstName').value = nameParts[0] || '';
+        document.getElementById('lastName').value = nameParts.slice(1).join(' ') || '';
         document.getElementById('phone').value = currentUser.phone;
         document.getElementById('email').value = currentUser.email;
     }
-    
+
     document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        currentUser.full_name = document.getElementById('fullName').value;
-        currentUser.email = document.getElementById('profileEmail').value;
-        currentUser.phone = document.getElementById('profilePhone').value;
-        currentUser.default_pickup_address = document.getElementById('defaultPickup').value;
-        alert('Profil enregistré');
-        loadUserProfile();
+        const newName = document.getElementById('fullName').value;
+        const newEmail = document.getElementById('profileEmail').value;
+        const newPhone = document.getElementById('profilePhone').value;
+        const newAddress = document.getElementById('defaultPickup').value;
+        if (supabase) {
+            await supabase.from('customers').upsert({
+                user_id: currentUser.id,
+                name: newName,
+                email: newEmail,
+                phone: newPhone,
+                default_pickup_address: newAddress,
+                updated_at: new Date().toISOString()
+            });
+            currentUser.full_name = newName;
+            currentUser.email = newEmail;
+            currentUser.phone = newPhone;
+            currentUser.default_pickup_address = newAddress;
+            alert('Profil enregistré');
+            loadUserProfile();
+        }
     });
-    
-    // Fonctions tableau de bord
+
+    // Tableau de bord (lecture depuis Supabase)
     async function loadUserBookings() {
-        userBookings = [
-            { id: "FC-20260515-001", datetime: "15-05-2026", time: "09:00", name: currentUser.full_name, pickup: "Gand, Belgique", destination: "Bruxelles, Belgique", vehicle: "Standard", amount: 67.50, status: "completed", extras: "Meet & Greet", flight_number: "BA398", email: currentUser.email, phone: currentUser.phone, payment: "Cash" },
-            { id: "FC-20260516-002", datetime: "16-05-2026", time: "14:30", name: currentUser.full_name, pickup: "Anvers, Belgique", destination: "Louvain, Belgique", vehicle: "Break", amount: 55.00, status: "pending", extras: "WiFi", email: currentUser.email, phone: currentUser.phone, payment: "Cash" }
-        ];
+        if (!supabase) return;
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('*')
+            .eq('customer_id', `CUST-${currentUser.id.substring(0,20)}`)
+            .order('datetime', { ascending: false });
+        if (!error && data) userBookings = data;
         renderDashboard();
     }
-    
+
     function renderDashboard() {
         const upcoming = userBookings.filter(b => b.status !== 'completed');
         const completed = userBookings.filter(b => b.status === 'completed');
-        const totalSpent = completed.reduce((s,b)=>s+b.amount,0);
+        const totalSpent = completed.reduce((s,b)=>s+(b.amount||0),0);
         const statsGrid = document.getElementById('statsGrid');
         if (statsGrid) {
             statsGrid.innerHTML = `
@@ -624,7 +690,7 @@
                     <tr>
                         <td>${b.id}</td>
                         <td>${b.datetime} ${b.time || ''}</td>
-                        <td>${b.pickup.split(',')[0]} → ${b.destination.split(',')[0]}</td>
+                        <td>${(b.pickup||'').split(',')[0]} → ${(b.destination||'').split(',')[0]}</td>
                         <td>${b.vehicle}</td>
                         <td>€${b.amount}</td>
                         <td><span class="status-badge" style="background:${b.status==='completed'?'#dcfce7':'#fef3c7'}">${b.status}</span></td>
@@ -656,36 +722,30 @@
             alert(`Téléchargement PDF: ${b.id}`);
         });
     }
-    
-    // ========== AUTOCOMPLETE - FONCTIONNE! ==========
+
+    // ============================================
+    // AUTOCOMPLETE (OpenStreetMap Nominatim)
+    // ============================================
     async function fetchAddresses(query, wrapId) {
         const wrap = document.getElementById(wrapId);
         if (!wrap) return;
         const suggestionsDiv = wrap.querySelector('.suggestions');
         if (!suggestionsDiv) return;
-        
         if (query.length < 3) {
             suggestionsDiv.style.display = 'none';
             return;
         }
-        
         suggestionsDiv.innerHTML = '<div class="suggestion-item">🔍 Recherche...</div>';
         suggestionsDiv.style.display = 'block';
-        
         try {
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=be&addressdetails=0&accept-language=fr`;
-            const response = await fetch(url, {
-                headers: { 'User-Agent': 'FleetConnect/2.0' }
-            });
-            
+            const response = await fetch(url, { headers: { 'User-Agent': 'FleetConnect/2.0' } });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            
             if (!data.length) {
                 suggestionsDiv.innerHTML = '<div class="suggestion-item">❌ Aucune adresse trouvée en Belgique</div>';
                 return;
             }
-            
             suggestionsDiv.innerHTML = '';
             data.forEach(place => {
                 const div = document.createElement('div');
@@ -696,14 +756,9 @@
                 div.onclick = () => {
                     const inputField = wrapId === 'pickupWrap' ? document.getElementById('pickupInput') : document.getElementById('dropoffInput');
                     if (inputField) inputField.value = place.display_name;
-                    
                     const coords = { lat: parseFloat(place.lat), lon: parseFloat(place.lon) };
-                    if (wrapId === 'pickupWrap') {
-                        pickupCoord = coords;
-                    } else {
-                        dropoffCoord = coords;
-                    }
-                    
+                    if (wrapId === 'pickupWrap') pickupCoord = coords;
+                    else dropoffCoord = coords;
                     suggestionsDiv.style.display = 'none';
                     if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
                 };
@@ -714,33 +769,28 @@
             suggestionsDiv.innerHTML = '<div class="suggestion-item" style="color:#b91c1c;">⚠️ Erreur réseau – réessayez plus tard</div>';
         }
     }
-    
+
     function initAutocomplete() {
         const pickupInput = document.getElementById('pickupInput');
         const dropoffInput = document.getElementById('dropoffInput');
-        
-        if (pickupInput) {
-            pickupInput.addEventListener('input', (e) => {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => fetchAddresses(e.target.value, 'pickupWrap'), 500);
-            });
-        }
-        
-        if (dropoffInput) {
-            dropoffInput.addEventListener('input', (e) => {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => fetchAddresses(e.target.value, 'dropoffWrap'), 500);
-            });
-        }
-        
+        if (pickupInput) pickupInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => fetchAddresses(e.target.value, 'pickupWrap'), 500);
+        });
+        if (dropoffInput) dropoffInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => fetchAddresses(e.target.value, 'dropoffWrap'), 500);
+        });
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.suggest-wrapper')) {
                 document.querySelectorAll('.suggestions').forEach(s => s.style.display = 'none');
             }
         });
     }
-    
-    // Fonctions itinéraire
+
+    // ============================================
+    // ITINÉRAIRE, PRIX, ROUTES
+    // ============================================
     async function calcRoute(lat1, lon1, lat2, lon2) {
         const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
         const res = await fetch(url);
@@ -751,7 +801,7 @@
         }
         return null;
     }
-    
+
     async function updateMapAndInfo(rd) {
         if (routeLayer) bookingMap.removeLayer(routeLayer);
         routeLayer = L.geoJSON(rd.geometry, { color: '#d4af37', weight: 8 }).addTo(bookingMap);
@@ -765,7 +815,7 @@
         document.getElementById('priceVal').innerHTML = price.toFixed(2);
         updateTotalDisplay();
     }
-    
+
     function updateTotalDisplay() {
         if (!currentRouteData) return;
         let dist = parseFloat(currentRouteData.distanceKm);
@@ -782,7 +832,7 @@
         if (currentRoundTrip && currentReturnDateTime) { retCont.style.display = 'block'; document.getElementById('overviewReturn').innerText = currentReturnDateTime; }
         else retCont.style.display = 'none';
     }
-    
+
     function getExtrasString() {
         let extras = [];
         if (document.getElementById('meetGreet')?.checked) extras.push("Meet & Greet");
@@ -791,7 +841,7 @@
         if (document.getElementById('wifi')?.checked) extras.push("WiFi");
         return extras.join(", ") || "Aucune";
     }
-    
+
     function parseEuroDate(str) {
         if (!str) return null;
         let parts = str.match(/(\d+)-(\d+)-(\d+)\s+(\d+):(\d+)/);
@@ -799,15 +849,15 @@
         let [d,m,y,hh,min] = parts.slice(1).map(Number);
         return new Date(y, m-1, d, hh, min);
     }
-    
+
     function isPast(ds) { let p = parseEuroDate(ds); return p ? p < new Date() : false; }
     function isWithinNextHour(ds) { let diff = parseEuroDate(ds) - new Date(); return diff > 0 && diff < 3600000; }
-    
+
     function showError(page, msg) {
         let errDiv = document.getElementById(`page${page}Error`);
         if (errDiv) { errDiv.innerText = msg; errDiv.style.display = 'block'; setTimeout(() => errDiv.style.display = 'none', 4000); }
     }
-    
+
     async function calculateAndStoreRoute() {
         if (!pickupCoord || !dropoffCoord) { showError(1, 'Sélectionnez des adresses dans les suggestions'); return false; }
         const dt = document.getElementById('datetime').value;
@@ -829,7 +879,7 @@
         await updateMapAndInfo(rd);
         return true;
     }
-    
+
     function generateBookingId() {
         const now = new Date();
         const year = now.getFullYear();
@@ -838,10 +888,9 @@
         const seq = String(Math.floor(Math.random() * 900) + 100);
         return `T-PV-${year}${month}${day}-${seq}`;
     }
-    
+
     async function sendToSupabase(record) {
         try {
-            console.log('Envoi:', record);
             const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
                 method: 'POST',
                 headers: {
@@ -853,7 +902,6 @@
                 body: JSON.stringify(record)
             });
             if (!response.ok) throw new Error(await response.text());
-            console.log('Succès!');
             return true;
         } catch (err) {
             console.error('Erreur:', err);
@@ -861,7 +909,7 @@
             return false;
         }
     }
-    
+
     async function finalizeBooking() {
         if (!currentRouteData) { showError(5,'Aucun trajet calculé'); return; }
         const fn = document.getElementById('firstName').value.trim();
@@ -869,39 +917,22 @@
         const ph = document.getElementById('phone').value.trim();
         const em = document.getElementById('email').value.trim();
         if (!fn || !ln || !ph || !em) { showError(5,'Veuillez remplir toutes les coordonnées'); return; }
-        
         const payment = document.querySelector('input[name="payment"]:checked').value;
         let dist = parseFloat(currentRouteData.distanceKm);
         if (currentRoundTrip) dist *= 2;
         let totalAmount = dist * 1.5 + selectedVehicleExtra;
-        
         const dt = document.getElementById('datetime').value;
         let datePart = "", timePart = "";
         if (dt) { const parts = dt.split(' '); datePart = parts[0]; timePart = parts[1] || ""; }
-        
-        const customerId = `CUST-${fn.toLowerCase()}${ln.toLowerCase()}`;
-        
+        const customerId = `CUST-${currentUser.id.substring(0,20)}`;
+        const bookingId = generateBookingId();
         const record = {
-            id: generateBookingId(),
-            datetime: datePart,
-            time: timePart,
-            name: `${fn} ${ln}`,
-            email: em,
-            phone: ph,
-            pickup: document.getElementById('pickupInput').value,
-            destination: document.getElementById('dropoffInput').value,
-            flight_number: document.getElementById('flightNumber').value.trim() || null,
-            vehicle: selectedVehicle,
-            extras: getExtrasString(),
-            amount: totalAmount,
-            payment: payment,
-            status: "pending",
-            customer_id: customerId,
-            form_data: { ai: true, source: "web-portal" },
-            assigned_driver_id: null,
-            partner_id: 1
+            id: bookingId, datetime: datePart, time: timePart, name: `${fn} ${ln}`, email: em, phone: ph,
+            pickup: document.getElementById('pickupInput').value, destination: document.getElementById('dropoffInput').value,
+            flight_number: document.getElementById('flightNumber').value.trim() || null, vehicle: selectedVehicle,
+            extras: getExtrasString(), amount: totalAmount, payment: payment, status: "pending",
+            customer_id: customerId, form_data: { source: "web-portal" }, assigned_driver_id: null, partner_id: 1
         };
-        
         const success = await sendToSupabase(record);
         if (success) {
             alert(`✅ Réservation confirmée!\n📋 Numéro: ${record.id}\n💰 € ${totalAmount.toFixed(2)}`);
@@ -909,7 +940,7 @@
             await loadUserBookings();
         }
     }
-    
+
     function resetAll() {
         if (routeLayer) bookingMap.removeLayer(routeLayer);
         currentRouteData = null; pickupCoord = null; dropoffCoord = null;
@@ -922,7 +953,7 @@
         currentRoundTrip = false;
         showPage(1);
     }
-    
+
     function showPage(page) {
         document.querySelectorAll('.carousel-page').forEach((pg,i) => pg.classList.toggle('active-page', i+1 === page));
         document.querySelectorAll('.step-btn').forEach((btn,i) => btn.classList.toggle('active', i+1 === page));
@@ -930,7 +961,7 @@
         document.getElementById('prevBtn').disabled = (page === 1);
         if (page === 5) updateTotalDisplay();
     }
-    
+
     async function nextPage() {
         if (currentPage === 1) { const ok = await calculateAndStoreRoute(); if (ok) showPage(2); }
         else if (currentPage === 2) { if (currentRouteData) showPage(3); else showError(2,'Calculez d\'abord un trajet'); }
@@ -938,14 +969,14 @@
         else if (currentPage === 4) { showPage(5); updateTotalDisplay(); }
         else if (currentPage === 5) { await finalizeBooking(); }
     }
-    
+
     function prevPage() { if (currentPage > 1) showPage(currentPage-1); }
-    
+
     function initMap() {
         bookingMap = L.map('map').setView([50.85,4.35],13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(bookingMap);
     }
-    
+
     function initVehicleSelection() {
         document.querySelectorAll('.vehicle-card').forEach(card => {
             card.addEventListener('click', () => {
@@ -957,7 +988,7 @@
             });
         });
     }
-    
+
     document.getElementById('roundtripCheckbox')?.addEventListener('change', (e) => {
         document.getElementById('returnDateContainer').classList.toggle('visible', e.target.checked);
         if (currentRouteData) {
@@ -968,18 +999,18 @@
             updateTotalDisplay();
         }
     });
-    
+
     document.getElementById('nextBtn')?.addEventListener('click', nextPage);
     document.getElementById('prevBtn')?.addEventListener('click', prevPage);
     document.getElementById('finalConfirmBtn')?.addEventListener('click', finalizeBooking);
-    
+
     flatpickr("#datetime", { locale: "fr", enableTime: true, dateFormat: "d-m-Y H:i", time_24hr: true, minDate: "today" });
     flatpickr("#returnDatetime", { locale: "fr", enableTime: true, dateFormat: "d-m-Y H:i", time_24hr: true });
-    
+
     const bgMap = L.map('background-map').setView([50.8503,4.3517],7);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap' }).addTo(bgMap);
     bgMap.dragging.disable(); bgMap.touchZoom.disable(); bgMap.doubleClickZoom.disable(); bgMap.scrollWheelZoom.disable();
-    
+
     initMap();
     initVehicleSelection();
     initAutocomplete();
