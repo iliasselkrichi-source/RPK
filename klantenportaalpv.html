@@ -50,7 +50,6 @@
         }
         .container { max-width: 1300px; margin: 0 auto; padding: 0 24px; width: 100%; }
         
-        /* HAMBURGER MENU KNOB - LINKSBOVEN */
         .hamburger-btn {
             position: fixed;
             top: 20px;
@@ -77,7 +76,6 @@
             font-size: 1.5rem;
         }
         
-        /* SIDEBAR OVERLAY */
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -95,7 +93,6 @@
             opacity: 1;
         }
         
-        /* SIDEBAR ZELF - VAN LINKS UITKLAPPEND */
         .sidebar {
             position: fixed;
             top: 0;
@@ -114,7 +111,6 @@
             left: 0;
         }
         
-        /* SIDEBAR HEADER */
         .sidebar-header {
             display: flex;
             justify-content: space-between;
@@ -148,7 +144,6 @@
             background: rgba(255,255,255,0.3);
         }
         
-        /* SIDEBAR NAVIGATIE */
         .sidebar-nav {
             display: flex;
             flex-direction: column;
@@ -178,7 +173,6 @@
             border-color: var(--border-light);
         }
         
-        /* TAAL SECTIE IN SIDEBAR */
         .language-section {
             padding: 16px;
             border-top: 1px solid var(--border-light);
@@ -217,7 +211,6 @@
             border-color: var(--primary);
         }
         
-        /* LOGIN SECTIE IN SIDEBAR */
         .login-section {
             padding: 16px;
             margin-top: auto;
@@ -239,7 +232,6 @@
             transform: translateY(-2px);
         }
         
-        /* REST VAN DE STIJLEN (origineel, ongewijzigd) */
         .tabs-container {
             display: flex;
             gap: 8px;
@@ -264,7 +256,6 @@
         .logout-tab-btn:hover { color: #7f1d1d; border-bottom-color: #b91c1c; }
         .tab-container.hidden { display: none; }
         
-        /* Grid blokken stijlen */
         .uitleg-grid {
             display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;
             padding: 50px 0 30px;
@@ -404,12 +395,10 @@
 <body>
 <div id="background-map"></div>
 
-<!-- HAMBURGER MENU KNOB - LINKSBOVEN -->
 <button class="hamburger-btn" id="hamburgerBtn">
     <i class="fas fa-bars"></i>
 </button>
 
-<!-- SIDEBAR OVERLAY -->
 <div class="sidebar-overlay" id="sidebarOverlay">
     <div class="sidebar">
         <div class="sidebar-header">
@@ -417,7 +406,6 @@
             <button class="close-menu" id="closeMenuBtn">&times;</button>
         </div>
         
-        <!-- TAALKEUZE IN SIDEBAR -->
         <div class="language-section">
             <div class="language-title"><i class="fas fa-globe"></i> Taal / Language</div>
             <div class="language-buttons">
@@ -460,7 +448,6 @@
         </div>
     </section>
 
-    <!-- ========== 3 GRIDBLOKKEN ========== -->
     <div class="container">
         <div class="uitleg-grid">
             <a href="PV_Exclusieve_Service.html?lang=nl" class="uitleg-item">
@@ -490,7 +477,10 @@
             <button class="tab-btn" data-tab="profile">👤 Mijn Profiel</button>
             <button class="tab-btn" data-tab="dashboard">📊 Dashboard & Ritten</button>
             <button class="tab-btn" data-tab="payments">💰 Betalingen</button>
-            <a href="index.html" id="logoutTabBtn" class="logout-tab-btn" style="text-decoration:none;"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
+            <!-- VERVANGEN: van <a> naar <button> voor logout -->
+            <button id="logoutBtn" class="logout-tab-btn" style="background:none; border:none; cursor:pointer; font-weight:600;">
+                <i class="fas fa-sign-out-alt"></i> Uitloggen
+            </button>
         </div>
 
         <div id="new-booking-container" class="tab-container">
@@ -583,7 +573,6 @@
             </div>
         </div>
 
-        <!-- ========== 4 GRIDBLOKKEN ========== -->
         <h2 style="text-align:center;margin:40px 0 20px;"><i class="fas fa-concierge-bell"></i> Onze diensten</h2>
         <div class="services-grid">
             <a href="PV_Luchthavenvervoer.html?lang=nl" class="service-card">
@@ -694,6 +683,37 @@
         if (e.key === 'Escape' && sidebarOverlay && sidebarOverlay.classList.contains('active')) closeMenu();
     });
     
+    // ========== LOGOUT FUNCTIE ==========
+    async function handleLogout() {
+        const confirmed = confirm('Weet u zeker dat u wilt uitloggen?');
+        if (!confirmed) return;
+        
+        if (!initSupabase()) {
+            window.location.href = 'index.html?logout=success';
+            return;
+        }
+        
+        try {
+            const { error } = await supabase.auth.signOut();
+            
+            if (error) {
+                console.error('Logout error:', error);
+                alert('Fout bij uitloggen: ' + error.message);
+                return;
+            }
+            
+            localStorage.removeItem('supabase.auth.token');
+            sessionStorage.clear();
+            
+            // Redirect met logout parameter - HIER BLIJF JE OP DE INLOGPAGINA
+            window.location.href = 'index.html?logout=success';
+            
+        } catch (err) {
+            console.error('Logout error:', err);
+            window.location.href = 'index.html?logout=success';
+        }
+    }
+    
     // TAAL FUNCTIONALITEIT VOOR GRID LINKS
     function updateGridLinks(lang) {
         document.querySelectorAll('.uitleg-grid a, .services-grid a, .footer-legal a').forEach(link => {
@@ -721,7 +741,6 @@
 
         if (payment === 'success') {
             alert(`Bedankt! Uw betaling voor booking ${bookingId} is succesvol ontvangen.`);
-            // Email trigger (non-blocking) for Stripe success
             if (window.comms) window.comms.trigger('BOOKING_CONFIRMATION', bookingId, supabase);
             switchToTab('payments');
         } else if (payment === 'cancelled') {
@@ -729,7 +748,6 @@
         }
     }
 
-    // Markeer actieve taal in sidebar
     function setActiveLanguageButton() {
         const currentLang = getLanguageFromURL();
         document.querySelectorAll('.lang-sidebar-btn').forEach(btn => {
@@ -745,13 +763,11 @@
         });
     }
 
-    // Initialiseer taal bij laden
     const currentLang = getLanguageFromURL();
     updateGridLinks(currentLang);
     setActiveLanguageButton();
     document.documentElement.lang = currentLang;
     
-    // Supabase configuratie
     const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
     
@@ -764,7 +780,6 @@
         return false;
     };
 
-    // AUTH GUARD
     async function checkAuth() {
         if (!initSupabase()) {
             setTimeout(checkAuth, 100);
@@ -776,7 +791,6 @@
         } else {
             currentUser.id = session.user.id;
             currentUser.email = session.user.email;
-            // Optionally load profile from customers table
             const { data: customer } = await supabase.from('customers').select('*').eq('user_id', session.user.id).maybeSingle();
             if (customer) {
                 currentUser.full_name = customer.name;
@@ -795,7 +809,6 @@
     let selectedVehicle = 'Standaard', selectedVehicleExtra = 0, currentPage = 1;
     let debounceTimer;
 
-    // Tab functies
     function switchToTab(tabName) {
         document.querySelectorAll('.tab-container').forEach(c => c.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -814,7 +827,12 @@
         closeMenu();
     }));
     
-    // Profiel functies
+    // LOGOUT BTN EVENT LISTENER
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+    
     async function loadUserProfile() {
         document.getElementById('fullName').value = currentUser.full_name;
         document.getElementById('profileEmail').value = currentUser.email;
@@ -836,12 +854,11 @@
         loadUserProfile();
     });
     
-    // Betalingen functies
     async function loadPaymentHistory() {
         const tbody = document.querySelector('#paymentsTable tbody');
         if (!tbody) return;
 
-        tbody.innerHTML = '<tr><td colspan="6">Laden...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6">Laden......</td></tr>';
 
         try {
             if (!initSupabase()) {
@@ -885,7 +902,6 @@
         }
     }
 
-    // Dashboard functies
     async function loadUserBookings() {
         if (!initSupabase()) {
             setTimeout(loadUserBookings, 100);
@@ -959,7 +975,6 @@
         });
     }
     
-    // ========== AUTOCOMPLETE - WERKT! ==========
     async function fetchAddresses(query, wrapId) {
         const wrap = document.getElementById(wrapId);
         if (!wrap) return;
@@ -1042,7 +1057,6 @@
         });
     }
     
-    // Route functies
     async function calcRoute(lat1, lon1, lat2, lon2) {
         const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`;
         const res = await fetch(url);
@@ -1237,7 +1251,6 @@
                 }
             } else {
                 alert(`✅ Boeking bevestigd!\n📋 Nummer: ${record.id}\n💰 € ${totalAmount.toFixed(2)}`);
-                // Email trigger (non-blocking)
                 if (window.comms) window.comms.trigger('BOOKING_CONFIRMATION', bookingId, supabase);
                 resetAll();
                 await loadUserBookings();
