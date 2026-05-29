@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
   <title>KMS7 | Taxi de Luxe & Limousine Belgique – Réservation VTC Premium</title>
   <meta name="description" content="KMS7 : service de taxi de luxe, VTC et limousine en Belgique. Transferts aéroport (Zaventem, Charleroi), trajets d'affaires, cérémonies. Chauffeur privé, ponctualité garantie, réservation en ligne.">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -125,6 +125,21 @@
       .grid-2cols { grid-template-columns: 1fr; gap: 2rem; }
       .about-image-wrapper { min-height: 240px; }
       #map { height: 300px; }
+    }
+    /* ORIENTATION SUPPORT - voor kantelen van horizontaal naar verticaal op mobiel/tablet/iOS */
+    @media (orientation: landscape) and (max-height: 700px) {
+      .hero { min-height: 120vh; padding-bottom: 30px; }
+      .hero h1 { font-size: 2.2rem; }
+      .hero-split-box { gap: 2rem; }
+      section { padding: 50px 0; }
+      .booking-carousel-container { padding: 1.2rem; }
+      #map { height: 280px; }
+      .info-card .value { font-size: 1.2rem; }
+      .step-btn { font-size: 0.55rem; padding: 8px 4px; }
+    }
+    @media (orientation: portrait) and (max-width: 768px) {
+      .hero { min-height: 85vh; }
+      .hero h1 { font-size: 2.5rem; }
     }
   </style>
 </head>
