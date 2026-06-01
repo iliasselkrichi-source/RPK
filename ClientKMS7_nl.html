@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>C-KMS-7 | Klantenportaal - Luxe Taxi & VTC België</title>
-  <meta name="description" content="C-KMS-7 klantenportaal: beheer uw reserveringen, bekijk uw ritten, download uw facturen en plan uw luxe ritten met uw persoonlijke account.">
+  <title>NH | Klantenportaal - Luxe Taxi & VTC België</title>
+  <meta name="description" content="NH klantenportaal: beheer uw reserveringen, bekijk uw ritten, download uw facturen en plan uw luxe ritten met uw persoonlijke account.">
   <meta name="robots" content="noindex, nofollow">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -32,7 +32,7 @@
     .lang-switch .active { background: var(--silver); color: #0A192F; }
     
     /* ============================================================ */
-    /* HERO SECTIE - ZELFDE ALS KMS7_nl.html */
+    /* HERO SECTIE - ZELFDE ALS NH_nl.html */
     /* ============================================================ */
     .hero-portal { 
       min-height: 50vh; 
@@ -225,7 +225,7 @@
 
 <header>
   <div class="container navbar">
-    <div class="logo">C-KMS-7</div>
+    <div class="logo">NH</div>
     <div class="menu-icon" id="mobileMenuBtn"><i class="fas fa-bars"></i></div>
     <ul class="nav-links" id="navLinks">
       <li><a href="#reserveren">Nieuwe rit</a></li>
@@ -242,12 +242,12 @@
 </header>
 
 <main>
-  <!-- NIEUWE HERO SECTIE - ZELFDE STIJL ALS KMS7_nl.html -->
+  <!-- NIEUWE HERO SECTIE - ZELFDE STIJL ALS NH_nl.html -->
   <section class="hero-portal">
     <div class="container">
       <div class="hero-split-box">
         <div class="hero-left-content">
-          <h1><i class="fas fa-user-circle"></i> C-KMS-7</h1>
+          <h1><i class="fas fa-user-circle"></i> NH</h1>
           <div class="hero-subtitle">Klantenportaal | Elegantie in beweging</div>
         </div>
         <div class="hero-right-content">
@@ -318,12 +318,12 @@
 
 <footer>
   <div class="container footer-grid">
-    <div class="footer-col"><h4>C-KMS-7</h4><p>Buitenplas 1/14<br>1601 Sint-Pieters-Leeuw</p><p>+32 473 30 03 74</p><p>booking@kms7.be</p><p>BTW: BE 0789.123.456</p></div>
+    <div class="footer-col"><h4>NH</h4><p>Buitenplas 1/14<br>1601 Sint-Pieters-Leeuw</p><p>+32 473 30 03 74</p><p>booking@kms7.be</p><p>BTW: BE 0789.123.456</p></div>
     <div class="footer-col"><h4>SNAPPE LINKS</h4><a href="#reserveren">Nieuwe rit</a><a href="#dashboard">Mijn ritten</a><a href="KMS7_nl.html">Homepage</a></div>
     <div class="footer-col"><h4>INFORMATIE</h4><a href="Mentions_legales_KMS7_nl.html">Wettelijke vermeldingen</a><a href="Mentions_legales_KMS7_nl.html">AV</a><a href="#">Privacy</a></div>
     <div class="footer-col"><h4>CONTACT</h4><a href="#reserveren" class="btn-outline-gold" style="display:inline-block;">Nu reserveren</a></div>
   </div>
-  <div class="container" style="text-align:center; margin-top: 2.5rem; font-size: 0.8rem;">© 2026 C-KMS-7 — Elegantie in beweging – Klantenportaal | Alle rechten voorbehouden</div>
+  <div class="container" style="text-align:center; margin-top: 2.5rem; font-size: 0.8rem;">© 2026 NH — Elegantie in beweging – Klantenportaal | Alle rechten voorbehouden</div>
 </footer>
 
 <div id="invoiceModal" class="modal"><div class="modal-content" id="modalContent"></div></div>
@@ -358,7 +358,7 @@
   // ============================================================
   let currentUserEmail = sessionStorage.getItem('kms7_user_email') || '';
   function generateCustomerId(email) { return "CUST-"+email.toLowerCase().replace(/[^a-z0-9]/g,""); }
-  let currentUser = { id: generateCustomerId(currentUserEmail), full_name: 'Klant C-KMS-7', email: currentUserEmail, phone: '+32 470 12 34 56' };
+  let currentUser = { id: generateCustomerId(currentUserEmail), full_name: 'Klant NH', email: currentUserEmail, phone: '+32 470 12 34 56' };
   
   let map, pickupCoord=null, dropoffCoord=null, routeLayer=null, currentRouteData=null, currentRoundTrip=false, currentReturnDateTime="";
   let selectedVehicle='Standard', selectedVehicleExtra=0, currentPage=1;
@@ -383,7 +383,7 @@
       return `
         <div style="font-family: 'Montserrat', sans-serif;">
           <div class="invoice-header">
-            <div><h2>C-KMS-7 BV</h2><p>Buitenplas 1/14, 1601 Sint-Pieters-Leeuw<br>BTW: BE 0789.123.456<br>+32 473 30 03 74</p></div>
+            <div><h2>NH BV</h2><p>Buitenplas 1/14, 1601 Sint-Pieters-Leeuw<br>BTW: BE 0789.123.456<br>+32 473 30 03 74</p></div>
             <div style="text-align:right;"><h3>FACTUUR</h3><p>Nr.: ${booking.id}<br>Datum: ${new Date().toLocaleDateString('nl-NL')}</p></div>
           </div>
           <div class="invoice-details">
@@ -394,10 +394,10 @@
           <table class="invoice-table">
             <thead><tr><th>Omschrijving</th><th>Aantal</th><th>Eenheidsprijs</th><th>Totaal</th></tr></thead>
             <tbody>
-              <tr><td>VTC-rit: ${booking.pickup} → ${booking.destination}</td><td>1</td><td>€ ${formatPrice(booking.amount)}</td><td>€ ${formatPrice(booking.amount)}</td></tr>
-              ${booking.vehicle !== 'Standard' ? `<tr><td>Voertuigtoeslag (${booking.vehicle})</td><td>1</td><td>€ ${booking.vehicle === 'Break' ? '5,00' : booking.vehicle === 'Exclusive' ? '15,00' : '10,00'}</td><td>€ ${booking.vehicle === 'Break' ? '5,00' : booking.vehicle === 'Exclusive' ? '15,00' : '10,00'}</td></tr>` : ''}
+              <tr><td colspan="4"><small>VTC-rit: ${booking.pickup} → ${booking.destination}</small></td></tr>
               <tr><td colspan="4"><small>Datum & tijd: ${booking.datetime} ${booking.time || ''}</small></td></tr>
               <tr><td colspan="4"><small>Opties: ${booking.extras || 'Geen'}</small></td></tr>
+              <tr><td colspan="4"><strong>Totaal: € ${formatPrice(booking.amount)}</strong></td></tr>
             </tbody>
           </table>
           <div class="invoice-total">
@@ -502,7 +502,7 @@
       const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=be&addressdetails=0&accept-language=nl`; 
       const controller = new AbortController(); 
       const timeoutId = setTimeout(() => controller.abort(), 8000); 
-      const response = await fetch(url, { headers: { 'User-Agent': 'C-KMS-7-Portal/1.0' }, signal: controller.signal }); 
+      const response = await fetch(url, { headers: { 'User-Agent': 'NH-Portal/1.0' }, signal: controller.signal }); 
       clearTimeout(timeoutId); 
       if (!response.ok) throw new Error(`HTTP ${response.status}`); 
       const data = await response.json(); 
