@@ -175,6 +175,12 @@
             font-size: 0.6rem;
             color: #475569;
         }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -185,119 +191,101 @@
         <div class="ryzen-tagline">
             AUTOMOTIVE EXCELLENCE
         </div>
-        <div class="subtitle" data-i18n="op_login_subtitle">
+        <div class="subtitle">
             Dealership Management Platform
         </div>
         
         <div id="loginSection">
             <div class="login-form">
-                <input type="email" id="email" data-i18n-placeholder="op_login_email" placeholder="E-mailadres" required>
-                <input type="password" id="password" data-i18n-placeholder="op_login_password" placeholder="Wachtwoord" required>
+                <input type="email" id="email" placeholder="E-mailadres" value="admin@ryzen.be">
+                <input type="password" id="password" placeholder="Wachtwoord" value="admin@ryzen.be">
             </div>
             <button class="login-btn" id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> <span data-i18n="op_login_btn">Inloggen bij Ryzen</span>
+                <i class="fas fa-sign-in-alt"></i> Inloggen bij Ryzen
             </button>
+            <div id="errorMsg" class="error-message"></div>
         </div>
         
         <div class="panel-select" id="panelSelect">
             <p style="color: #f59e0b; font-size: 0.85rem;">
-                <i class="fas fa-check-circle"></i> <span data-i18n="op_login_welcome">Welkom bij Ryzen!</span>
+                <i class="fas fa-check-circle"></i> Welkom bij Ryzen!
             </p>
-            <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 0.25rem;" data-i18n="op_login_choose">
+            <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 0.25rem;">
                 Kies uw werkpaneel:
             </p>
             <div class="panel-buttons">
                 <div class="panel-card card-dealer" id="btnDealer">
                     <i class="fas fa-car-side"></i>
-                    <h3 data-i18n="op_login_card_dealer">Auto Dealer</h3>
-                    <p data-i18n="op_login_card_dealer_desc">Voorraad · Verkopen · Facturen · Winstmarges</p>
+                    <h3>Auto Dealer</h3>
+                    <p>Voorraad · Verkopen · Facturen · Winstmarges</p>
                 </div>
                 <div class="panel-card card-taxi" id="btnTaxi">
                     <i class="fas fa-taxi"></i>
-                    <h3 data-i18n="op_login_card_taxi">Onderaannemer</h3>
-                    <p data-i18n="op_login_card_taxi_desc">Ritten · Chauffeurs · Partners · Financiën</p>
+                    <h3>Onderaannemer</h3>
+                    <p>Ritten · Chauffeurs · Partners · Financiën</p>
                 </div>
                 <div class="panel-card card-woningen" id="btnWoningen">
                     <i class="fas fa-home"></i>
-                    <h3 data-i18n="op_login_card_woningen">Woningen Verhuur</h3>
-                    <p data-i18n="op_login_card_woningen_desc">Boekingen · Agenda · Team · Financieel</p>
+                    <h3>Woningen Verhuur</h3>
+                    <p>Boekingen · Agenda · Team · Financieel</p>
                 </div>
             </div>
             <div id="selectedHint" class="welcome-text"></div>
         </div>
         
         <div class="info-text">
-            <i class="fas fa-database"></i> <span data-i18n="op_login_supabase">Klaar voor Supabase aansluiting</span>
+            <i class="fas fa-shield-alt"></i> Demo modus - Inloggen met admin@ryzen.be
         </div>
         <div class="ryzen-footer">
-            <i class="fas fa-copyright"></i> <span data-i18n="op_login_footer">Ryzen - Master-level Automotive</span>
+            <i class="fas fa-copyright"></i> Ryzen - Master-level Automotive
         </div>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="translations.js"></script>
     <script>
-        /**
-         * Ryzen Admin Index - Navigatie Hub
-         * De gebruiker moet ALTIJD handmatig inloggen. Geen automatische sessieherkenning.
-         */
-
-        // Supabase configuratie
-        const SB_URL = "https://rreqjjrmvytnwnsidmqi.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA";
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+        // HARDCODED LOGIN GEGEVENS
+        const VALID_EMAIL = "admin@ryzen.be";
+        const VALID_PASSWORD = "admin@ryzen.be";
 
         const loginBtn = document.getElementById('loginBtn');
         const loginSection = document.getElementById('loginSection');
         const panelSelect = document.getElementById('panelSelect');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
+        const errorMsg = document.getElementById('errorMsg');
 
         function showPanels() {
             loginSection.style.display = 'none';
             panelSelect.classList.add('show');
         }
 
-        // Login logica
-        loginBtn.addEventListener('click', async function(e) {
+        // Login logica met hardcoded gegevens
+        loginBtn.addEventListener('click', function(e) {
             e.preventDefault();
 
             const email = emailInput.value.trim();
             const password = passwordInput.value;
 
+            // Foutmelding wissen
+            errorMsg.textContent = '';
+
             if (!email || !password) {
-                alert(i18n.t('op_login_error_empty'));
+                errorMsg.textContent = '❌ Vul e-mail en wachtwoord in.';
                 return;
             }
 
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = `<i class="fas fa-spinner fa-pulse"></i> ${i18n.t('op_login_logging_in')}`;
-
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-
-                if (error) throw error;
-
-                if (data.user) {
-                    // Zet sessievlag voor beveiligde pagina's
-                    sessionStorage.setItem('horizon_logged_in', 'true');
-                    showPanels();
-                }
-            } catch (err) {
-                console.error("Login fout:", err.message);
-                alert("❌ " + err.message);
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> ${i18n.t('op_login_btn')}`;
+            if (email === VALID_EMAIL && password === VALID_PASSWORD) {
+                // Inloggen succesvol
+                sessionStorage.setItem('horizon_logged_in', 'true');
+                showPanels();
+            } else {
+                errorMsg.textContent = '❌ Ongeldige inloggegevens. Gebruik: admin@ryzen.be / admin@ryzen.be';
             }
         });
         
         // Auto Dealer keuze
         document.getElementById('btnDealer').addEventListener('click', function(e) {
             e.preventDefault();
-            document.getElementById('selectedHint').innerHTML = `<i class="fas fa-spinner fa-pulse"></i> ${i18n.t('op_login_starting_dealer')}`;
+            document.getElementById('selectedHint').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Starten Auto Dealer paneel...';
             setTimeout(function() {
                 window.location.href = 'autodealerpaneel.html';
             }, 300);
@@ -306,7 +294,7 @@
         // Onderaannemer keuze
         document.getElementById('btnTaxi').addEventListener('click', function(e) {
             e.preventDefault();
-            document.getElementById('selectedHint').innerHTML = `<i class="fas fa-spinner fa-pulse"></i> ${i18n.t('op_login_starting_taxi')}`;
+            document.getElementById('selectedHint').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Starten Onderaannemer paneel...';
             setTimeout(function() {
                 window.location.href = 'onderaannemerA.html';
             }, 300);
@@ -315,10 +303,18 @@
         // Woningen Verhuur keuze
         document.getElementById('btnWoningen').addEventListener('click', function(e) {
             e.preventDefault();
-            document.getElementById('selectedHint').innerHTML = `<i class="fas fa-spinner fa-pulse"></i> ${i18n.t('op_login_starting_woningen')}`;
+            document.getElementById('selectedHint').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Starten Woningen Verhuur paneel...';
             setTimeout(function() {
                 window.location.href = 'commander.html';
             }, 300);
+        });
+
+        // Optioneel: Druk op Enter om in te loggen
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loginBtn.click();
         });
     </script>
 </body>
