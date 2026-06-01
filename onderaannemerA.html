@@ -99,16 +99,15 @@
         .nav-item:hover {
             background: #1e293b;
         }
-        /* Active tab styling - ZORGT DAT DE TAB ZICHTBAAR IS */
         .nav-item.active {
-            background: #2dd4bf20 !important;
-            color: #2dd4bf !important;
+            background: #2dd4bf20;
+            color: #2dd4bf;
         }
         .nav-item.active i {
-            color: #2dd4bf !important;
+            color: #2dd4bf;
         }
         .nav-item.active span {
-            color: #2dd4bf !important;
+            color: #2dd4bf;
         }
         .nav-item i {
             width: 22px;
@@ -228,7 +227,7 @@
             padding: 32px;
         }
         
-        /* Alle overige stijlen */
+        /* Filter bar stijlen */
         .filter-bar { background: white; padding: 8px 16px; border-radius: 48px; margin-bottom: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border: 1px solid #e2e8f0; }
         .filter-group { display: flex; align-items: center; gap: 6px; background: #f8fafc; padding: 4px 12px; border-radius: 32px; border: 1px solid #e2e8f0; }
         .filter-group label { font-size: 0.7rem; font-weight: 600; color: #475569; }
@@ -238,6 +237,7 @@
         .btn-filter { background: #0f172a; color: white; }
         .btn-reset { background: #e2e8f0; color: #1e293b; }
         
+        /* Tabellen */
         .orders-table-wrapper { overflow-x: auto; background: white; border-radius: 16px; padding: 20px; }
         .orders-table { width: 100%; border-collapse: collapse; }
         .orders-table th { text-align: left; padding: 12px 8px; border-bottom: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; color: #64748b; }
@@ -249,6 +249,7 @@
         .add-btn { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.8rem; margin-bottom: 16px; }
         .order-count { background: #2dd4bf20; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; color: #0f172a; }
         
+        /* Modals */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
         .modal-content { background: white; border-radius: 20px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; }
         .fiche-header { background: #0f172a; color: white; padding: 20px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center; }
@@ -267,14 +268,15 @@
         .fiche-btn.confirm { background: #10b981; color: white; }
         .fiche-btn.close { background: #64748b; color: white; }
         .fiche-btn.assign { background: #f59e0b; color: white; }
-        .fiche-btn.complete { background: #2dd4bf; color: #0f172a; }
         
+        /* Dashboard kaarten */
         .people-card { background: white; border-radius: 16px; padding: 20px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .stat-card h4 { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
         .stat-card .value { font-size: 1.8rem; font-weight: 700; }
         
+        /* Kalender stijlen - VERBETERDE SELECTIE */
         .calendar-container { background: white; border-radius: 16px; padding: 20px; margin-bottom: 24px; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
         .calendar-header h2 { font-size: 1.3rem; font-weight: 600; }
@@ -282,16 +284,38 @@
         .calendar-nav button { background: #f1f5f9; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; }
         .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 600; padding: 12px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 8px; }
         .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; position: relative; }
-        .calendar-day:hover { background: #e2e8f0; }
-        .calendar-day.selected { background: #2dd4bf; color: #0f172a; font-weight: 600; box-shadow: 0 0 0 3px #3b82f6; position: relative; z-index: 1; }
+        .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; position: relative; }
+        .calendar-day:hover { background: #e2e8f0; transform: scale(1.05); }
+        /* Geselecteerde dag - DIKKE ORANJE RAND */
+        .calendar-day.selected {
+            background: #2dd4bf !important;
+            color: #0f172a !important;
+            font-weight: 700 !important;
+            border: 3px solid #f59e0b !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3) !important;
+            transform: scale(1.02);
+            position: relative;
+            z-index: 2;
+        }
+        /* Vinkje bij geselecteerde dag */
+        .calendar-day.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 10px;
+            color: #f59e0b;
+            font-weight: bold;
+        }
         .calendar-day.other-month { color: #94a3b8; }
-        .calendar-day.today { border: 2px solid #2dd4bf; }
+        .calendar-day.today { border: 2px solid #f59e0b; font-weight: 600; }
+        .calendar-day.selected.today { border: 3px solid #f59e0b; background: #2dd4bf !important; }
         .calendar-day.has-rides { background: #dbeafe; }
         .calendar-day.has-expired { background: #fee2e2; }
         .ride-dot { width: 6px; height: 6px; background: #2dd4bf; border-radius: 50%; margin-top: 2px; }
         .expired-dot { width: 6px; height: 6px; background: #ef4444; border-radius: 50%; margin-top: 2px; }
         
+        /* Dashboard grid */
         .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .info-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer; }
         .mini-flip-container { perspective: 600px; height: 140px; }
@@ -302,6 +326,7 @@
         .mini-flip-back { background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%); color: #0f172a; transform: rotateY(180deg); }
         .mini-flip-front .value, .mini-flip-back .value { font-size: 1.8rem; font-weight: 700; margin: 8px 0; }
         
+        /* Planning container */
         .planning-container { margin-top: 20px; background: white; border-radius: 16px; padding: 20px; }
         .planning-list { max-height: 400px; overflow-y: auto; }
         .planning-item { background: #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 4px solid #2dd4bf; }
@@ -310,6 +335,7 @@
         .planning-ride { font-size: 0.85rem; color: #475569; }
         .empty-planning { text-align: center; padding: 40px; color: #94a3b8; }
         
+        /* Financieel */
         .finance-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
         .period-buttons { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
         .period-btn { padding: 8px 20px; border-radius: 40px; border: none; cursor: pointer; font-weight: 500; background: #e2e8f0; transition: all 0.2s; }
@@ -322,12 +348,13 @@
         .kpi-card .value { font-size: 1.8rem; font-weight: 700; }
         .kpi-card .label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-top: 8px; }
         
+        /* Wiki */
         .wiki-container { background: white; border-radius: 16px; padding: 24px; }
         .wiki-content { text-align: left; max-width: 1000px; margin: 0 auto; line-height: 1.6; }
         .wiki-content h2 { color: #0f172a; border-bottom: 2px solid #2dd4bf; padding-bottom: 10px; margin-bottom: 20px; }
         .wiki-content h3 { color: #2dd4bf; margin-top: 20px; margin-bottom: 10px; }
-        .wiki-content ul, .wiki-content ol { margin-left: 20px; margin-bottom: 15px; }
         
+        /* Partners */
         .partner-card { border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 16px; background: #f8fafc; }
         .partner-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
         .partner-name { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
@@ -571,7 +598,7 @@
             },
             
             renderOrders() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderOrders" placeholder="Zoeken"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameOrders" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersOrders()">Zoeken</button><button class="btn-reset" onclick="app.resetFiltersOrders()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>ID</th><th>Datum/Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="ordersTable"></tbody></table></div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderOrders" placeholder="Zoeken"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameOrders" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersOrders()">Zoeken</button><button class="btn-reset" onclick="app.resetFiltersOrders()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>ID</th><th>Datum/Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="ordersTable"></tbody>}</div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderOrdersTable(this.ordersList);
                 document.getElementById('pageTitle').innerHTML = `Orders <span class="order-count">${this.ordersList.length}</span>`;
@@ -589,7 +616,7 @@
             },
             
             renderHistory() {
-                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoeken"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoeken</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>ID</th><th>Datum/Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="historyTable"></tbody></table></div>`;
+                let html = `<div class="filter-bar"><div class="filter-group"><label>Order ID</label><input type="text" id="filterOrderHistory" placeholder="Zoeken"></div><div class="filter-group"><label>Naam</label><input type="text" id="filterNameHistory" placeholder="Klant"></div><div class="filter-actions"><button class="btn-filter" onclick="app.applyFiltersHistory()">Zoeken</button><button class="btn-reset" onclick="app.resetFiltersHistory()">Reset</button></div></div><div class="orders-table-wrapper"><table class="orders-table"><thead><tr><th>ID</th><th>Datum/Tijd</th><th>Klant</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Driver</th><th>Actie</th></tr></thead><tbody id="historyTable"></tbody>}</div>`;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderHistoryTable(this.historyOrders);
                 document.getElementById('pageTitle').innerHTML = `History <span class="order-count">${this.historyOrders.length}</span>`;
@@ -611,6 +638,7 @@
             
             renderAgenda() {
                 let stats = this.getTodayStats();
+                let currentMonthName = this.currentMonth.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
                 let html = `
                     <div class="dashboard-grid">
                         <div class="info-card"><div class="mini-flip-container"><div class="mini-flip-card"><div class="mini-flip-front"><i class="fas fa-euro-sign" style="font-size:1.5rem;"></i><div class="value">€ ${stats.total.toFixed(2)}</div><div class="label">Vandaag Omzet</div></div></div></div></div>
@@ -618,8 +646,19 @@
                         <div class="info-card"><div class="mini-flip-container"><div class="mini-flip-card"><div class="mini-flip-front"><i class="fas fa-check-circle" style="font-size:1.5rem;"></i><div class="value">${stats.completed}</div><div class="label">Voltooid</div></div></div></div></div>
                         <div class="info-card"><div class="mini-flip-container"><div class="mini-flip-card"><div class="mini-flip-front"><i class="fas fa-clock" style="font-size:1.5rem;"></i><div class="value">${stats.futureRides}</div><div class="label">Toekomstige Ritten</div></div></div></div></div>
                     </div>
-                    <div class="calendar-container"><div class="calendar-header"><h2>Kalender</h2></div><div class="calendar-weekdays"><div>Ma</div><div>Di</div><div>Wo</div><div>Do</div><div>Vr</div><div>Za</div><div>Zo</div></div><div class="calendar-days" id="calendarDays"></div></div>
-                    <div class="planning-container"><h3>Planning</h3><div class="planning-list" id="planningList">Selecteer een datum</div></div>
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <h2>${currentMonthName}</h2>
+                            <div class="calendar-nav">
+                                <button onclick="app.changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                                <button onclick="app.goToToday()">Vandaag</button>
+                                <button onclick="app.changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="calendar-weekdays"><div>Ma</div><div>Di</div><div>Wo</div><div>Do</div><div>Vr</div><div>Za</div><div>Zo</div></div>
+                        <div class="calendar-days" id="calendarDays"></div>
+                    </div>
+                    <div class="planning-container"><h3>Planning voor geselecteerde dag</h3><div class="planning-list" id="planningList">Selecteer een datum</div></div>
                 `;
                 document.getElementById('contentArea').innerHTML = html;
                 this.renderSimpleCalendar();
@@ -636,18 +675,37 @@
                 let daysInMonth = new Date(year, month + 1, 0).getDate();
                 let adjustedStart = startDay === 0 ? 6 : startDay - 1;
                 let html = '';
-                for (let i = 0; i < adjustedStart; i++) html += '<div class="calendar-day other-month"></div>';
+                
+                // Vorige maand dagen
+                for (let i = adjustedStart - 1; i >= 0; i--) {
+                    let prevDate = new Date(year, month, -i);
+                    html += `<div class="calendar-day other-month" onclick="app.selectDate(${prevDate.getDate()}, ${prevDate.getMonth()+1}, ${prevDate.getFullYear()})">${prevDate.getDate()}</div>`;
+                }
+                
+                // Huidige maand dagen
                 for (let day = 1; day <= daysInMonth; day++) {
                     let dateStr = `${day.toString().padStart(2,'0')}-${(month+1).toString().padStart(2,'0')}-${year}`;
                     let rides = this.getRidesByDate(dateStr);
                     let isToday = (day === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear());
                     let isSelected = (this.selectedDate && day === this.selectedDate.getDate() && month === this.selectedDate.getMonth() && year === this.selectedDate.getFullYear());
+                    
                     let classes = 'calendar-day';
                     if (isToday) classes += ' today';
                     if (isSelected) classes += ' selected';
                     if (rides.length > 0) classes += ' has-rides';
+                    
                     html += `<div class="${classes}" onclick="app.selectDate(${day}, ${month+1}, ${year})">${day}${rides.length > 0 ? '<div class="ride-dot"></div>' : ''}</div>`;
                 }
+                
+                // Volgende maand dagen
+                let totalCells = Math.ceil((adjustedStart + daysInMonth) / 7) * 7;
+                let nextMonthDay = 1;
+                for (let i = adjustedStart + daysInMonth; i < totalCells; i++) {
+                    let nextDate = new Date(year, month + 1, nextMonthDay);
+                    html += `<div class="calendar-day other-month" onclick="app.selectDate(${nextDate.getDate()}, ${nextDate.getMonth()+1}, ${nextDate.getFullYear()})">${nextDate.getDate()}</div>`;
+                    nextMonthDay++;
+                }
+                
                 container.innerHTML = html;
                 this.renderSimplePlanning();
             },
@@ -657,11 +715,47 @@
                 if (!container) return;
                 let dateStr = `${this.selectedDate.getDate().toString().padStart(2,'0')}-${(this.selectedDate.getMonth()+1).toString().padStart(2,'0')}-${this.selectedDate.getFullYear()}`;
                 let rides = this.getRidesByDate(dateStr).sort((a,b) => a.time.localeCompare(b.time));
-                if (rides.length === 0) { container.innerHTML = '<div class="empty-planning">Geen ritten op deze dag</div>'; return; }
-                container.innerHTML = rides.map(r => `<div class="planning-item"><div class="planning-time"><i class="fas fa-clock"></i> ${r.time} uur</div><div class="planning-ride"><strong>${this.escapeHtml(r.name)}</strong> - ${this.escapeHtml(r.pickup)} → ${this.escapeHtml(r.destination)}</div><div class="planning-ride"><i class="fas fa-car"></i> ${r.vehicle}</div></div>`).join('');
+                let formattedDate = this.selectedDate.toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                
+                if (rides.length === 0) { 
+                    container.innerHTML = `<div class="empty-planning">📅 Geen ritten op ${formattedDate}</div>`; 
+                    return; 
+                }
+                container.innerHTML = `<h4 style="margin-bottom: 15px; color: #2dd4bf;">📅 ${formattedDate} (${rides.length} ritten)</h4>` + rides.map(r => `
+                    <div class="planning-item">
+                        <div class="planning-time"><i class="fas fa-clock"></i> ${r.time} uur</div>
+                        <div class="planning-ride"><strong>${this.escapeHtml(r.name)}</strong> - ${this.escapeHtml(r.pickup)} → ${this.escapeHtml(r.destination)}</div>
+                        <div class="planning-ride"><i class="fas fa-car"></i> ${r.vehicle}</div>
+                        <div class="planning-ride"><i class="fas fa-euro-sign"></i> €${(r.amount || 0).toFixed(2)}</div>
+                    </div>
+                `).join('');
             },
             
-            selectDate(day, month, year) { this.selectedDate = new Date(year, month-1, day); this.currentMonth = new Date(year, month-1, 1); this.renderSimplePlanning(); },
+            changeMonth(delta) {
+                this.currentMonth.setMonth(this.currentMonth.getMonth() + delta);
+                this.renderSimpleCalendar();
+            },
+            
+            goToToday() {
+                this.currentMonth = new Date();
+                this.selectedDate = new Date();
+                this.renderSimpleCalendar();
+            },
+            
+            selectDate(day, month, year) {
+                console.log(`Dag geselecteerd: ${day}-${month}-${year}`);
+                this.selectedDate = new Date(year, month-1, day);
+                this.currentMonth = new Date(year, month-1, 1);
+                this.renderSimpleCalendar();
+                
+                // Scroll naar planning sectie
+                setTimeout(() => {
+                    const planningContainer = document.querySelector('.planning-container');
+                    if (planningContainer) {
+                        planningContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 100);
+            },
             
             renderDrivers() {
                 let myDrivers = this.drivers.filter(c => { let partner = this.partners.find(p => p.id === c.partner_id); return partner && partner.is_hoofd === true; });
@@ -695,7 +789,7 @@
             },
             
             renderWiki() {
-                document.getElementById('contentArea').innerHTML = `<div class="wiki-container"><div class="wiki-content"><h2><i class="fas fa-robot"></i> Wiki Agent</h2><p>Welkom bij het Fleet Connect Onderaannemer Paneel.</p><h3>📋 Nieuwe Orders</h3><p>Hier verschijnen nieuwe ritten. Klik op "Bekijk Fiche" en accepteer de rit.</p><h3>📦 Orders</h3><p>Geaccepteerde ritten. Hier kunt u drivers toewijzen.</p><h3>📜 History</h3><p>Voltooide en geannuleerde ritten.</p><h3>📅 Agenda</h3><p>Kalender met ritten overzicht.</p><h3>👥 Drivers & Partners</h3><p>Beheer uw drivers en partners.</p></div></div>`;
+                document.getElementById('contentArea').innerHTML = `<div class="wiki-container"><div class="wiki-content"><h2><i class="fas fa-robot"></i> Wiki Agent</h2><p>Welkom bij het Fleet Connect Onderaannemer Paneel.</p><h3>📋 Nieuwe Orders</h3><p>Hier verschijnen nieuwe ritten. Klik op "Bekijk Fiche" en accepteer de rit.</p><h3>📦 Orders</h3><p>Geaccepteerde ritten. Hier kunt u drivers toewijzen.</p><h3>📜 History</h3><p>Voltooide en geannuleerde ritten.</p><h3>📅 Agenda</h3><p>Kalender met ritten overzicht. Klik op een dag om de ritten te zien.</p><h3>👥 Drivers & Partners</h3><p>Beheer uw drivers en partners.</p></div></div>`;
                 document.getElementById('pageTitle').innerHTML = 'Wiki Agent';
             },
             
