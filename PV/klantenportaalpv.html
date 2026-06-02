@@ -13,6 +13,17 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
+    <!-- Supabase module - wordt als eerste geladen -->
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        window.SUPABASE_CLIENT = createClient(
+            'https://rreqjjrmvytnwnsidmqi.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA'
+        );
+        window.SUPABASE_READY = true;
+        console.log("✅ Supabase client geladen en klaar");
+    </script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -53,7 +64,6 @@
         }
         .container { max-width: 1300px; margin: 0 auto; padding: 0 24px; width: 100%; }
         
-        /* HAMBURGER MENU KNOB - LINKSBOVEN */
         .hamburger-btn {
             position: fixed;
             top: 20px;
@@ -71,16 +81,9 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .hamburger-btn:hover {
-            background: var(--primary-dark);
-            transform: scale(1.05);
-        }
-        .hamburger-btn i {
-            color: white;
-            font-size: 1.5rem;
-        }
+        .hamburger-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
+        .hamburger-btn i { color: white; font-size: 1.5rem; }
         
-        /* SIDEBAR OVERLAY */
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -93,12 +96,7 @@
             opacity: 0;
             transition: all 0.3s ease;
         }
-        .sidebar-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        /* SIDEBAR ZELF - VAN LINKS UITKLAPPEND */
+        .sidebar-overlay.active { visibility: visible; opacity: 1; }
         .sidebar {
             position: fixed;
             top: 0;
@@ -114,11 +112,7 @@
             border-radius: 0 20px 20px 0;
             overflow-y: auto;
         }
-        .sidebar-overlay.active .sidebar {
-            left: 0;
-        }
-        
-        /* SIDEBAR HEADER */
+        .sidebar-overlay.active .sidebar { left: 0; }
         .sidebar-header {
             display: flex;
             justify-content: space-between;
@@ -128,13 +122,7 @@
             border-radius: 0 20px 0 0;
             flex-shrink: 0;
         }
-        .sidebar-header h3 {
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.3rem;
-        }
+        .sidebar-header h3 { color: white; display: flex; align-items: center; gap: 10px; font-size: 1.3rem; }
         .close-menu {
             background: rgba(255,255,255,0.2);
             border: none;
@@ -147,13 +135,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
         }
-        .close-menu:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        /* SIDEBAR NAVIGATIE */
         .sidebar-nav {
             display: flex;
             flex-direction: column;
@@ -173,17 +155,8 @@
             transition: all 0.2s;
             border: 1px solid transparent;
         }
-        .sidebar-nav a i {
-            width: 24px;
-            color: var(--primary);
-            font-size: 1.1rem;
-        }
-        .sidebar-nav a:hover {
-            background: var(--sidebar-hover);
-            border-color: var(--border-light);
-        }
-        
-        /* TAAL SECTIE IN SIDEBAR */
+        .sidebar-nav a i { width: 24px; color: var(--primary); font-size: 1.1rem; }
+        .sidebar-nav a:hover { background: var(--sidebar-hover); border-color: var(--border-light); }
         .language-section {
             padding: 16px;
             border-top: 1px solid var(--border-light);
@@ -191,17 +164,8 @@
             margin-bottom: 8px;
             flex-shrink: 0;
         }
-        .language-title {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--text-light);
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-        }
-        .language-buttons {
-            display: flex;
-            gap: 12px;
-        }
+        .language-title { font-size: 0.7rem; text-transform: uppercase; color: var(--text-light); margin-bottom: 12px; letter-spacing: 1px; }
+        .language-buttons { display: flex; gap: 12px; }
         .lang-sidebar-btn {
             flex: 1;
             background: #f1f5f9;
@@ -217,18 +181,8 @@
             text-decoration: none;
             display: block;
         }
-        .lang-sidebar-btn:hover, .lang-sidebar-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        /* LOGIN SECTIE IN SIDEBAR */
-        .login-section {
-            padding: 16px;
-            margin-top: auto;
-            flex-shrink: 0;
-        }
+        .lang-sidebar-btn:hover, .lang-sidebar-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .login-section { padding: 16px; margin-top: auto; flex-shrink: 0; }
         .login-btn {
             background: linear-gradient(135deg, var(--accent-gold), #b8860b);
             color: white;
@@ -240,17 +194,9 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            transition: transform 0.2s;
-        }
-        .login-btn:hover {
-            transform: translateY(-2px);
         }
         
-        /* GRID BLOKKEN STIJLEN */
-        .uitleg-grid, .services-grid {
-            display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;
-            padding: 50px 0 30px;
-        }
+        .uitleg-grid, .services-grid { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; padding: 50px 0 30px; }
         .uitleg-item, .service-card {
             background: var(--card-bg); backdrop-filter: blur(4px);
             border: 1px solid var(--border-light); border-radius: 36px;
@@ -258,16 +204,11 @@
             text-decoration: none; color: inherit; transition: transform 0.2s;
             cursor: pointer;
         }
-        .uitleg-item:hover, .service-card:hover {
-            transform: translateY(-6px); border-color: var(--primary);
-        }
-        .uitleg-item i, .service-card i {
-            font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;
-        }
+        .uitleg-item:hover, .service-card:hover { transform: translateY(-6px); border-color: var(--primary); }
+        .uitleg-item i, .service-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
         .uitleg-item h3, .service-card h3 { margin-bottom: 10px; }
         .service-summary { font-size: 0.85rem; color: var(--text-light); margin: 10px 0; }
         
-        /* TABS STIJLEN */
         .tabs-container {
             display: flex;
             gap: 8px;
@@ -298,7 +239,6 @@
         .logout-tab-btn:hover { color: #7f1d1d; border-bottom-color: #b91c1c; }
         .tab-container.hidden { display: none; }
         
-        /* BOOKING FORM STIJLEN */
         .one-grid-block {
             max-width: 850px; width: 100%; background: var(--white);
             border: 1px solid var(--border-light); box-shadow: var(--shadow);
@@ -407,7 +347,7 @@
 <body>
 <div id="background-map"></div>
 
-<!-- HAMBURGER MENU KNOB - LINKSBOVEN -->
+<!-- HAMBURGER MENU KNOB -->
 <button class="hamburger-btn" id="hamburgerBtn">
     <i class="fas fa-bars"></i>
 </button>
@@ -420,7 +360,6 @@
             <button class="close-menu" id="closeMenuBtn">&times;</button>
         </div>
         
-        <!-- TAALKEUZE IN SIDEBAR -->
         <div class="language-section">
             <div class="language-title"><i class="fas fa-globe"></i> Taal / Language</div>
             <div class="language-buttons">
@@ -463,7 +402,7 @@
         </div>
     </section>
 
-    <!-- ========== 3 GRIDBLOKKEN - BOVEN DE TABS ========== -->
+    <!-- 3 GRIDBLOKKEN - BOVEN DE TABS -->
     <div class="container">
         <div class="uitleg-grid">
             <a href="PV_Exclusieve_Service.html" class="uitleg-item">
@@ -487,14 +426,13 @@
         </div>
     </div>
 
-    <!-- ========== TABS SECTIE ========== -->
+    <!-- TABS SECTIE -->
     <div class="container">
         <div class="tabs-container">
             <button class="tab-btn active" data-tab="new-booking">📝 Nieuwe Rit</button>
             <button class="tab-btn" data-tab="profile">👤 Mijn Profiel</button>
             <button class="tab-btn" data-tab="dashboard">📊 Dashboard & Ritten</button>
             <button class="tab-btn" data-tab="payments">💰 Betalingen</button>
-            <!-- UITLOG KNOP -->
             <button id="logoutBtn" class="logout-tab-btn">
                 <i class="fas fa-sign-out-alt"></i> Uitloggen
             </button>
@@ -628,7 +566,7 @@
         </div>
     </div>
 
-    <!-- ========== 4 GRIDBLOKKEN - ONDERAAN, NA ALLE TABS ========== -->
+    <!-- 4 GRIDBLOKKEN - ONDERAAN -->
     <div class="container">
         <h2 style="text-align:center;margin:40px 0 20px;"><i class="fas fa-concierge-bell"></i> Onze diensten</h2>
         <div class="services-grid">
@@ -677,12 +615,6 @@
 </div>
 <div id="ritModal" class="modal"><div class="modal-content" id="modalContent"></div></div>
 
-<script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-    import { comms } from './src/modules/communication/index.js';
-    window.createClient = createClient;
-    window.comms = comms;
-</script>
 <script>
     // ========== SIMPELE i18n FALLBACK ==========
     window.i18n = {
@@ -754,22 +686,22 @@
         if (e.key === 'Escape' && sidebarOverlay && sidebarOverlay.classList.contains('active')) closeMenu();
     });
     
-    // ========== SUPABASE CONFIG ==========
+    // ========== SUPABASE CLIENT ==========
     const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
     
-    let supabase;
-    const initSupabase = () => {
-        if (window.createClient) {
-            if (!supabase) supabase = window.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            return true;
+    function getSupabase() {
+        if (window.SUPABASE_CLIENT) {
+            return window.SUPABASE_CLIENT;
+        } else if (window.createClient) {
+            window.SUPABASE_CLIENT = window.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            return window.SUPABASE_CLIENT;
         }
-        return false;
-    };
-
+        return null;
+    }
+    
     // ========== CLEAR ALL SESSION DATA ==========
     function clearAllSessionData() {
-        // Verwijder alle Supabase gerelateerde items uit localStorage
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -778,70 +710,40 @@
             }
         }
         keysToRemove.forEach(key => localStorage.removeItem(key));
-        
-        // Specifiek de bekende Supabase token key verwijderen
         localStorage.removeItem('sb-rreqjjrmvytnwnsidmqi-auth-token');
-        
-        // Verwijder alles uit sessionStorage
         sessionStorage.clear();
-        
         console.log('Alle sessie data gewist');
     }
 
-    // ========== LOGOUT FUNCTION - DE OPLOSSING! ==========
+    // ========== LOGOUT FUNCTION ==========
     async function handleLogout() {
         console.log('Uitloggen gestart...');
-        
-        // Toon laadmelding
         const logoutBtn = document.getElementById('logoutBtn');
         const originalText = logoutBtn.innerHTML;
         logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uitloggen...';
         logoutBtn.disabled = true;
         
         try {
-            if (!initSupabase()) {
-                console.warn('Supabase niet geïnitialiseerd, direct redirect');
-                clearAllSessionData();
-                window.location.href = 'index.html?t=' + Date.now();
-                return;
+            const supabase = getSupabase();
+            if (supabase) {
+                await supabase.auth.signOut();
             }
-            
-            // 1. Supabase signOut aanroepen
-            const { error } = await supabase.auth.signOut();
-            
-            if (error) {
-                console.error('SignOut error:', error);
-            }
-            
-            // 2. HANDMATIG ALLE SESSIE DATA WISSEN (cruciaal!)
             clearAllSessionData();
-            
-            // 3. Wacht kort om zeker te zijn dat alles is gewist
             await new Promise(resolve => setTimeout(resolve, 100));
-            
-            // 4. Doorverwijzen naar inlogpagina met timestamp om caching te voorkomen
-            console.log('Uitloggen voltooid, doorverwijzen naar index.html');
             window.location.href = 'index.html?t=' + Date.now();
-            
         } catch (err) {
             console.error('Logout error:', err);
-            alert('Er is een fout opgetreden bij het uitloggen.');
-            // Fallback: forceer redirect met cache busting
             clearAllSessionData();
             window.location.href = 'index.html?t=' + Date.now();
         }
     }
     
-    // ========== KOPPEL DE LOGOUT KNOP ==========
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        // Verwijder bestaande event listeners om conflicten te voorkomen
         const newLogoutBtn = logoutBtn.cloneNode(true);
         logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
         newLogoutBtn.addEventListener('click', handleLogout);
         console.log('Logout knop succesvol gekoppeld');
-    } else {
-        console.error('Logout knop niet gevonden!');
     }
     
     // ========== GLOBALE VARIABELEN ==========
@@ -851,7 +753,7 @@
     let selectedVehicle = 'Standaard', selectedVehicleExtra = 0, currentPage = 1;
     let debounceTimer;
     
-    // ========== AUTOCOMPLETE - WERKT! ==========
+    // ========== AUTOCOMPLETE ==========
     async function fetchAddresses(query, wrapId) {
         const wrap = document.getElementById(wrapId);
         if (!wrap) return;
@@ -868,51 +770,35 @@
         
         try {
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=8&countrycodes=be&addressdetails=1&accept-language=nl`;
-            
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 8000);
-            
             const response = await fetch(url, {
                 signal: controller.signal,
                 headers: { 'User-Agent': 'NH/3.0' }
             });
-            
             clearTimeout(timeoutId);
-            
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            
             if (!data || data.length === 0) {
                 suggestionsDiv.innerHTML = `<div class="suggestion-item" style="color:#b91c1c;">⚠️ Geen adressen gevonden</div>`;
                 setTimeout(() => { if (suggestionsDiv.style.display === 'block') suggestionsDiv.style.display = 'none'; }, 3000);
                 return;
             }
-            
             suggestionsDiv.innerHTML = '';
-            
             data.forEach(place => {
                 const div = document.createElement('div');
                 div.className = 'suggestion-item';
                 div.setAttribute('data-lat', place.lat);
                 div.setAttribute('data-lon', place.lon);
-                
                 let displayName = place.display_name;
-                if (displayName.length > 80) {
-                    displayName = displayName.substring(0, 80) + '…';
-                }
+                if (displayName.length > 80) displayName = displayName.substring(0, 80) + '…';
                 div.textContent = displayName;
-                
                 div.onclick = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
                     const inputField = wrapId === 'pickupWrap' ? document.getElementById('pickupInput') : document.getElementById('dropoffInput');
-                    if (inputField) {
-                        inputField.value = place.display_name;
-                    }
-                    
+                    if (inputField) inputField.value = place.display_name;
                     const coords = { lat: parseFloat(place.lat), lon: parseFloat(place.lon) };
-                    
                     if (wrapId === 'pickupWrap') {
                         pickupCoord = coords;
                         console.log("Pickup geselecteerd:", place.display_name);
@@ -920,18 +806,12 @@
                         dropoffCoord = coords;
                         console.log("Dropoff geselecteerd:", place.display_name);
                     }
-                    
                     suggestionsDiv.style.display = 'none';
-                    
-                    if (pickupCoord && dropoffCoord) {
-                        calculateAndStoreRoute();
-                    }
+                    if (pickupCoord && dropoffCoord) calculateAndStoreRoute();
                 };
                 suggestionsDiv.appendChild(div);
             });
-            
             suggestionsDiv.style.display = 'block';
-            
         } catch (err) {
             console.error('Autocomplete error:', err);
             suggestionsDiv.innerHTML = `<div class="suggestion-item" style="color:#b91c1c;">⚠️ Netwerkfout - probeer opnieuw</div>`;
@@ -942,7 +822,6 @@
     function initAutocomplete() {
         const pickupInput = document.getElementById('pickupInput');
         const dropoffInput = document.getElementById('dropoffInput');
-        
         if (pickupInput) {
             pickupInput.addEventListener('input', (e) => {
                 clearTimeout(debounceTimer);
@@ -955,7 +834,6 @@
                 }
             });
         }
-        
         if (dropoffInput) {
             dropoffInput.addEventListener('input', (e) => {
                 clearTimeout(debounceTimer);
@@ -968,12 +846,9 @@
                 }
             });
         }
-        
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.suggest-wrapper')) {
-                document.querySelectorAll('.suggestions').forEach(s => {
-                    s.style.display = 'none';
-                });
+                document.querySelectorAll('.suggestions').forEach(s => s.style.display = 'none');
             }
         });
     }
@@ -1097,7 +972,6 @@
         const urgent = isWithinNextHour(dt);
         const urgentDiv = document.getElementById('urgentWhatsApp');
         if (urgentDiv) urgent ? urgentDiv.classList.add('show') : urgentDiv.classList.remove('show');
-        
         const rd = await calcRoute(pickupCoord.lat, pickupCoord.lon, dropoffCoord.lat, dropoffCoord.lon);
         if (!rd) {
             showError(1, 'Route kon niet worden berekend');
@@ -1114,34 +988,16 @@
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
-        const seq = String(Math.floor(Math.random() * 900) + 100);
-        return `T-PV-${year}${month}${day}-${seq}`;
+        const counter = parseInt(localStorage.getItem('bookingCounter') || '0') + 1;
+        localStorage.setItem('bookingCounter', counter);
+        return `T-PV-${year}${month}${day}-${String(counter).padStart(3, '0')}`;
     }
     
-    async function sendToSupabase(record) {
-        try {
-            console.log('Verzenden naar Supabase:', record);
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify(record)
-            });
-            if (!response.ok) throw new Error(await response.text());
-            console.log('Boeking succesvol opgeslagen!');
-            return true;
-        } catch (err) {
-            console.error('Fout bij opslaan:', err);
-            alert(`Fout: ${err.message}`);
-            return false;
-        }
-    }
-    
+    // ========== DIRECTE BOEKING NAAR SUPABASE ==========
     async function finalizeBooking() {
+        console.log("🔴 BOEKING START - Verzenden naar Supabase");
+        
+        // Validaties
         if (!currentRouteData) {
             showError(5, 'Bereken eerst de route in stap 1 en 2');
             return;
@@ -1157,6 +1013,12 @@
             return;
         }
         
+        if (!selectedVehicle) {
+            showError(5, 'Selecteer een voertuig in stap 3');
+            return;
+        }
+        
+        // Bereken totaalbedrag
         const payment = document.querySelector('input[name="payment"]:checked')?.value || "Cash";
         let dist = parseFloat(currentRouteData.distanceKm);
         if (currentRoundTrip) dist *= 2;
@@ -1173,7 +1035,8 @@
         const customerId = `CUST-${em.replace(/[^a-z0-9]/gi, '').substring(0, 30)}`;
         const bookingId = generateBookingId();
         
-        const record = {
+        // Boeking data voor Supabase
+        const bookingData = {
             id: bookingId,
             datetime: datePart,
             time: timePart,
@@ -1182,55 +1045,69 @@
             phone: ph,
             pickup: document.getElementById('pickupInput').value,
             destination: document.getElementById('dropoffInput').value,
-            flight_number: document.getElementById('flightNumber').value.trim() || null,
+            flight_number: document.getElementById('flightNumber').value.trim() || "",
             vehicle: selectedVehicle,
             extras: getExtrasString(),
-            amount: totalAmount,
+            amount: totalAmount.toString(),
             payment: payment,
             status: payment === "Cash" ? "pending" : "pending_payment",
             customer_id: customerId,
             form_data: { source: "web-portal" },
-            assigned_driver_id: null,
+            created_at: new Date().toISOString(),
             partner_id: 1,
-            payment_status: payment === "Cash" ? "cash_pending" : "unpaid",
-            user_id: currentUser?.id || null
+            assigned_driver_id: null,
+            payment_status: payment === "Cash" ? "cash_pending" : "unpaid"
         };
         
-        if (!initSupabase()) {
-            alert('Database niet beschikbaar');
+        console.log("📦 Verzenden naar Supabase:", bookingData);
+        
+        // Supabase client ophalen
+        const supabase = getSupabase();
+        
+        if (!supabase) {
+            console.error("❌ Supabase client niet beschikbaar");
+            showError(5, 'Database niet beschikbaar. Probeer opnieuw.');
             return;
         }
         
-        const success = await sendToSupabase(record);
-        if (success) {
-            if (payment === "Kaart" || payment === "App") {
-                try {
-                    const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-                        body: {
-                            bookingId: bookingId,
-                            email: em,
-                            amount: totalAmount,
-                            paymentMethodType: payment,
-                            successUrl: `${window.location.origin}/klantenportaalpv.html?payment=success&id=${bookingId}`,
-                            cancelUrl: `${window.location.origin}/klantenportaalpv.html?payment=cancelled&id=${bookingId}`
-                        }
-                    });
-                    if (error) throw error;
-                    if (data.url) {
-                        window.location.href = data.url;
-                    } else {
-                        throw new Error("Geen betaallink ontvangen");
-                    }
-                } catch (stripeErr) {
-                    console.error('Stripe error:', stripeErr);
-                    alert(`Betaalfout: ${stripeErr.message}`);
-                }
-            } else {
-                alert(`Boeking ${bookingId} bevestigd voor €${totalAmount.toFixed(2)}!`);
-                if (window.comms) window.comms.trigger('BOOKING_CONFIRMATION', bookingId, supabase);
-                resetAll();
-                await loadUserBookings();
+        try {
+            // Eerst controleren of we verbinding hebben
+            const { data: testData, error: testError } = await supabase.from('bookings').select('count', { count: 'exact', head: true });
+            if (testError) {
+                console.error("❌ Verbinding test mislukt:", testError);
+                showError(5, 'Kan geen verbinding maken met de database. Probeer opnieuw.');
+                return;
             }
+            
+            console.log("✅ Verbinding met Supabase OK");
+            
+            // Boeking opslaan
+            const { data, error } = await supabase
+                .from('bookings')
+                .insert([bookingData])
+                .select();
+            
+            if (error) {
+                console.error("❌ Supabase insert error:", error);
+                showError(5, 'Fout bij opslaan: ' + error.message);
+                return;
+            }
+            
+            console.log("✅ Boeking succesvol opgeslagen!", data);
+            alert(`✅ Boeking ${bookingId} bevestigd voor €${totalAmount.toFixed(2)}!\n\nEen bevestiging wordt naar ${em} gestuurd.`);
+            
+            // Reset formulier
+            resetAll();
+            
+            // Herlaad boekingen voor dashboard
+            await loadUserBookings();
+            
+            // Ga naar dashboard tab om de nieuwe boeking te zien
+            switchToTab('dashboard');
+            
+        } catch (err) {
+            console.error("❌ Fout bij boeking:", err);
+            showError(5, 'Fout bij het opslaan van de boeking: ' + err.message);
         }
     }
     
@@ -1275,7 +1152,8 @@
             showPage(5);
             updateTotalDisplay();
         } else if (currentPage === 5) {
-            await finalizeBooking();
+            // GEEN finalizeBooking hier - alleen via de knop!
+            console.log("Stap 5 - gebruik de bevestig knop");
         }
     }
     
@@ -1346,10 +1224,12 @@
     
     // ========== DASHBOARD FUNCTIES ==========
     async function loadUserBookings() {
-        if (!initSupabase()) {
-            setTimeout(loadUserBookings, 100);
+        const supabase = getSupabase();
+        if (!supabase) {
+            console.log("Supabase niet beschikbaar voor laden van boekingen");
             return;
         }
+        
         try {
             const customerId = `CUST-${currentUser.email.replace(/[^a-z0-9]/gi, '').substring(0, 30)}`;
             const { data, error } = await supabase
@@ -1357,6 +1237,7 @@
                 .select('*')
                 .eq('customer_id', customerId)
                 .order('datetime', { ascending: false });
+            
             if (error) throw error;
             userBookings = data || [];
             renderDashboard();
@@ -1430,9 +1311,9 @@
         
         tbody.innerHTML = `<tr><td colspan="6">Laden...</td></tr>`;
         
-        if (!initSupabase()) {
-            tbody.innerHTML = `<tr><td colspan="6">Verbinden...</td></tr>`;
-            setTimeout(loadPaymentHistory, 1000);
+        const supabase = getSupabase();
+        if (!supabase) {
+            tbody.innerHTML = `<tr><td colspan="6">Database niet beschikbaar</td></tr>`;
             return;
         }
         
@@ -1481,6 +1362,8 @@
     
     document.getElementById('nextBtn')?.addEventListener('click', nextPage);
     document.getElementById('prevBtn')?.addEventListener('click', prevPage);
+    
+    // ALLEEN HIER DE BOEKING - NIET in nextPage!
     document.getElementById('finalConfirmBtn')?.addEventListener('click', finalizeBooking);
     
     flatpickr("#datetime", {
@@ -1511,17 +1394,16 @@
     // Check URL parameters voor betaling status
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
-    const bookingId = urlParams.get('id');
+    const bookingIdParam = urlParams.get('id');
     
     if (paymentStatus === 'success') {
-        alert(`Betaling voltooid voor boeking ${bookingId || ''}!`);
-        if (window.comms) window.comms.trigger('BOOKING_CONFIRMATION', bookingId, supabase);
+        alert(`Betaling voltooid voor boeking ${bookingIdParam || ''}!`);
         switchToTab('payments');
     } else if (paymentStatus === 'cancelled') {
-        alert(`Betaling geannuleerd voor boeking ${bookingId || ''}.`);
+        alert(`Betaling geannuleerd voor boeking ${bookingIdParam || ''}.`);
     }
     
-    console.log("✅ Applicatie gereed - Autocomplete werkt! Logout functionaliteit is geïmplementeerd.");
+    console.log("✅ Applicatie gereed - Boeking kan naar Supabase worden verzonden!");
 </script>
 </body>
 </html>
