@@ -242,7 +242,7 @@
 </header>
 
 <main>
-  <!-- NEW HERO SECTION - SAME STYLE AS KMS7_en.html -->
+  <!-- HERO SECTION MET CORRECTE AFBEELDING heroKMS7.png -->
   <section class="hero-portal">
     <div class="container">
       <div class="hero-split-box">
@@ -395,7 +395,7 @@
             <thead><tr><th>Description</th><th>Quantity</th><th>Unit price</th><th>Total</th></tr></thead>
             <tbody>
               <tr><td>VTC trip: ${booking.pickup} → ${booking.destination}</td><td>1</td><td>€ ${formatPrice(booking.amount - (booking.extras?.includes('+')?15:0))}</td><td>€ ${formatPrice(booking.amount - (booking.extras?.includes('+')?15:0))}</td></tr>
-              ${booking.vehicle !== 'Standard' ? `<tr><td>Vehicle supplement (${booking.vehicle})</td><td>1</td><td>€ ${booking.vehicle === 'Break' ? '5,00' : booking.vehicle === 'Exclusive' ? '15,00' : '10,00'}</td><td>€ ${booking.vehicle === 'Break' ? '5,00' : booking.vehicle === 'Exclusive' ? '15,00' : '10,00'}</td></tr>` : ''}
+              ${booking.vehicle !== 'Standard' ? `<tr><td colspan="4">Vehicle supplement (${booking.vehicle})</td><td>€ ${booking.vehicle === 'Break' ? '5,00' : booking.vehicle === 'Exclusive' ? '15,00' : '10,00'}</td><td>€ ${booking.vehicle === 'Break' ? '5,00' : booking.vehicle === 'Exclusive' ? '15,00' : '10,00'}</td>` : ''}
               <tr><td colspan="4"><small>Date & time: ${booking.datetime} ${booking.time || ''}</small></td></tr>
               <tr><td colspan="4"><small>Options: ${booking.extras || 'None'}</small></td></tr>
             </tbody>
@@ -485,7 +485,7 @@
   function initVehicleSelect(){ document.querySelectorAll('.vehicle-card-select').forEach(c=>{ c.addEventListener('click',()=>{ document.querySelectorAll('.vehicle-card-select').forEach(c2=>c2.classList.remove('selected')); c.classList.add('selected'); selectedVehicle=c.getAttribute('data-vehicle'); selectedVehicleExtra=parseInt(c.getAttribute('data-extraprice'))||0; updateTotalDisplay(); }); }); const first=document.querySelector('.vehicle-card-select'); if(first){first.classList.add('selected'); selectedVehicle=first.getAttribute('data-vehicle'); selectedVehicleExtra=0;} }
   
   // ============================================================
-  // 🔍 AUTOCOMPLETE - English version
+  // 🔍 AUTOCOMPLETE - English version (robust)
   // ============================================================
   async function fetchAddresses(query, wrapId) { 
     if (query.length < 3) { 
