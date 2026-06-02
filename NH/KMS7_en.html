@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>NH | Luxury Taxi & Limousine Belgium – Premium VTC Booking</title>
   <meta name="description" content="NH: luxury taxi, VTC and limousine service in Belgium. Airport transfers (Zaventem, Charleroi), business trips, ceremonies. Private chauffeur, punctuality guaranteed, online booking.">
-  <meta name="keywords" content="luxury taxi Belgium, limousine Brussels, premium VTC, airport transfer Zaventem, Charleroi shuttle, private chauffeur, NH, elegance in motion">
+  <meta name="keywords" content="luxury taxi Belgium, limousine Brussels, premium VTC, airport transfer Zaventem, Charleroi shuttle, private chauffeur, NH, elegance in motion, international transfer Amsterdam Paris Düsseldorf Luxembourg">
   <meta name="author" content="NH">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://www.kms7.be/en/">
   <meta property="og:title" content="NH | Luxury Taxi & Limousine Belgium">
-  <meta property="og:description" content="Discover the art of custom travel: airport transfers, limousines for ceremonies, business VTC. Elegance and punctuality 24/7.">
+  <meta property="og:description" content="Discover the art of custom travel: airport transfers, limousines for ceremonies, business VTC. Elegance and punctuality 24/7, also for international trips to NL, FR, DE, LU.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.kms7.be/en/">
   <meta property="og:image" content="heroKMS7.png">
@@ -55,7 +55,6 @@
       justify-content: center;
       padding-bottom: 50px;
     }
-
     .hero-bg {
       position: absolute;
       top: 0;
@@ -66,19 +65,10 @@
       object-position: center;
       z-index: -1;
     }
-
-    @media (min-width: 769px) {
-      .hero-bg { object-position: center 30%; }
-    }
-
-    @media (max-width: 768px) {
-      .hero-bg { object-position: center 40%; }
-    }
-
-    @media (orientation: landscape) and (max-height: 700px) {
-      .hero { min-height: 120vh; }
-      .hero-bg { object-position: center 20%; }
-    }
+    @media (min-width: 769px) { .hero-bg { object-position: center 30%; } }
+    @media (max-width: 768px) { .hero-bg { object-position: center 40%; } }
+    @media (orientation: landscape) and (max-height: 700px) { .hero { min-height: 120vh; } .hero-bg { object-position: center 20%; } }
+    
     .hero-split-box { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: flex-end; }
     .hero-left-content { text-align: left; }
     .hero h1 { font-family: 'Playfair Display', serif; font-size: 3rem; background: var(--chrome-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 0.1rem; }
@@ -116,12 +106,66 @@
     
     section { padding: 100px 0; }
     .metal-card { background: var(--glass-white); backdrop-filter: blur(20px); border-radius: 28px; box-shadow: var(--shadow-glass); border: 1px solid rgba(255,255,255,0.7); padding: 2.5rem; height: 100%; }
-    .grid-2cols { display: grid; grid-template-columns: 1fr 0.9fr; gap: 3rem; }
-    .img-placeholder, .img-tweeluik-left, .img-tweeluik-right { border-radius: 28px; height: 360px; background-size: cover; background-position: center; box-shadow: var(--shadow-glass); }
+    .grid-2cols { display: grid; grid-template-columns: 1fr 0.9fr; gap: 3rem; align-items: stretch; }
+    .img-tweeluik-left, .img-tweeluik-right { border-radius: 28px; background-size: cover; background-position: center; box-shadow: var(--shadow-glass); min-height: 320px; height: 100%; }
     .img-tweeluik-left { background-image: url('picgridKMS7.png'); background-size: 100% 100%; }
     .img-tweeluik-right { background-image: url('picgridKMS72.png'); }
-    .feature-icon-container { background: var(--glass-white); backdrop-filter: blur(20px); border-radius: 28px; text-align: center; padding: 2rem; transition: 0.3s; }
-    .hexagon-image { width: 130px; height: 130px; object-fit: cover; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); border: 3px solid var(--silver-bright); margin-bottom: 1.8rem; }
+    
+    /* ========== FLIPCARD STYLES ========== */
+    .flip-card {
+      background-color: transparent;
+      width: 100%;
+      height: 100%;
+      perspective: 1500px;
+      cursor: pointer;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s ease-in-out;
+      transform-style: preserve-3d;
+      border-radius: 28px;
+    }
+    .flip-card:hover .flip-card-inner,
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 28px;
+      padding: 2rem;
+      background: var(--glass-white);
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-glass);
+      border: 1px solid rgba(255,255,255,0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow-y: auto;
+    }
+    .flip-card-front {
+      transform: rotateY(0deg);
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+      background: rgba(15, 42, 63, 0.95);
+      backdrop-filter: blur(24px);
+      color: #FDFBF7;
+      border: 1px solid var(--silver-bright);
+    }
+    .flip-card-back p, .flip-card-back strong {
+      color: #FDFBF7;
+    }
+    .flip-card-back a {
+      color: var(--silver-bright);
+    }
+    /* op mobiel: werken met een 'flipped' class via JavaScript voor click-to-flip */
+    
     .tab-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 55px; background: var(--glass-white); backdrop-filter: blur(20px); padding: 8px 20px; border-radius: 60px; width: fit-content; margin-left: auto; margin-right: auto; }
     .tab-btn { background: transparent; border: none; padding: 12px 30px; font-weight: 700; border-radius: 40px; cursor: pointer; }
     .tab-btn.active { background: linear-gradient(135deg, #0A192F 0%, #0F2A3F 100%); color: white; }
@@ -149,9 +193,9 @@
     .vehicle-card-select.selected { border: 2px solid var(--silver); background: white; }
     .extra-fields { background: rgba(249,248,245,0.7); padding: 1.5rem; border-radius: 24px; margin: 1.5rem 0; }
     .payment-method { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1rem 0; }
-    #map { width: 100%; height: 400px; border-radius: 28px; margin-bottom: 1rem; }
+    #map { width: 100%; height: 400px; border-radius: 28px; margin-bottom: 1rem; border: 2px solid var(--silver); box-shadow: var(--shadow-glass); z-index: 1; }
     .info-strip { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
-    .info-card { background: rgba(249,248,245,0.7); padding: 0.8rem; border-radius: 24px; text-align: center; flex: 1; }
+    .info-card { background: rgba(249,248,245,0.7); backdrop-filter: blur(8px); padding: 0.8rem; border-radius: 24px; text-align: center; flex: 1; border: 1px solid rgba(192,192,192,0.4); }
     .info-card .value { font-size: 1.8rem; font-weight: bold; color: var(--silver); }
     footer { background: linear-gradient(135deg, #0A192F 0%, #0F2A3F 100%); padding: 55px 0 35px; border-top: 1px solid var(--silver); margin-top: 60px; }
     .footer-col h4 { font-family: 'Playfair Display', serif; font-weight: 700; letter-spacing: 2px; color: var(--silver); margin-bottom: 1.2rem; }
@@ -160,6 +204,7 @@
     .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 2.5rem; }
     .about-image-wrapper { width: 100%; min-height: 320px; border-radius: 28px; overflow: hidden; box-shadow: var(--shadow-glass); }
     .about-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+    
     @media (max-width: 768px) {
       .nav-links { display: none; flex-direction: column; width: 100%; background: #0F2A3F; padding: 1rem; border-radius: 20px; }
       .nav-links.show { display: flex; }
@@ -169,32 +214,13 @@
       .hero-right-content { border-left: none; padding-left: 0; align-items: center; }
       .grid-2cols { grid-template-columns: 1fr; gap: 2rem; }
       .about-image-wrapper { min-height: 240px; }
-    }
-
-    /* Responsive images */
-    img, .vehicle-image, .about-image {
-      max-width: 100%;
-      height: auto;
-      object-fit: cover;
-    }
-
-    .img-tweeluik-left, .img-tweeluik-right {
-      min-height: 280px;
-      background-size: cover;
-      background-position: center;
-    }
-
-    @media (max-width: 768px) {
+      #map { height: 300px; }
       .img-tweeluik-left, .img-tweeluik-right { min-height: 200px; }
-      .vehicle-image { max-height: 250px; }
-      #map { height: 320px; }
     }
-
     @media (max-width: 480px) {
       .img-tweeluik-left, .img-tweeluik-right { min-height: 160px; }
       .vehicle-image { max-height: 200px; }
     }
-
     @media (orientation: landscape) and (max-height: 700px) {
       #map { height: 260px; }
       .vehicle-image { max-height: 180px; }
@@ -241,14 +267,57 @@
     </div>
   </section>
 
+  <!-- ========== SERVICES SECTION WITH FLIPCARDS ========== -->
   <div class="container" id="services">
+    <!-- First row: flipcard left, image right -->
     <div class="grid-2cols" style="margin: 30px 0;">
-      <div class="metal-card"><h3>✨ Seniors & reduced mobility</h3><p>At NH, every journey is a story of gentleness. Adapted vehicles, trained drivers.</p></div>
+      <div class="flip-card" id="flipCard1">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <h3>💼 Business travel & international transfers</h3>
+            <p style="margin-top: 1rem;"><strong>Airport transfers</strong> (BRU, CRL, AMS, CDG, DUS, LUX) | <strong>Corporate events</strong> | <strong>Fixed prices</strong> | <strong>24/7</strong></p>
+            <p style="margin-top: 1rem; font-size: 0.85rem;"><i class="fas fa-arrow-right"></i> <em>Click or tap to read more</em></p>
+          </div>
+          <div class="flip-card-back">
+            <h3>💼 Business & international – full service</h3>
+            <p>
+              <strong>NH</strong> offers premium transport for professionals and families, <strong>nationwide and cross‑border</strong> (Netherlands, France, Germany, Luxembourg). 
+              Our fleet includes <strong>executive sedans</strong> (BMW 5 Series, Mercedes E‑Class), <strong>luxury vans</strong> (up to 8 passengers, Mercedes V‑Class) and <strong>limousines</strong> for weddings or galas.<br><br>
+              <strong>Fixed prices</strong> – no meter, no surprises. <strong>Uniformed chauffeurs</strong> speaking English, Dutch, French, German. 
+              <strong>Online booking</strong> in 2 minutes, <strong>flight monitoring</strong> included. 
+              Experience <strong>elegance in motion</strong> – request your free quote today.
+            </p>
+            <p style="margin-top: 1rem;"><i class="fas fa-sync-alt"></i> <em>Tap to flip back</em></p>
+          </div>
+        </div>
+      </div>
       <div class="img-tweeluik-left"></div>
     </div>
+
+    <!-- Second row: image left, flipcard right -->
     <div class="grid-2cols" style="margin: 60px 0;">
       <div class="img-tweeluik-right"></div>
-      <div class="metal-card"><h3>💼 Professionals & families</h3><p>Airport transfers, corporate events, absolute punctuality.</p></div>
+      <div class="flip-card" id="flipCard2">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <h3>✨ Accessibility & tailored support</h3>
+            <p><strong>Wheelchair‑accessible vehicles</strong> | <strong>Trained drivers</strong> | <strong>Medical & senior transport</strong></p>
+            <p style="margin-top: 1rem; font-size: 0.85rem;"><i class="fas fa-arrow-right"></i> <em>Click or tap to read more</em></p>
+          </div>
+          <div class="flip-card-back">
+            <h3>✨ Adapted transport for everyone</h3>
+            <p>
+              <strong>NH</strong> provides <strong>accessible vehicles</strong> with ramps, swivel seats and secure fastenings. 
+              Our drivers are trained in <strong>gentle assistance</strong> for seniors, wheelchair users, and people with reduced mobility (PRM).<br><br>
+              We organise <strong>medical transfers</strong> (hospital visits, rehabilitation), <strong>shuttles to/from nursing homes</strong>, and 
+              <strong>international trips</strong> to the Netherlands, France, Germany and Luxembourg. 
+              <strong>Punctuality guaranteed, transparent pricing, easy booking.</strong><br><br>
+              Contact us for a <strong>free, no‑obligation quote</strong> tailored to your specific needs.
+            </p>
+            <p style="margin-top: 1rem;"><i class="fas fa-sync-alt"></i> <em>Tap to flip back</em></p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -313,7 +382,7 @@
         <p>Our promise: <strong>zero delay, zero stress, 100% pleasure.</strong></p>
       </div>
       <div class="about-image-wrapper">
-        <img class="about-image" src="assets/images/homepage/picinsidecar.jpg" alt="NH luxury vehicle interior" onerror="this.src='https://placehold.co/800x400?text=Image+not+found'">
+        <img class="about-image" src="picinsidecar.jpg" alt="NH luxury vehicle interior" onerror="this.src='https://placehold.co/800x400?text=Image+not+found'">
       </div>
     </div>
   </section>
@@ -492,7 +561,7 @@
   });
   
   // ============================================================
-  // 🌐 LANGUAGE SWITCHER - WORKS CORRECTLY
+  // 🌐 LANGUAGE SWITCHER
   // ============================================================
   document.querySelectorAll('.lang-switch a').forEach(link => {
     link.addEventListener('click', (e) => {
@@ -504,7 +573,20 @@
     });
   });
   
-  initMap(); initAutocomplete(); initVehicleSelection(); showPage(1);
+  // ============================================================
+  // FLIPCARD TOGGLE FOR MOBILE (touch & click)
+  // ============================================================
+  function initFlipCards() {
+    const flipCards = document.querySelectorAll('.flip-card');
+    flipCards.forEach(card => {
+      card.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('flipped');
+      });
+    });
+  }
+  
+  initMap(); initAutocomplete(); initVehicleSelection(); showPage(1); initFlipCards();
 </script>
 </body>
 </html>
