@@ -509,27 +509,32 @@
         let d = parseFloat(currentRouteData.distanceKm), t = currentRouteData.durationMin;
         if (currentRoundTrip) { d *= 2; t *= 2; }
         const base = d * 1.5, total = base + selectedVehicleExtra;
-        return `<div class="summary-section"><h3>🚖 ${i18n.t('booking_header_1')}</h3>
+        return `<div class="summary-section"><h3>🚖 Ritgegevens</h3>
                 <div class="summary-line"><strong>📍</strong> ${pu}</div>
                 <div class="summary-line"><strong>🏁</strong> ${doff}</div>
-                <div class="summary-line"><strong>${i18n.t('overview_heen')}</strong> ${currentDateTime}</div>
-                <div class="summary-line"><strong>✈️</strong> ${currentFlight || i18n.t('none')}</div>
+                <div class="summary-line"><strong>Heen datum/tijd:</strong> ${currentDateTime}</div>
+                <div class="summary-line"><strong>✈️ Vlucht:</strong> ${currentFlight || 'geen'}</div>
                 </div>
-                <div class="summary-section"><h3>👤 ${i18n.t('booking_header_4')}</h3>
-                <div class="summary-line"><strong>${i18n.t('portal_label_fullname')}:</strong> ${fn} ${ln}</div>
-                <div class="summary-line"><strong>${i18n.t('label_phone')}:</strong> ${ph}</div>
-                <div class="summary-line"><strong>${i18n.t('label_email')}:</strong> ${em}</div>
+                <div class="summary-section"><h3>👤 Klantgegevens</h3>
+                <div class="summary-line"><strong>Naam:</strong> ${fn} ${ln}</div>
+                <div class="summary-line"><strong>GSM:</strong> ${ph}</div>
+                <div class="summary-line"><strong>E-mail:</strong> ${em}</div>
                 </div>
-                <div class="summary-section"><h3>🚘 ${i18n.t('booking_header_3')}</h3>
-                <div class="summary-line"><strong>${i18n.t('portal_summary_type')}:</strong> ${i18n.t('vehicle_' + (selectedVehicle || 'standaard').toLowerCase().replace(' ', ''))} (+€${selectedVehicleExtra})</div>
+                <div class="summary-section"><h3>🚘 Voertuig</h3>
+                <div class="summary-line"><strong>Type:</strong> ${selectedVehicle} (+€${selectedVehicleExtra})</div>
                 </div>
-                <div class="summary-section"><h3>💰 ${i18n.t('booking_header_2')}</h3>
-                <div class="summary-line"><strong>${i18n.t('label_distance')}:</strong> ${d.toFixed(1)} km</div>
-                <div class="summary-line"><strong>${i18n.t('portal_summary_basis')}:</strong> € ${base.toFixed(2)}</div>
-                <div class="summary-line"><strong>${i18n.t('portal_summary_total')}:</strong> € ${total.toFixed(2)}</div>
+                <div class="summary-section"><h3>💰 Prijs</h3>
+                <div class="summary-line"><strong>Afstand:</strong> ${d.toFixed(1)} km</div>
+                <div class="summary-line"><strong>Basisprijs:</strong> € ${base.toFixed(2)}</div>
+                <div class="summary-line"><strong>Totaal:</strong> € ${total.toFixed(2)}</div>
                 </div>`;
     };
-    window.showOverlay = function() { document.getElementById('overlaySummary').innerHTML = window.buildSummaryHTML(); document.getElementById('summaryOverlay').classList.add('active'); };
+    window.showOverlay = function() { 
+        const overlaySummary = document.getElementById('overlaySummary');
+        if (overlaySummary) overlaySummary.innerHTML = window.buildSummaryHTML(); 
+        const overlay = document.getElementById('summaryOverlay');
+        if (overlay) overlay.classList.add('active'); 
+    };
 </script>
 
 <script type="module">
@@ -538,9 +543,31 @@
     const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    function fillHiddenSupabaseFields() { const email = document.getElementById('email').value.trim(); const customerId = `CUST-${email.replace(/[^a-z0-9]/gi, '').substring(0,30)}`; document.getElementById('hiddenCustomerId').value = customerId; document.getElementById('hiddenFormData').value = JSON.stringify({ source: "web-booking" }); document.getElementById('hiddenCreatedAt').value = new Date().toISOString(); }
-    async function sendToSupabase(bookingData) { console.log('📦 Verzenden naar Supabase:', bookingData); try { const { error } = await supabase.from('bookings').insert([bookingData]); if (error) throw error; console.log('✅ Boeking opgeslagen in Supabase!'); return true; } catch (error) { console.error('❌ Supabase fout:', error.message); alert(i18n.t('error_supabase').replace('{error}', error.message)); return false; } }
+    
+    function fillHiddenSupabaseFields() { 
+        const email = document.getElementById('email').value.trim(); 
+        const customerId = `CUST-${email.replace(/[^a-z0-9]/gi, '').substring(0,30)}`; 
+        document.getElementById('hiddenCustomerId').value = customerId; 
+        document.getElementById('hiddenFormData').value = JSON.stringify({ source: "web-booking" }); 
+        document.getElementById('hiddenCreatedAt').value = new Date().toISOString(); 
+    }
+    
+    async function sendToSupabase(bookingData) { 
+        console.log('📦 Verzenden naar Supabase:', bookingData); 
+        try { 
+            const { error } = await supabase.from('bookings').insert([bookingData]); 
+            if (error) throw error; 
+            console.log('✅ Boeking opgeslagen in Supabase!'); 
+            return true; 
+        } catch (error) { 
+            console.error('❌ Supabase fout:', error.message); 
+            alert(i18n.t('error_supabase')?.replace('{error}', error.message) || 'Fout bij opslaan: ' + error.message); 
+            return false; 
+        } 
+    }
+    
     async function finalizeBooking() {
+        console.log("finalizeBooking gestart");
         const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || "Cash";
         let totalAmount = 0;
         const routeData = window.getCurrentRouteData();
@@ -556,7 +583,7 @@
         const email = document.getElementById('email').value.trim();
         const phone = document.getElementById('phone').value.trim();
         if (!firstName || !lastName || !email || !phone) {
-            alert(i18n.t('error_fill_required'));
+            alert(i18n.t('error_fill_required') || 'Vul alle verplichte velden in');
             return;
         }
         fillHiddenSupabaseFields();
@@ -589,7 +616,7 @@
             partner_id: partnerId,
             assigned_driver_id: assignedDriverId,
             payment_status: paymentMethod === "Cash" ? "cash_pending" : "unpaid",
-            distance_km: currentRouteData ? parseFloat(currentRouteData.distanceKm) * (currentRoundTrip ? 2 : 1) : 0
+            distance_km: routeData ? parseFloat(routeData.distanceKm) * (roundTrip ? 2 : 1) : 0
         };
 
         const success = await sendToSupabase(bookingData);
@@ -610,37 +637,86 @@
                     if (data.url) {
                         window.location.href = data.url;
                     } else {
-                        throw new Error(i18n.t('error_no_stripe_url'));
+                        throw new Error(i18n.t('error_no_stripe_url') || 'Geen betaallink ontvangen');
                     }
                 } catch (stripeErr) {
                     console.error('Stripe error:', stripeErr);
-                    alert(i18n.t('error_payment_start').replace('{error}', stripeErr.message));
+                    alert(i18n.t('error_payment_start')?.replace('{error}', stripeErr.message) || 'Fout bij starten betaling: ' + stripeErr.message);
                 }
             } else {
-                alert(i18n.t('booking_confirm_alert').replace('{id}', bookingData.id).replace('{amount}', totalAmount.toFixed(2)));
-                comms.trigger('BOOKING_CONFIRMATION', bookingId, supabase);
+                alert(i18n.t('booking_confirm_alert')?.replace('{id}', bookingData.id).replace('{amount}', totalAmount.toFixed(2)) || `Boeking ${bookingData.id} bevestigd voor €${totalAmount.toFixed(2)}`);
+                if (comms && comms.trigger) comms.trigger('BOOKING_CONFIRMATION', bookingId, supabase);
                 window.resetAll();
                 window.hideOverlay();
             }
         } else {
-            alert(i18n.t('error_booking_save'));
+            alert(i18n.t('error_booking_save') || 'Fout bij opslaan van boeking');
         }
     }
-    window.addEventListener('showBookingOverlay', () => { window.showOverlay(); });
-    document.getElementById('confirmBookingBtn')?.addEventListener('click', finalizeBooking);
-    document.getElementById('closeOverlayBtn')?.addEventListener('click', () => window.hideOverlay());
-    document.getElementById('cancelOverlayBtn')?.addEventListener('click', () => window.hideOverlay());
-    document.getElementById('finalConfirmBtn')?.addEventListener('click', () => { window.showOverlay(); });
+    
+    // Event listeners voor de overlay
+    window.addEventListener('showBookingOverlay', () => { 
+        console.log("showBookingOverlay event ontvangen");
+        window.showOverlay(); 
+    });
+    
+    // BELANGRIJK: Deze knop opent de overlay - fix voor het probleem!
+    const finalConfirmBtn = document.getElementById('finalConfirmBtn');
+    if (finalConfirmBtn) {
+        finalConfirmBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log("finalConfirmBtn clicked - showing overlay");
+            // Controleer of alle gegevens ingevuld zijn
+            if (!window.getCurrentRouteData()) {
+                alert('Eerst moet u een route berekenen in stap 1 en 2.');
+                return;
+            }
+            if (!window.getSelectedVehicle()) {
+                alert('Kies eerst een voertuig in stap 3.');
+                return;
+            }
+            const firstName = document.getElementById('firstName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            if (!firstName || !email) {
+                alert('Vul uw contactgegevens in in stap 4.');
+                return;
+            }
+            window.showOverlay();
+        });
+    } else {
+        console.error("finalConfirmBtn niet gevonden in DOM!");
+    }
+    
+    // Overlay knoppen
+    const confirmBookingBtn = document.getElementById('confirmBookingBtn');
+    if (confirmBookingBtn) {
+        confirmBookingBtn.addEventListener('click', finalizeBooking);
+    } else {
+        console.error("confirmBookingBtn niet gevonden!");
+    }
+    
+    const closeOverlayBtn = document.getElementById('closeOverlayBtn');
+    if (closeOverlayBtn) {
+        closeOverlayBtn.addEventListener('click', () => window.hideOverlay());
+    }
+    
+    const cancelOverlayBtn = document.getElementById('cancelOverlayBtn');
+    if (cancelOverlayBtn) {
+        cancelOverlayBtn.addEventListener('click', () => window.hideOverlay());
+    }
+    
+    console.log("Module geladen, alles is gereed!");
 </script>
 
+<!-- SUMMARY OVERLAY (moet bestaan!) -->
 <div id="summaryOverlay" class="overlay">
     <div class="overlay-content">
         <button id="closeOverlayBtn" style="float:right; background:none; border:none; font-size:28px; cursor:pointer;">&times;</button>
-        <h2 data-i18n="overview_title">📋 Samenvatting reservatie</h2>
+        <h2>📋 Samenvatting reservatie</h2>
         <div id="overlaySummary" class="summary-grid"></div>
         <div class="overlay-actions">
-            <button id="cancelOverlayBtn" style="background:#f1f5f9; color:#334155; padding:12px 24px; border-radius:30px; border:none; cursor:pointer;" data-i18n="fp_close">Annuleer</button>
-            <button id="confirmBookingBtn" style="background:var(--primary); color:white; padding:12px 24px; border-radius:30px; border:none; cursor:pointer;"><span data-i18n="btn_confirm">✅ Bevestig boeking</span></button>
+            <button id="cancelOverlayBtn" style="background:#f1f5f9; color:#334155; padding:12px 24px; border-radius:30px; border:none; cursor:pointer;">Annuleer</button>
+            <button id="confirmBookingBtn" style="background:var(--primary); color:white; padding:12px 24px; border-radius:30px; border:none; cursor:pointer;">✅ Bevestig boeking</button>
         </div>
     </div>
 </div>
