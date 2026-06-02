@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>NH | Portail Client - Taxi de Luxe & VTC Belgique</title>
   <meta name="description" content="Portail client NH : gérez vos réservations, consultez vos trajets, téléchargez vos factures et planifiez vos courses luxe avec votre compte personnel.">
   <meta name="robots" content="noindex, nofollow">
@@ -15,6 +18,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
+    /* (zelfde CSS als eerder – ongewijzigd) */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: linear-gradient(180deg, #F4F6F9 0%, #FFFFFF 100%); font-family: 'Montserrat', sans-serif; color: #0A1C2F; line-height: 1.5; scroll-behavior: smooth; }
     :root { --midnight-dark: #0A192F; --midnight-light: #0F2A3F; --silver: #C0C0C0; --silver-dim: rgba(192,192,192,0.25); --silver-bright: #E8E8E8; --glass-white: rgba(255,255,255,0.65); --glass-form: rgba(255,255,255,0.85); --chrome-gradient: linear-gradient(135deg, #E0E0E0 0%, #FFFFFF 25%, #B0B0B0 50%, #F5F5F5 75%, #A0A0A0 100%); --shadow-glass: 0 8px 32px rgba(0,0,0,0.04), 0 0 0 1px rgba(192,192,192,0.2); --shadow-glass-hover: 0 20px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.8); --glow-silver: 0 0 12px rgba(192,192,192,0.4); }
@@ -31,9 +35,6 @@
     .lang-switch a:hover { background: var(--silver); color: #0A192F; }
     .lang-switch .active { background: var(--silver); color: #0A192F; }
     
-    /* ============================================================ */
-    /* HERO SECTIE - exact dezelfde stijl als NH.html met heroKMS7.png */
-    /* ============================================================ */
     .hero-portal { 
       min-height: 50vh; 
       background: linear-gradient(rgba(10, 25, 47, 0.3), rgba(15, 42, 63, 0.35)), url('heroKMS7.png') center/cover no-repeat; 
@@ -42,7 +43,6 @@
       justify-content: center;
       padding-bottom: 40px;
     }
-
     .hero-split-box {
       width: 100%;
       max-width: 1200px;
@@ -52,10 +52,7 @@
       gap: 4rem;
       align-items: flex-end;
     }
-
-    .hero-left-content {
-      text-align: left;
-    }
+    .hero-left-content { text-align: left; }
     .hero-portal h1 { 
       font-family: 'Playfair Display', serif; 
       font-size: 2.5rem; 
@@ -76,7 +73,6 @@
       margin-bottom: 1rem;
       text-shadow: 0 2px 6px rgba(0,0,0,0.5);
     }
-
     .hero-right-content {
       text-align: left;
       border-left: 1px solid rgba(192, 192, 192, 0.2);
@@ -94,29 +90,13 @@
       text-shadow: 0 2px 6px rgba(0,0,0,0.6);
       margin: 0;
     }
-    .hero-tag span {
-      color: var(--silver);
-      font-weight: 600;
-    }
-
+    .hero-tag span { color: var(--silver); font-weight: 600; }
     @media (max-width: 992px) {
-      .hero-split-box {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        text-align: center;
-      }
-      .hero-left-content, .hero-right-content {
-        text-align: center;
-      }
-      .hero-right-content {
-        border-left: none;
-        padding-left: 0;
-        align-items: center;
-        gap: 0.5rem;
-      }
+      .hero-split-box { grid-template-columns: 1fr; gap: 1.5rem; text-align: center; }
+      .hero-left-content, .hero-right-content { text-align: center; }
+      .hero-right-content { border-left: none; padding-left: 0; align-items: center; gap: 0.5rem; }
       .hero-portal h1 { font-size: 1.8rem; }
     }
-    /* ============================================================ */
     
     .tabs-container { display: flex; gap: 8px; border-bottom: 2px solid rgba(192,192,192,0.4); margin: 30px 0 25px; flex-wrap: wrap; align-items: center; }
     .tab-btn { background: transparent; border: none; padding: 12px 28px; font-weight: 700; cursor: pointer; color: #2c3e50; border-radius: 40px 40px 0 0; font-family: 'Montserrat', sans-serif; transition: 0.2s; }
@@ -242,7 +222,6 @@
 </header>
 
 <main>
-  <!-- Hero sectie met de correcte afbeelding heroKMS7.png -->
   <section class="hero-portal">
     <div class="container">
       <div class="hero-split-box">
@@ -337,24 +316,32 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ============================================================
-  // 🛡️ SESSION CONTROL
+  // 🛡️ SESSION CONTROL (MET RETRIES)
   // ============================================================
   (async function checkAuthentication() {
-    const { data: { session } } = await supabase.auth.getSession();
+    let retries = 0;
+    let session = null;
+    while (retries < 3 && !session) {
+      const { data } = await supabase.auth.getSession();
+      session = data.session;
+      if (!session && retries < 2) {
+        console.log(`Sessie niet gevonden, probeer opnieuw (${retries + 1}/3)...`);
+        await new Promise(r => setTimeout(r, 500));
+      }
+      retries++;
+    }
     console.log('Session check:', session ? '✅ Session active' : '❌ No session');
-    
     if (!session) {
       console.log('No session, redirecting to login');
       window.location.replace('LoginKMS7.html');
       return;
     }
-    
     sessionStorage.setItem('kms7_user_email', session.user.email);
     console.log('👤 User logged in:', session.user.email);
   })();
 
   // ============================================================
-  // 📍 VARIABLES
+  // 📍 VARIABLES (ongewijzigd)
   // ============================================================
   let currentUserEmail = sessionStorage.getItem('kms7_user_email') || '';
   function generateCustomerId(email) { return "CUST-"+email.toLowerCase().replace(/[^a-z0-9]/g,""); }
@@ -459,15 +446,20 @@
   });
   
   // ============================================================
-  // 🌐 LANGUAGE SWITCHER
+  // 🌐 LANGUAGE SWITCHER (MET CACHE-BUSTER)
   // ============================================================
   document.querySelectorAll('.lang-switch a').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const lang = link.getAttribute('data-lang');
-      if (lang === 'nl') window.location.href = 'ClientKMS7_nl.html';
-      else if (lang === 'en') window.location.href = 'ClientKMS7_en.html';
-      else if (lang === 'fr') window.location.href = 'ClientKMS7.html';
+      let targetUrl = '';
+      if (lang === 'nl') targetUrl = 'ClientKMS7_nl.html';
+      else if (lang === 'en') targetUrl = 'ClientKMS7_en.html';
+      else if (lang === 'fr') targetUrl = 'ClientKMS7.html';
+      else return;
+      // Cachebuster: unieke timestamp om te voorkomen dat de oude pagina uit de cache wordt geladen
+      const cacheBuster = '?t=' + Date.now();
+      window.location.href = targetUrl + cacheBuster;
     });
   });
   
@@ -484,23 +476,16 @@
   function initMap(){ map=L.map('map').setView([50.85,4.35],13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map); }
   function initVehicleSelect(){ document.querySelectorAll('.vehicle-card-select').forEach(c=>{ c.addEventListener('click',()=>{ document.querySelectorAll('.vehicle-card-select').forEach(c2=>c2.classList.remove('selected')); c.classList.add('selected'); selectedVehicle=c.getAttribute('data-vehicle'); selectedVehicleExtra=parseInt(c.getAttribute('data-extraprice'))||0; updateTotalDisplay(); }); }); const first=document.querySelector('.vehicle-card-select'); if(first){first.classList.add('selected'); selectedVehicle=first.getAttribute('data-vehicle'); selectedVehicleExtra=0;} }
   
-  // ============================================================
-  // 🔍 AUTOCOMPLETE - Version française robuste (suggestions directes)
-  // ============================================================
   async function fetchAddresses(query, suggestionsDivId) {
     const suggestionsDiv = document.getElementById(suggestionsDivId);
     if (!suggestionsDiv) return;
-
     if (query.length < 3) {
       suggestionsDiv.style.display = 'none';
       return;
     }
-
     suggestionsDiv.innerHTML = '<div class="suggestion-item">🔍 Recherche...</div>';
     suggestionsDiv.style.display = 'block';
-
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=be&addressdetails=0&accept-language=fr`;
-
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -509,17 +494,13 @@
         signal: controller.signal
       });
       clearTimeout(timeoutId);
-
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-
       if (!data.length) {
         suggestionsDiv.innerHTML = '<div class="suggestion-item">❌ Aucune adresse trouvée en Belgique</div>';
         return;
       }
-
       suggestionsDiv.innerHTML = data.map(p => `<div class="suggestion-item" data-lat="${p.lat}" data-lon="${p.lon}">${p.display_name}</div>`).join('');
-
       suggestionsDiv.querySelectorAll('.suggestion-item').forEach(item => {
         item.addEventListener('click', () => {
           const lat = parseFloat(item.dataset.lat);
@@ -527,7 +508,6 @@
           const fullAddress = item.innerText;
           const inputField = suggestionsDivId === 'pickupSuggest' ? document.getElementById('pickupInput') : document.getElementById('dropoffInput');
           inputField.value = fullAddress;
-
           if (suggestionsDivId === 'pickupSuggest') {
             pickupCoord = { lat, lon };
           } else {
@@ -547,7 +527,6 @@
     const pickupInput = document.getElementById('pickupInput');
     const dropoffInput = document.getElementById('dropoffInput');
     let pickupDebounce, dropoffDebounce;
-
     pickupInput.addEventListener('input', (e) => {
       clearTimeout(pickupDebounce);
       pickupDebounce = setTimeout(() => fetchAddresses(e.target.value, 'pickupSuggest'), 400);
@@ -556,7 +535,6 @@
       clearTimeout(dropoffDebounce);
       dropoffDebounce = setTimeout(() => fetchAddresses(e.target.value, 'dropoffSuggest'), 400);
     });
-
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.suggest-wrapper')) {
         document.getElementById('pickupSuggest').style.display = 'none';
