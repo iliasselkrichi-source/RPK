@@ -39,6 +39,9 @@
         #background-map {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
             filter: brightness(1.05) contrast(1.02);
+            background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
+            background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;
+            opacity: 0.9;
         }
         .content-overlay {
             position: relative; z-index: 10;
@@ -243,7 +246,28 @@
             transform: translateY(-2px);
         }
         
-        /* REST VAN DE STIJLEN */
+        /* GRID BLOKKEN STIJLEN */
+        .uitleg-grid, .services-grid {
+            display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;
+            padding: 50px 0 30px;
+        }
+        .uitleg-item, .service-card {
+            background: var(--card-bg); backdrop-filter: blur(4px);
+            border: 1px solid var(--border-light); border-radius: 36px;
+            padding: 30px 24px; text-align: center; flex: 1 1 240px;
+            text-decoration: none; color: inherit; transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .uitleg-item:hover, .service-card:hover {
+            transform: translateY(-6px); border-color: var(--primary);
+        }
+        .uitleg-item i, .service-card i {
+            font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;
+        }
+        .uitleg-item h3, .service-card h3 { margin-bottom: 10px; }
+        .service-summary { font-size: 0.85rem; color: var(--text-light); margin: 10px 0; }
+        
+        /* TABS STIJLEN */
         .tabs-container {
             display: flex;
             gap: 8px;
@@ -268,38 +292,7 @@
         .logout-tab-btn:hover { color: #7f1d1d; border-bottom-color: #b91c1c; }
         .tab-container.hidden { display: none; }
         
-        /* Grid blokken stijlen */
-        .uitleg-grid {
-            display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;
-            padding: 50px 0 30px;
-        }
-        .uitleg-item {
-            background: var(--card-bg); backdrop-filter: blur(4px);
-            border: 1px solid var(--border-light); border-radius: 36px;
-            padding: 30px 24px; text-align: center; flex: 1 1 240px;
-            text-decoration: none; color: inherit; transition: transform 0.2s;
-            cursor: pointer;
-        }
-        .uitleg-item:hover { transform: translateY(-6px); border-color: var(--primary); }
-        .uitleg-item i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
-        .uitleg-item h3 { margin-bottom: 10px; }
-        .service-summary { font-size: 0.85rem; color: var(--text-light); margin: 10px 0; }
-        
-        .services-grid {
-            display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;
-            padding: 50px 0 30px;
-        }
-        .service-card {
-            background: var(--card-bg); backdrop-filter: blur(4px);
-            border: 1px solid var(--border-light); border-radius: 36px;
-            padding: 30px 24px; text-align: center; flex: 1 1 220px;
-            text-decoration: none; color: inherit; transition: transform 0.2s;
-            cursor: pointer;
-        }
-        .service-card:hover { transform: translateY(-6px); border-color: var(--primary); }
-        .service-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
-        .service-card h3 { margin-bottom: 10px; }
-        
+        /* BOOKING FORM STIJLEN */
         .one-grid-block {
             max-width: 850px; width: 100%; background: var(--white);
             border: 1px solid var(--border-light); box-shadow: var(--shadow);
@@ -406,7 +399,7 @@
     </style>
 </head>
 <body>
-<div id="background-map" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; filter: brightness(1.05); opacity: 0.9;"></div>
+<div id="background-map"></div>
 
 <!-- HAMBURGER MENU KNOB - LINKSBOVEN -->
 <button class="hamburger-btn" id="hamburgerBtn">
@@ -464,7 +457,7 @@
         </div>
     </section>
 
-    <!-- ========== 3 GRIDBLOKKEN ========== -->
+    <!-- ========== 3 GRIDBLOKKEN - BOVEN DE TABS ========== -->
     <div class="container">
         <div class="uitleg-grid">
             <a href="PV_Exclusieve_Service.html" class="uitleg-item">
@@ -488,6 +481,7 @@
         </div>
     </div>
 
+    <!-- ========== TABS SECTIE ========== -->
     <div class="container">
         <div class="tabs-container">
             <button class="tab-btn active" data-tab="new-booking">📝 Nieuwe Rit</button>
@@ -497,6 +491,7 @@
             <a href="index.html" id="logoutTabBtn" class="logout-tab-btn" style="text-decoration:none;"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
         </div>
 
+        <!-- TAB 1: NIEUWE RIT -->
         <div id="new-booking-container" class="tab-container">
             <div class="one-grid-block">
                 <div class="carousel">
@@ -569,13 +564,13 @@
                     <div id="page5" class="carousel-page">
                         <h1>💰 Afrekenen</h1><div class="sub">Kies betaalmethode & bevestig</div>
                         <div class="rit-overzicht"><h3>📋 Uw ritoverzicht</h3>
-                            <div class="rit-overzicht-detail"><strong>📍 Ophalen:</strong> <span id="overviewPickup">—</span></div>
-                            <div class="rit-overzicht-detail"><strong>🏁 Afzetten:</strong> <span id="overviewDestination">—</span></div>
-                            <div class="rit-overzicht-detail"><strong>📅 Heen datum/tijd:</strong> <span id="overviewHeen">—</span></div>
+                            <div><strong>📍 Ophalen:</strong> <span id="overviewPickup">—</span></div>
+                            <div><strong>🏁 Afzetten:</strong> <span id="overviewDestination">—</span></div>
+                            <div><strong>📅 Heen datum/tijd:</strong> <span id="overviewHeen">—</span></div>
                             <div id="overviewReturnContainer" style="display:none;"><strong>🔄 Terug datum/tijd:</strong> <span id="overviewReturn">—</span></div>
-                            <div class="rit-overzicht-detail"><strong>🚘 Voertuig:</strong> <span id="overviewVehicle">—</span></div>
-                            <div class="rit-overzicht-detail"><strong>➕ Extra opties:</strong> <span id="overviewExtras">—</span></div>
-                            <div class="rit-overzicht-totaal"><strong>💰 Totaalprijs:</strong> <span id="overviewTotal">€ 0,00</span></div>
+                            <div><strong>🚘 Voertuig:</strong> <span id="overviewVehicle">—</span></div>
+                            <div><strong>➕ Extra opties:</strong> <span id="overviewExtras">—</span></div>
+                            <div><strong>💰 Totaalprijs:</strong> <span id="overviewTotal">€ 0,00</span></div>
                         </div>
                         <div class="payment-method"><span>Betaalmethode:</span><label><input type="radio" name="payment" value="Cash" checked> 💵 Cash</label><label><input type="radio" name="payment" value="Kaart"> 💳 Kaart</label><label><input type="radio" name="payment" value="App"> 📱 App</label></div>
                         <div id="totalDisplay" class="total-display">Totaal: € 0,00</div>
@@ -587,7 +582,45 @@
             </div>
         </div>
 
-        <!-- ========== 4 GRIDBLOKKEN ========== -->
+        <!-- TAB 2: MIJN PROFIEL -->
+        <div id="profile-container" class="tab-container hidden">
+            <div class="profile-card">
+                <h3>Mijn gegevens</h3>
+                <form id="profileForm">
+                    <div class="field"><label>Volledige naam</label><input type="text" id="fullName" required></div>
+                    <div class="field"><label>E-mail</label><input type="email" id="profileEmail" required></div>
+                    <div class="field"><label>Telefoon</label><input type="tel" id="profilePhone" required></div>
+                    <div class="field"><label>Standaard ophaallocatie</label><input type="text" id="defaultPickup"></div>
+                    <button type="submit" class="nav-btn" style="background:var(--primary);">Opslaan</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB 3: DASHBOARD & RITTEN -->
+        <div id="dashboard-container" class="tab-container hidden">
+            <div class="stats-grid" id="statsGrid"></div>
+            <h4>📅 Komende ritten</h4>
+            <table class="bookings-table" id="upcomingTable"><thead><tr><th>ID</th><th>Datum/tijd</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th><th>Acties</th></tr></thead><tbody></tbody></table>
+            <h4>✅ Voltooide ritten</h4>
+            <table class="bookings-table" id="completedTable"><thead><tr><th>ID</th><th>Datum/tijd</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th><th>Acties</th></tr></thead><tbody></tbody></table>
+        </div>
+
+        <!-- TAB 4: BETALINGEN -->
+        <div id="payments-container" class="tab-container hidden">
+            <div class="profile-card">
+                <h3>💰 Betalingsgeschiedenis</h3>
+                <div id="paymentsList" style="margin-top:20px;">
+                    <table class="bookings-table" id="paymentsTable">
+                        <thead><tr><th>ID</th><th>Datum</th><th>Bedrag</th><th>Methode</th><th>Status</th><th>Factuur</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 4 GRIDBLOKKEN - ONDERAAN, NA ALLE TABS ========== -->
+    <div class="container">
         <h2 style="text-align:center;margin:40px 0 20px;"><i class="fas fa-concierge-bell"></i> Onze diensten</h2>
         <div class="services-grid">
             <a href="PV_Luchthavenvervoer.html" class="service-card">
@@ -615,41 +648,9 @@
                 <div class="service-summary">Snelle en betrouwbare documentleveringen in heel België.</div>
             </a>
         </div>
-
-        <div id="profile-container" class="tab-container hidden">
-            <div class="profile-card">
-                <h3>Mijn gegevens</h3>
-                <form id="profileForm">
-                    <div class="field"><label>Volledige naam</label><input type="text" id="fullName" required></div>
-                    <div class="field"><label>E-mail</label><input type="email" id="profileEmail" required></div>
-                    <div class="field"><label>Telefoon</label><input type="tel" id="profilePhone" required></div>
-                    <div class="field"><label>Standaard ophaallocatie</label><input type="text" id="defaultPickup"></div>
-                    <button type="submit" class="nav-btn" style="background:var(--primary);">Opslaan</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="dashboard-container" class="tab-container hidden">
-            <div class="stats-grid" id="statsGrid"></div>
-            <h4>📅 Komende ritten</h4>
-            <table class="bookings-table" id="upcomingTable"><thead><tr><th>ID</th><th>Datum/tijd</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th><th>Acties</th></tr></thead><tbody></tbody></table>
-            <h4>✅ Voltooide ritten</h4>
-            <table class="bookings-table" id="completedTable"><thead><tr><th>ID</th><th>Datum/tijd</th><th>Route</th><th>Voertuig</th><th>Bedrag</th><th>Status</th><th>Acties</th></tr></thead><tbody></tbody></table>
-        </div>
-
-        <div id="payments-container" class="tab-container hidden">
-            <div class="profile-card">
-                <h3>💰 Betalingsgeschiedenis</h3>
-                <div id="paymentsList" style="margin-top:20px;">
-                    <table class="bookings-table" id="paymentsTable">
-                        <thead><tr><th>ID</th><th>Datum</th><th>Bedrag</th><th>Methode</th><th>Status</th><th>Factuur</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer-dark">
         <div class="footer-grid">
             <div><h4>NH</h4><p>Professioneel taxivervoer</p></div>
