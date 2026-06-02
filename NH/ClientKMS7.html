@@ -32,11 +32,11 @@
     .lang-switch .active { background: var(--silver); color: #0A192F; }
     
     /* ============================================================ */
-    /* HERO SECTIE - ZELFDE ALS NH.html */
+    /* HERO SECTIE - exact dezelfde stijl als NH.html met heroKMS7.png */
     /* ============================================================ */
     .hero-portal { 
       min-height: 50vh; 
-      background: linear-gradient(rgba(10, 25, 47, 0.3), rgba(15, 42, 63, 0.35)), url('RPK/NH/heroKMS7.png') center/cover no-repeat; 
+      background: linear-gradient(rgba(10, 25, 47, 0.3), rgba(15, 42, 63, 0.35)), url('heroKMS7.png') center/cover no-repeat; 
       display: flex;  
       align-items: flex-end;
       justify-content: center;
@@ -242,7 +242,7 @@
 </header>
 
 <main>
-  <!-- NIEUWE HERO SECTIE - ZELFDE STIJL ALS NH.html -->
+  <!-- Hero sectie met de correcte afbeelding heroKMS7.png -->
   <section class="hero-portal">
     <div class="container">
       <div class="hero-split-box">
@@ -302,11 +302,11 @@
       <div class="stats-grid" id="statsGrid"></div>
       <div class="stats-card">
         <h3>📅 Courses à venir</h3>
-        <div class="table-responsive-wrapper"><table class="bookings-table" id="upcomingTable"><thead><tr><th>ID</th><th>Date/heure</th><th>Trajet</th><th>Véhicule</th><th>Montant</th><th>Statut</th><th>Actions</th><tr></thead><tbody></tbody></table></div>
+        <div class="table-responsive-wrapper"><table class="bookings-table" id="upcomingTable"><thead><tr><th>ID</th><th>Date/heure</th><th>Trajet</th><th>Véhicule</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
       </div>
       <div class="stats-card">
         <h3>✅ Courses terminées</h3>
-        <div class="table-responsive-wrapper"><table class="bookings-table" id="completedTable"><thead><tr><th>ID</th><th>Date/heure</th><th>Trajet</th><th>Véhicule</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+        <div class="table-responsive-wrapper"><table class="bookings-table" id="completedTable"><thead><tr><th>ID</th><th>Date/heure</th><th>Trajet</th><th>Véhicule</th><th>Montant</th><th>Statut</th><th>Actions</th></table></thead><tbody></tbody></table></div>
       </div>
     </div>
 
@@ -485,7 +485,7 @@
   function initVehicleSelect(){ document.querySelectorAll('.vehicle-card-select').forEach(c=>{ c.addEventListener('click',()=>{ document.querySelectorAll('.vehicle-card-select').forEach(c2=>c2.classList.remove('selected')); c.classList.add('selected'); selectedVehicle=c.getAttribute('data-vehicle'); selectedVehicleExtra=parseInt(c.getAttribute('data-extraprice'))||0; updateTotalDisplay(); }); }); const first=document.querySelector('.vehicle-card-select'); if(first){first.classList.add('selected'); selectedVehicle=first.getAttribute('data-vehicle'); selectedVehicleExtra=0;} }
   
   // ============================================================
-  // 🔍 AUTOCOMPLETE - Version Française améliorée
+  // 🔍 AUTOCOMPLETE - ROBUUSTE VERSIE (zoals in NH.html)
   // ============================================================
   async function fetchAddresses(query, wrapId) { 
     if (query.length < 3) { 
@@ -496,7 +496,7 @@
     const wrap = document.getElementById(wrapId); 
     const suggestionsDiv = wrap.querySelector('.suggestions'); 
     if (!suggestionsDiv) return; 
-    suggestionsDiv.innerHTML = '<div class="suggestion-item">🔍 Recherche en cours...</div>'; 
+    suggestionsDiv.innerHTML = '<div class="suggestion-item">🔍 Recherche...</div>'; 
     suggestionsDiv.style.display = 'block'; 
     try { 
       const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=be&addressdetails=0&accept-language=fr`; 
@@ -526,7 +526,7 @@
       }); 
     } catch (err) { 
       console.error(err); 
-      suggestionsDiv.innerHTML = '<div class="suggestion-item" style="color:#b91c1c;">⚠️ Erreur réseau – réessayez</div>'; 
+      suggestionsDiv.innerHTML = '<div class="suggestion-item" style="color:#b91c1c;">⚠️ Erreur – réessayez</div>'; 
     } 
   }
   
