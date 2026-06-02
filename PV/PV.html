@@ -403,7 +403,7 @@
             updateRitOverzicht(); 
             updateTotalDisplay(); 
         } else if (currentPage === 5) { 
-            // Direct de overlay tonen zonder event
+            // VALIDATIE EN DIRECT OVERLAY TONEN
             if (!currentRouteData) {
                 alert('Eerst moet u een route berekenen in stap 1 en 2.');
                 return;
@@ -673,7 +673,16 @@
                 }
             } else {
                 alert(`Boeking ${bookingData.id} bevestigd voor €${totalAmount.toFixed(2)}`);
-                if (comms && comms.trigger) comms.trigger('BOOKING_CONFIRMATION', bookingId, supabase);
+                // FALLBACK VOOR COMMS MODULE - FIX 3
+                try {
+                    if (typeof comms !== 'undefined' && comms && comms.trigger) {
+                        comms.trigger('BOOKING_CONFIRMATION', bookingId, supabase);
+                    } else {
+                        console.log('comms module niet beschikbaar, boeking opgeslagen zonder notificatie');
+                    }
+                } catch(e) {
+                    console.error('Fout bij comms trigger:', e);
+                }
                 window.resetAll();
                 window.hideOverlay();
             }
@@ -681,6 +690,9 @@
             alert('Fout bij opslaan van boeking');
         }
     }
+    
+    // ===== VERWIJDERD: Dubbele event handler op finalConfirmBtn (FIX 1) =====
+    // De finalConfirmBtn wordt NIET meer hier aangepakt, alleen via nextPage()
     
     // Overlay knoppen
     const confirmBookingBtn = document.getElementById('confirmBookingBtn');
@@ -700,19 +712,6 @@
     
     console.log("Module geladen, alles is gereed!");
 </script>
-
-<!-- SUMMARY OVERLAY - BINNEN content-overlay maar met hoge z-index -->
-<div id="summaryOverlay" class="overlay" style="z-index: 10000;">
-    <div class="overlay-content">
-        <button id="closeOverlayBtn" style="float:right; background:none; border:none; font-size:28px; cursor:pointer;">&times;</button>
-        <h2>📋 Samenvatting reservatie</h2>
-        <div id="overlaySummary" class="summary-grid"></div>
-        <div class="overlay-actions">
-            <button id="cancelOverlayBtn" style="background:#f1f5f9; color:#334155; padding:12px 24px; border-radius:30px; border:none; cursor:pointer;">Annuleer</button>
-            <button id="confirmBookingBtn" style="background:var(--primary); color:white; padding:12px 24px; border-radius:30px; border:none; cursor:pointer;">✅ Bevestig boeking</button>
-        </div>
-    </div>
-</div>
 
 </body>
 </html>
