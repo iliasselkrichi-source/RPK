@@ -284,10 +284,16 @@
         }
         .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
         .logout-tab-btn {
-            background: none; border: none; padding: 10px 20px; font-weight: 600;
-            cursor: pointer; color: #b91c1c; border-bottom: 2px solid transparent;
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #b91c1c;
+            border-bottom: 2px solid transparent;
             margin-left: auto;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
         .logout-tab-btn:hover { color: #7f1d1d; border-bottom-color: #b91c1c; }
         .tab-container.hidden { display: none; }
@@ -488,7 +494,10 @@
             <button class="tab-btn" data-tab="profile">👤 Mijn Profiel</button>
             <button class="tab-btn" data-tab="dashboard">📊 Dashboard & Ritten</button>
             <button class="tab-btn" data-tab="payments">💰 Betalingen</button>
-            <a href="index.html" id="logoutTabBtn" class="logout-tab-btn" style="text-decoration:none;"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
+            <!-- UITLOG KNOP - GECORRIGEERD: van <a> naar <button> met onclick -->
+            <button id="logoutBtn" class="logout-tab-btn">
+                <i class="fas fa-sign-out-alt"></i> Uitloggen
+            </button>
         </div>
 
         <!-- TAB 1: NIEUWE RIT -->
@@ -758,6 +767,57 @@
         return false;
     };
 
+    // ========== LOGOUT FUNCTION - DE OPLOSSING! ==========
+    async function handleLogout() {
+        if (!initSupabase()) {
+            console.error('Supabase niet geïnitialiseerd');
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        try {
+            // Toon laadmelding (optioneel)
+            const logoutBtn = document.getElementById('logoutBtn');
+            const originalText = logoutBtn.innerHTML;
+            logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uitloggen...';
+            logoutBtn.disabled = true;
+            
+            // 1. Supabase signOut aanroepen
+            const { error } = await supabase.auth.signOut();
+            
+            if (error) {
+                console.error('SignOut error:', error);
+                alert('Fout bij uitloggen: ' + error.message);
+                logoutBtn.innerHTML = originalText;
+                logoutBtn.disabled = false;
+                return;
+            }
+            
+            // 2. Clear lokale sessie data
+            sessionStorage.removeItem('loggedInEmail');
+            localStorage.removeItem('supabase.auth.token');
+            
+            // 3. Redirect naar inlogpagina
+            console.log('Uitgelogd, doorverwijzen naar index.html');
+            window.location.href = 'index.html';
+            
+        } catch (err) {
+            console.error('Logout error:', err);
+            alert('Er is een fout opgetreden bij het uitloggen.');
+            // Fallback: forceer redirect
+            window.location.href = 'index.html';
+        }
+    }
+    
+    // ========== KOPPEL DE LOGOUT KNOP ==========
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+        console.log('Logout knop gekoppeld');
+    } else {
+        console.error('Logout knop niet gevonden!');
+    }
+    
     // ========== GLOBALE VARIABELEN ==========
     let currentUser = { id: 'demo-user', full_name: 'Demo Gebruiker', email: 'demo@nh.be', phone: '+32 470 12 34 56', default_pickup_address: '' };
     let userBookings = [];
@@ -1435,7 +1495,7 @@
         alert(`Betaling geannuleerd voor boeking ${bookingId || ''}.`);
     }
     
-    console.log("✅ Applicatie gereed - Autocomplete werkt!");
+    console.log("✅ Applicatie gereed - Autocomplete werkt! Logout functionaliteit is geïmplementeerd.");
 </script>
 </body>
 </html>
