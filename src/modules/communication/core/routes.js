@@ -6,8 +6,9 @@ import { CommunicationConfig } from './config.js';
  */
 export class RouteBuilder {
     static getBaseUrl() {
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return `${window.location.protocol}//${window.location.host}`;
+        const origin = window.location?.origin;
+        if (origin && origin !== 'null') {
+            return origin;
         }
         return CommunicationConfig.brand.website;
     }
@@ -32,7 +33,7 @@ export class RouteBuilder {
                 return `${baseUrl}/PV/register.html?token=${params.token}`;
 
             case 'setup-account-prefilled':
-                return `${baseUrl}/PV/register.html?booking_id=${params.id}&email=${params.email}`;
+                return `${baseUrl}/PV/register.html?booking=${params.id}&email=${encodeURIComponent(params.email || '')}`;
 
             case 'driver-accept':
                 return `${baseUrl}/driver-accept.html?token=${params.token}`;

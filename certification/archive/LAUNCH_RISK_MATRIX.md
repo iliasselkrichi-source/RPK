@@ -55,3 +55,12 @@ Rationale: core dispatch and RLS risk has been reduced, but required customer an
 | Customer inbox delivery still unverified | High | Medium | Booking may save but customer may not receive confirmation due provider/inbox issue. | Submit one controlled booking and verify Network, Resend logs, inbox, and spam. | Release manager |
 | Operator session not mapped to hoofd partner | High | Medium | Dashboard login works but live bookings appear absent to the tester. | Use the mapped hoofd-operator Supabase Auth account or map the intended operator user. | Release manager |
 | Public bookings moved to wrong partner as visibility workaround | High | Low | Driver assignment could break because current drivers exist under `partner_id = 1`. | Do not move public bookings to `partner_id = 13`; validate operator mapping and RLS instead. | Engineering |
+
+## Phase 5.10 CTA And Partner/Driver Risks
+
+| Risk | Severity | Likelihood | Impact | Mitigation | Owner |
+| --- | --- | --- | --- | --- | --- |
+| Vercel not redeployed after CTA fix | High | Medium | Accepted-booking CTA may continue pointing to stale/unavailable domain. | Redeploy latest checkpoint branch commit. | Release manager |
+| Customer portal booking lookup blocked by RLS | Medium | Medium | Customer may reach portal but not see booking if email/user ownership does not match. | Test with same email used on the booking; approve ownership backfill separately if needed. | Release manager |
+| Partner/driver RPCs not exercised by live dashboard | Medium | Medium | Repository and live RPCs are ready but browser flow remains unproven. | Create one real test partner and driver after redeploy. | Release manager |
+| Driver assignment email not inbox-tested after driver creation | High | Medium | Assignment workflow may create driver but email delivery remains unverified. | Assign test driver with real inbox and verify driver receives request. | Release manager |

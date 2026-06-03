@@ -6,7 +6,7 @@ export const CommunicationConfig = {
     brand: {
         name: 'FleetConnect',
         email: 'fleetconnect.os@gmail.com',
-        website: 'https://fleetconnect.be',
+        website: window.FLEETCONNECT_BASE_URL || 'https://rpk-mu.vercel.app',
         reviewUrl: '',
         logoUrl: '', // To be filled later
         supportPhone: '+3200000000',

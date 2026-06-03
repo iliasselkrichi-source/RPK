@@ -90,3 +90,18 @@ Before treating the checkpoint as preserved, confirm:
 8. Use the mapped hoofd-operator Supabase Auth account.
 9. Choose Taxi/Onderaannemer and open `Nieuwe Orders`.
 10. Confirm the latest `FC-...` pending booking is visible.
+
+## Phase 5.10 CTA And Partner/Driver Retest Addendum
+
+1. Redeploy the latest checkpoint branch commit.
+2. Accept one pending booking from the dashboard.
+3. Confirm `BOOKING_ACCEPTED` email CTA does not point to `fleetconnect.be`.
+4. Confirm registered customer CTA opens `https://rpk-mu.vercel.app/PV/klantenportaalpv.html?id=<BOOKING_ID>`.
+5. Confirm unregistered customer CTA opens `https://rpk-mu.vercel.app/PV/register.html?booking=<BOOKING_ID>`.
+6. Register/login through the CTA and confirm booking ID remains preserved.
+7. Confirm authenticated portal dashboard can show the booking where RLS allows the email/user.
+8. Create a partner from the dashboard.
+9. Create a driver from the dashboard with a real test email address.
+10. Confirm the driver appears in the dashboard list.
+11. Assign the driver to an accepted booking.
+12. Confirm the driver assignment request email is sent to the driver.
