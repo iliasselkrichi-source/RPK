@@ -68,6 +68,17 @@
 
         const registerForm = document.getElementById('registerForm');
         const errorBox = document.getElementById('errorBox');
+        const registerParams = new URLSearchParams(window.location.search);
+        const requestedBookingId = registerParams.get('booking') || registerParams.get('booking_id') || registerParams.get('id') || '';
+        const requestedEmail = registerParams.get('email') || '';
+
+        if (requestedEmail) {
+            document.getElementById('emailInput').value = requestedEmail;
+        }
+
+        if (requestedBookingId) {
+            document.querySelector('.footer-link').href = `index.html?booking=${encodeURIComponent(requestedBookingId)}`;
+        }
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -84,7 +95,9 @@
                     password,
                     options: {
                         data: { full_name: fullName, phone: phone },
-                        emailRedirectTo: `${window.location.origin}/verificatiepv.html`
+                        emailRedirectTo: requestedBookingId
+                            ? `${window.location.origin}/PV/klantenportaalpv.html?id=${encodeURIComponent(requestedBookingId)}`
+                            : `${window.location.origin}/PV/klantenportaalpv.html`
                     }
                 });
 
@@ -117,7 +130,9 @@
                     }, supabase);
 
                     alert(i18n.t('auth_magic_link_sent').replace('{email}', email));
-                    window.location.href = 'index.html';
+                    window.location.href = requestedBookingId
+                        ? `index.html?booking=${encodeURIComponent(requestedBookingId)}`
+                        : 'index.html';
                 }
             } catch (err) {
                 errorBox.innerText = err.message;

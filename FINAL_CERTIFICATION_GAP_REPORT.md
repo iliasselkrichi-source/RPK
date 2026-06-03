@@ -214,3 +214,15 @@ Updated certification answer:
 
 - FleetConnect remains NOT CERTIFIED.
 - The live booking insert + confirmation email code path is ready for redeploy and controlled browser/inbox retest.
+
+## Phase 5.10 CTA And Partner/Driver RLS Gap Update
+
+| Item | Classification | Evidence | Required next action |
+| --- | --- | --- | --- |
+| Booking accepted CTA domain | RESOLVED IN REPOSITORY | Communication base URL now uses deployed origin/config fallback; active communication route/config/template modules no longer contain `fleetconnect.be`. | Redeploy and inspect received `BOOKING_ACCEPTED` email CTA. |
+| Client portal booking ID preservation | RESOLVED IN REPOSITORY | Register and client portal preserve `booking`, `booking_id`, and `id`; portal performs authenticated booking-ID lookup where RLS allows it. | Browser test with registered and new customer flows. |
+| Partner creation RLS failure | RESOLVED LIVE AND IN REPOSITORY | Live `create_operator_partner(jsonb)` exists as authenticated-only `SECURITY DEFINER`, requires `is_operator()`, and rollback validation passed. | Create a real partner from dashboard after redeploy. |
+| Driver creation RLS path | RESOLVED LIVE AND IN REPOSITORY | Live `create_operator_driver(jsonb)` exists as authenticated-only `SECURITY DEFINER`, requires `is_operator()`, validates `partner_id`, and rollback validation passed. | Create a real driver from dashboard after redeploy. |
+| Driver assignment after created driver | BLOCKED PENDING LIVE BROWSER TESTING | Dashboard assignment code can use loaded drivers; no live assignment email was sent in Phase 5.10. | Assign a real test driver and validate driver inbox. |
+
+FleetConnect remains NOT CERTIFIED pending live browser/inbox validation and other previously documented blockers.

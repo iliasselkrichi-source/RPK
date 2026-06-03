@@ -647,6 +647,25 @@
     let selectedVehicle = 'Standaard', selectedVehicleExtra = 0, currentPage = 1;
     let bookingSubmitInProgress = false;
     let debounceTimer;
+    const portalParams = new URLSearchParams(window.location.search);
+    const requestedBookingId = portalParams.get('id') || portalParams.get('booking') || portalParams.get('booking_id') || '';
+
+    async function hydrateCurrentUserFromSession() {
+        const supabase = getSupabase();
+        if (!supabase) return false;
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return false;
+
+        const metadata = session.user.user_metadata || {};
+        currentUser = {
+            id: session.user.id,
+            full_name: metadata.full_name || metadata.name || session.user.email || currentUser.full_name,
+            email: session.user.email || currentUser.email,
+            phone: metadata.phone || currentUser.phone,
+            default_pickup_address: metadata.default_pickup_address || currentUser.default_pickup_address
+        };
+        return true;
+    }
     
     function initMap() {
         bookingMap = L.map('map').setView([50.85, 4.35], 13);
@@ -970,6 +989,16 @@
             const { data, error } = await supabase.from('bookings').select('*').eq('customer_id', customerId).order('datetime', { ascending: false });
             if (error) throw error;
             userBookings = data || [];
+            if (requestedBookingId && !userBookings.some(b => b.id === requestedBookingId)) {
+                const { data: requestedBooking, error: requestedError } = await supabase
+                    .from('bookings')
+                    .select('*')
+                    .eq('id', requestedBookingId)
+                    .maybeSingle();
+                if (!requestedError && requestedBooking) {
+                    userBookings = [requestedBooking, ...userBookings];
+                }
+            }
             renderDashboard();
         } catch (err) { console.error('Error loading bookings:', err); }
     }
@@ -1045,13 +1074,19 @@
     initVehicleSelection();
     initAutocomplete();
     showPage(1);
-    loadUserProfile();
-    loadUserBookings();
-    switchToTab('new-booking');
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('payment') === 'success') alert(`Betaling voltooid!`);
-    else if (urlParams.get('payment') === 'cancelled') alert(`Betaling geannuleerd.`);
+    (async function initPortalSession() {
+        const hasSession = await hydrateCurrentUserFromSession();
+        if (requestedBookingId && !hasSession) {
+            window.location.href = `register.html?booking=${encodeURIComponent(requestedBookingId)}`;
+            return;
+        }
+        loadUserProfile();
+        await loadUserBookings();
+        switchToTab(requestedBookingId ? 'dashboard' : 'new-booking');
+
+        if (portalParams.get('payment') === 'success') alert(`Betaling voltooid!`);
+        else if (portalParams.get('payment') === 'cancelled') alert(`Betaling geannuleerd.`);
+    })();
     
     console.log("✅ Applicatie gereed - NL versie");
 </script>

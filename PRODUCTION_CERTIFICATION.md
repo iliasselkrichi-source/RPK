@@ -1898,3 +1898,48 @@ Validation:
 - Static route/code checks passed for snapshot handoff, one confirmation trigger per PV page, duplicate-submit guard, send-email origin allowlist, and unauthorized-origin rejection.
 - Live read-only Supabase evidence confirmed current pending booking and partner/driver distribution.
 - No live inbox send was performed by Codex in this phase.
+
+## Phase 5.10 - Booking CTA And Partner/Driver Creation RLS Fix
+
+Status: LIVE RPC FIX APPLIED - NOT CERTIFIED
+
+Observed live issues:
+
+- `BOOKING_ACCEPTED` email CTA pointed to unavailable `fleetconnect.be`.
+- Client portal did not preserve/fetch a booking by URL booking ID.
+- Dashboard partner creation failed with RLS error.
+- Driver creation used the same direct table insert pattern and required the same protected path.
+
+Root causes:
+
+- Central communication config used `https://fleetconnect.be` as the production website base.
+- `RouteBuilder` returned the configured website for production pages instead of the deployed origin.
+- `PV/klantenportaalpv.html` loaded bookings by customer-derived ID only and ignored `?id=`/`?booking=`.
+- `Paneel/onderaannemerA.html` inserted directly into `partners` and `drivers`; protected operational writes should use a narrow authenticated RPC instead of broad insert policies.
+
+Minimal fixes:
+
+- `CommunicationConfig.brand.website` now falls back to `https://rpk-mu.vercel.app`, overridable with `window.FLEETCONNECT_BASE_URL`.
+- `RouteBuilder.getBaseUrl()` now prefers `window.location.origin`.
+- Accepted-booking unregistered CTA now routes to `/PV/register.html?booking=<BOOKING_ID>&email=<EMAIL>`.
+- View-booking CTA continues to route to `/PV/klantenportaalpv.html?id=<BOOKING_ID>`.
+- Register page preserves booking ID through signup and verification redirect.
+- Client portal hydrates the Supabase Auth session, redirects unauthenticated booking-ID visitors to register, and attempts an authenticated single booking-ID lookup where RLS allows it.
+- Added `create_operator_partner(payload jsonb)` and `create_operator_driver(payload jsonb)`.
+- Dashboard now calls those RPCs instead of direct partner/driver inserts.
+
+Live validation:
+
+- Live RPC migration applied.
+- Both RPCs are `SECURITY DEFINER`.
+- Both RPCs require `auth.uid()` and `public.is_operator()`.
+- Execute grant verified for `authenticated` only; `anon` execute is absent.
+- Rollback-only validation created a test partner and driver under mapped hoofd operator UID, then rolled back.
+- Post-rollback persisted test rows: 0 partners, 0 drivers.
+
+Remaining validation:
+
+- Redeploy Vercel and retest accepted-booking CTA.
+- Register/login through CTA and confirm authenticated booking visibility.
+- Create real partner/driver from dashboard.
+- Assign driver and confirm driver assignment email delivery.
