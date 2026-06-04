@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NH - Wachtwoord herstellen (Test)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f4f7fc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; border-radius: 32px; padding: 30px; width: 100%; max-width: 450px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: #1e293b; margin-bottom: 24px; }
+        .status { background: #f1f5f9; border-radius: 16px; padding: 15px; margin-bottom: 25px; font-family: monospace; font-size: 0.85rem; word-break: break-all; border: 1px solid #e2e8f0; }
+        .status p { margin: 8px 0; }
+        .status .success { color: #2c7da0; font-weight: bold; }
+        .status .error { color: #b91c1c; font-weight: bold; }
+        input[type="password"] { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 16px; margin-bottom: 15px; font-size: 1rem; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #2dd4bf; color: #0f172a; font-weight: 700; border: none; border-radius: 40px; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .message { margin-top: 15px; padding: 12px; border-radius: 16px; text-align: center; font-size: 0.9rem; display: none; }
+        .message.success { background: #dcfce7; color: #166534; display: block; }
+        .message.error { background: #fee2e2; color: #b91c1c; display: block; }
+        hr { margin: 20px 0; border-color: #e2e8f0; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>🔐 Nieuw wachtwoord instellen</h2>
+    <div class="status" id="statusPanel">
+        <p>📌 <strong>Stap 1: Controle van URL</strong></p>
+        <p id="tokenStatus">🔍 Bezig met analyseren van de link...</p>
+    </div>
+    <hr>
+    <input type="password" id="newPassword" placeholder="Nieuw wachtwoord (min. 6 tekens)" disabled>
+    <input type="password" id="confirmPassword" placeholder="Bevestig wachtwoord" disabled>
+    <button id="saveButton" disabled>Wachtwoord opslaan</button>
+    <div id="messageBox" class="message"></div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- DOM elementen ---
+    const statusDiv = document.getElementById('statusPanel');
+    const tokenStatusP = document.getElementById('tokenStatus');
+    const pwInput = document.getElementById('newPassword');
+    const confirmInput = document.getElementById('confirmPassword');
+    const saveButton = document.getElementById('saveButton');
+    const messageBox = document.getElementById('messageBox');
+
+    function showMessage(text, type) {
+        messageBox.textContent = text;
+        messageBox.className = `message ${type}`;
+    }
+
+    // --- Hoofdfunctie: haal token op en herstel sessie ---
+    async function initReset() {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const access_token = params.get('access_token');
+        const refresh_token = params.get('refresh_token');
+        const type = params.get('type');
+        const errorDesc = params.get('error_description');
+        
+        // 1. URL Analyse weergeven
+        tokenStatusP.innerHTML = `📎 Hele hash: <strong>${hash || 'leeg'}</strong><br>
+                                 🔑 access_token: <strong>${access_token ? 'Gevonden ✅' : 'Niet gevonden ❌'}</strong><br>
+                                 🔄 refresh_token: <strong>${refresh_token ? 'Gevonden ✅' : 'Niet gevonden'}</strong><br>
+                                 🏷️ type: <strong>${type || 'Niet aanwezig'}</strong><br>
+                                 ⚠️ Fout in link: <strong>${errorDesc || 'Geen'}</strong>`;
+
+        // 2. Validatie
+        if (!access_token) {
+            tokenStatusP.innerHTML += `<br><span class='error'>🚨 FOUT: Geen toegangstoken. De link is niet geldig.</span>`;
+            showMessage('Ongeldige resetlink. Vraag een nieuwe aan.', 'error');
+            return;
+        }
+        if (errorDesc) {
+            tokenStatusP.innerHTML += `<br><span class='error'>🚨 FOUT in link: ${errorDesc}</span>`;
+            showMessage(`Fout in de link: ${errorDesc}`, 'error');
+            return;
+        }
+
+        // 3. Sessie herstellen (stap is hier cruciaal!)
+        tokenStatusP.innerHTML += `<br><br>🔄 <strong>Stap 2: Sessie herstellen...</strong>`;
+        const { error: sessionError } = await supabase.auth.setSession({
+            access_token: access_token,
+            refresh_token: refresh_token
+        });
+
+        if (sessionError) {
+            tokenStatusP.innerHTML += `<br><span class='error'>❌ FOUT bij sessieherstel: ${sessionError.message}</span>`;
+            showMessage(`Sessie herstellen mislukt: ${sessionError.message}`, 'error');
+            return;
+        }
+
+        // 4. Controleer of sessie nu actief is
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            tokenStatusP.innerHTML += `<br><span class='error'>❌ FOUT: Geen actieve sessie na sessieherstel. De link is mogelijk verlopen.</span>`;
+            showMessage('Sessie kon niet worden geactiveerd. Vraag een nieuwe resetlink aan.', 'error');
+            return;
+        }
+
+        // Succes!
+        tokenStatusP.innerHTML += `<br><br><span class='success'>✅ Sessie actief voor gebruiker: ${session.user.email}</span><br>✅ Je kunt nu een nieuw wachtwoord instellen.`;
+        pwInput.disabled = false;
+        confirmInput.disabled = false;
+        saveButton.disabled = false;
+        showMessage('✅ Sessie actief! Je kunt nu een nieuw wachtwoord instellen.', 'success');
+    }
+
+    // --- Wachtwoord opslaan functie ---
+    saveButton.addEventListener('click', async () => {
+        const newPassword = pwInput.value;
+        const confirm = confirmInput.value;
+
+        if (!newPassword || !confirm) {
+            showMessage('Vul alle velden in.', 'error');
+            return;
+        }
+        if (newPassword !== confirm) {
+            showMessage('Wachtwoorden komen niet overeen.', 'error');
+            return;
+        }
+        if (newPassword.length < 6) {
+            showMessage('Minimaal 6 tekens.', 'error');
+            return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.innerText = 'Bezig met opslaan...';
+
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) {
+            console.error("UpdateUser Error:", error);
+            showMessage(`❌ Fout bij opslaan: ${error.message}`, 'error');
+            saveButton.disabled = false;
+            saveButton.innerText = 'Wachtwoord opslaan';
+        } else {
+            showMessage('✅ Wachtwoord succesvol gewijzigd! U wordt doorgestuurd...', 'success');
+            await supabase.auth.signOut();
+            setTimeout(() => { window.location.href = 'partner-login.html'; }, 2500);
+        }
+    });
+
+    // Start het proces
+    initReset();
+</script>
+</body>
+</html>
