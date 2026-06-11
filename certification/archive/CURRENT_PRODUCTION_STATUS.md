@@ -176,3 +176,35 @@ Live validation still required:
 4. Confirm positive route price remains required before checkout.
 5. Confirm customer `BOOKING_CONFIRMATION` email is received.
 6. Confirm no technical escalation fires for a successful confirmation.
+
+## Phase A.4.3 Email Forensics + Account Flow Status
+
+Date: 2026-06-11
+Branch: phase-a4.3-email-forensics-account-flow
+Status: repository remediation completed for diagnostics and in-app account request; live email delivery remains blocked by Resend domain/sender verification.
+
+Live forensics completed before code changes:
+
+- `send-email` exists, is ACTIVE, and has JWT verification enabled.
+- `RESEND_API_KEY` secret name exists in Supabase.
+- Browser requests reach `POST /functions/v1/send-email`.
+- Recent live `send-email` executions return HTTP 400 after Resend rejects the send.
+- Supabase function logs show Resend HTTP 403 `validation_error`: the Resend account can only send test emails to `ryzenoutsourcing@gmail.com` until a domain is verified.
+
+Repository changes in this phase:
+
+- `EMAIL_FORENSICS_REPORT.md` added with root-cause evidence.
+- `ResendProvider` now exposes exact Edge Function response errors in browser console logs.
+- `send-email` now returns Resend `message`, `code`, and `statusCode` to callers and supports `FLEETCONNECT_EMAIL_FROM`.
+- `send-email` supports `FLEETCONNECT_ALLOWED_ORIGINS` and FleetConnect/FleetConnectFork origin matching while preserving unauthorized-origin rejection.
+- `Paneel/admin-index.html` no longer opens `mailto:` for account requests.
+- Account requests are submitted inside FleetConnect through `submit_account_request`.
+- New migration `20260611000000_account_requests.sql` adds `account_requests` and a narrow request-submission RPC.
+
+External requirement before email certification:
+
+1. Verify the approved FleetConnect sending domain in Resend.
+2. Configure Supabase `FLEETCONNECT_EMAIL_FROM` to a verified sender.
+3. Deploy the updated `send-email` function.
+4. Apply the account request migration.
+5. Retest booking confirmation, booking accepted, driver assignment, driver accepted, and account request emails.
