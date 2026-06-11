@@ -11,6 +11,20 @@ Status: NOT CERTIFIED
 
 Phase A repository remediation is complete for routing, branded sender configuration, CTA URL generation, and the missing public booking confirmation trigger. Full production certification still requires a redeploy and live browser/inbox validation on the connected FleetConnect domains.
 
+## Phase A.4.4.2 Customer Email Lifecycle Status
+
+Status: REPOSITORY POLICY UPDATED, LIVE VALIDATION PENDING.
+
+The customer-facing lifecycle is now simplified:
+
+- customer registration -> `CUSTOMER_REGISTRATION_CONFIRMATION`
+- public booking -> `BOOKING_CONFIRMATION`
+- driver accepts -> `DRIVER_ASSIGNED` / ride confirmed
+- replacement driver accepts -> `DRIVER_REASSIGNED`
+- completed ride -> `RIDE_COMPLETED_REVIEW_REQUEST` / `RIDE_COMPLETED`
+
+Internal workflow events no longer send customer emails. `BOOKING_ACCEPTED` and `DRIVER_DECLINED` are enforced as internal-only by `CommunicationService`; driver decline still notifies operations and persists reassignment state in Supabase.
+
 ## Current Production Entry Points
 
 | Entry point | Route | Decision | Evidence |

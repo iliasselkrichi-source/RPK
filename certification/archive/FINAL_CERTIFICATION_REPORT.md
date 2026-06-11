@@ -11,6 +11,19 @@ NOT CERTIFIED
 
 The repository now contains the minimal Phase A fixes required before live validation, but production certification cannot be granted until the updated branch and send-email function are deployed and the booking/email/dashboard/driver lifecycle is validated in browser and inbox.
 
+## Phase A.4.4.2 Customer Email Lifecycle Addendum
+
+The customer email lifecycle has been simplified in repository code:
+
+- operator acceptance no longer sends a customer email
+- driver acceptance is the customer-facing ride confirmation
+- driver decline is internal-only and urgent for dispatch/operator
+- reassignment customer email is sent only after the replacement driver accepts
+- registration confirmation is separated from booking confirmation
+- completed ride review request uses the review route with booking context
+
+Supabase migration `20260611030000_customer_email_lifecycle_refinement.sql` persists reassignment and customer notification audit state. Certification still requires migration application, Vercel deployment, and inbox validation.
+
 ## Phase A Work Completed
 
 1. Full routing inventory and route decision table completed.
