@@ -21,9 +21,32 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5500'
 ]
 
+const EXTRA_ALLOWED_ORIGINS = (Deno.env.get('FLEETCONNECT_ALLOWED_ORIGINS') || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+function isAllowedFleetConnectOrigin(origin: string | null) {
+  if (!origin) return false
+  if (ALLOWED_ORIGINS.includes(origin) || EXTRA_ALLOWED_ORIGINS.includes(origin)) return true
+
+  try {
+    const url = new URL(origin)
+    if (url.protocol !== 'https:') return false
+    return (
+      url.hostname === 'fleetconnect.be' ||
+      url.hostname.endsWith('.fleetconnect.be') ||
+      /^fleetconnectfork(-.*)?\.vercel\.app$/.test(url.hostname) ||
+      /^fleet-connect-fork(-.*)?\.vercel\.app$/.test(url.hostname)
+    )
+  } catch (_) {
+    return false
+  }
+}
+
 serve(async (req) => {
   const origin = req.headers.get('origin')
-  const isAllowedOrigin = origin && ALLOWED_ORIGINS.includes(origin)
+  const isAllowedOrigin = isAllowedFleetConnectOrigin(origin)
 
   const corsHeaders = {
     'Access-Control-Allow-Origin': isAllowedOrigin ? origin : ALLOWED_ORIGINS[0],
@@ -67,7 +90,8 @@ serve(async (req) => {
 
     // 3. Dispatch via Resend
     // FORCE canonical sender if not provided or doesn't match FleetConnect domain
-  const sender = 'FleetConnect <bookings@fleetconnect.be>';
+    const sender = Deno.env.get('FLEETCONNECT_EMAIL_FROM') || 'FleetConnect <bookings@fleetconnect.be>';
+    console.log(`[Email Dispatch] Sender: ${sender.replace(/<.*>/, '<redacted>')}`);
 
     const { data, error } = await resend.emails.send({
       from: sender,
@@ -84,9 +108,16 @@ serve(async (req) => {
 
     if (error) {
       console.error('[Resend SDK Error]', error)
-      return new Response(JSON.stringify({ success: false, error: error.message }), {
+      const errorMessage = error.message || 'Resend rejected the email request'
+      return new Response(JSON.stringify({
+        success: false,
+        error: errorMessage,
+        provider: 'resend',
+        code: error.name || 'resend_error',
+        statusCode: error.statusCode || 400
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: error.statusCode || 400,
       })
     }
 
