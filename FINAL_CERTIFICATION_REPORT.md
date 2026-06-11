@@ -93,3 +93,26 @@ Recommendation: implement this only in a later approved phase as a narrow operat
 FleetConnect is not certified at the end of Phase A because live deployment, live browser testing, inbox validation, live send-email deployment verification, manual booking gap resolution, ride completion certification, Stripe/payment certification, and live Supabase drift validation remain open.
 
 The repository is ready for redeployment and controlled live Phase A smoke testing.
+
+## Phase A.4.3 Email Forensics Update
+
+Live email forensics identified the exact remaining email failure:
+
+- Browser lifecycle triggers reach the Supabase `send-email` Edge Function.
+- `send-email` is active and JWT verification is enabled.
+- `RESEND_API_KEY` is present.
+- Resend rejects outbound mail with HTTP 403 `validation_error`.
+- The Resend account is restricted to testing emails to `ryzenoutsourcing@gmail.com` until a sending domain is verified.
+
+Root cause classification: **E. Resend rejects request**.
+
+Repository remediation added:
+
+- `EMAIL_FORENSICS_REPORT.md`
+- improved browser/provider error logging
+- more explicit `send-email` Resend error responses
+- configurable `FLEETCONNECT_EMAIL_FROM`
+- in-app account request submission without `mailto:`
+- `account_requests` table and `submit_account_request` RPC migration
+
+Production email lifecycle remains **NOT CERTIFIED** until the Resend sending domain is verified, `send-email` is redeployed with a verified sender, and booking/account lifecycle emails pass inbox validation.

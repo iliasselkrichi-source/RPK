@@ -202,7 +202,8 @@
         .account-request.show { display: block; }
 
         .account-request input,
-        .account-request select {
+        .account-request select,
+        .account-request textarea {
             width: 100%;
             margin-bottom: 0.6rem;
             padding: 0.75rem;
@@ -210,6 +211,8 @@
             border: 1px solid #334155;
             background: #0f172a;
             color: #e2e8f0;
+            font-family: inherit;
+            resize: vertical;
         }
     </style>
 </head>
@@ -238,13 +241,16 @@
             <div class="account-request" id="accountRequestSection">
                 <input type="text" id="requestName" placeholder="Naam" autocomplete="name">
                 <input type="email" id="requestEmail" placeholder="E-mailadres" autocomplete="email">
-                <select id="requestRole">
-                    <option value="Operator">Operator</option>
+                <input type="tel" id="requestPhone" placeholder="Telefoonnummer" autocomplete="tel">
+                <input type="text" id="requestCompany" placeholder="Bedrijf / partnernaam">
+                <select id="requestAccountType">
+                    <option value="Operations">Operations</option>
                     <option value="Partner">Partner</option>
                     <option value="Driver">Driver</option>
-                    <option value="Finance">Financieel</option>
+                    <option value="Client">Client</option>
+                    <option value="Other">Other</option>
                 </select>
-                <input type="text" id="requestCompany" placeholder="Bedrijf / partnernaam">
+                <textarea id="requestNotes" rows="3" placeholder="Notities / gewenste toegang"></textarea>
                 <button type="button" class="login-btn" id="sendAccountRequest">Aanvraag versturen</button>
                 <div class="welcome-text" id="requestAccountMsg">Accounts worden alleen na goedkeuring door Ryzen/FleetConnect aangemaakt.</div>
             </div>
@@ -310,20 +316,125 @@
             accountRequestSection.classList.toggle('show');
         });
 
-        sendAccountRequest?.addEventListener('click', function() {
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function sendAccountRequestEmail(to, subject, html, requestId, trigger) {
+            const response = await fetch(`${SB_URL}/functions/v1/send-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SB_KEY,
+                    'Authorization': `Bearer ${SB_KEY}`
+                },
+                body: JSON.stringify({
+                    to: Array.isArray(to) ? to : [to],
+                    subject,
+                    html,
+                    reply_to: 'support@fleetconnect.be',
+                    metadata: {
+                        trigger,
+                        requestId
+                    }
+                })
+            });
+
+            const raw = await response.text();
+            let body = {};
+            try {
+                body = raw ? JSON.parse(raw) : {};
+            } catch (parseError) {
+                body = { error: raw || parseError.message };
+            }
+
+            if (!response.ok || body.success === false) {
+                throw new Error(body.error || body.message || `send-email HTTP ${response.status}`);
+            }
+
+            return body;
+        }
+
+        sendAccountRequest?.addEventListener('click', async function() {
             const name = document.getElementById('requestName').value.trim();
             const email = document.getElementById('requestEmail').value.trim();
-            const role = document.getElementById('requestRole').value;
+            const phone = document.getElementById('requestPhone').value.trim();
+            const accountType = document.getElementById('requestAccountType').value;
             const company = document.getElementById('requestCompany').value.trim();
+            const notes = document.getElementById('requestNotes').value.trim();
             const msg = document.getElementById('requestAccountMsg');
-            if (!name || !email || !company) {
-                msg.textContent = 'Vul naam, e-mail en bedrijf/partnernaam in.';
+            if (!name || !email || !phone || !company) {
+                msg.textContent = 'Vul naam, e-mail, telefoonnummer en bedrijf/partnernaam in.';
                 return;
             }
-            const subject = encodeURIComponent('Ryzen account request');
-            const body = encodeURIComponent('Naam: ' + name + '\nE-mail: ' + email + '\nRol: ' + role + '\nBedrijf/partner: ' + company + '\n\nAanvraag vereist handmatige goedkeuring.');
-            window.location.href = 'mailto:support@fleetconnect.be?subject=' + subject + '&body=' + body;
-            msg.textContent = 'Aanvraag voorbereid. Ryzen/FleetConnect maakt accounts alleen na goedkeuring aan.';
+
+            sendAccountRequest.disabled = true;
+            sendAccountRequest.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Aanvraag versturen...';
+            msg.textContent = '';
+
+            const payload = {
+                name,
+                email,
+                phone,
+                company,
+                account_type: accountType,
+                notes,
+                source: 'operator-login',
+                user_agent: navigator.userAgent
+            };
+
+            try {
+                const { data, error } = await supabaseClient.rpc('submit_account_request', { payload });
+                if (error) throw error;
+
+                const requestId = data?.id || email;
+                const fleetConnectHtml = `
+                    <div style="font-family: Inter, Arial, sans-serif; color: #0f172a;">
+                        <h2>Nieuwe FleetConnect accountaanvraag</h2>
+                        <p><strong>Aanvraag ID:</strong> ${escapeHtml(requestId)}</p>
+                        <p><strong>Naam:</strong> ${escapeHtml(name)}</p>
+                        <p><strong>E-mail:</strong> ${escapeHtml(email)}</p>
+                        <p><strong>Telefoon:</strong> ${escapeHtml(phone)}</p>
+                        <p><strong>Bedrijf / partner:</strong> ${escapeHtml(company)}</p>
+                        <p><strong>Account type:</strong> ${escapeHtml(accountType)}</p>
+                        <p><strong>Notities:</strong> ${escapeHtml(notes || '-')}</p>
+                        <p>Deze aanvraag vereist handmatige goedkeuring. Er is geen account automatisch aangemaakt.</p>
+                    </div>
+                `;
+                const requesterHtml = `
+                    <div style="font-family: Inter, Arial, sans-serif; color: #0f172a;">
+                        <h2>Uw FleetConnect accountaanvraag is ontvangen</h2>
+                        <p>Beste ${escapeHtml(name)},</p>
+                        <p>We hebben uw aanvraag voor een ${escapeHtml(accountType)} account ontvangen.</p>
+                        <p><strong>Aanvraag ID:</strong> ${escapeHtml(requestId)}</p>
+                        <p>FleetConnect controleert de aanvraag handmatig. Er is nog geen account aangemaakt.</p>
+                    </div>
+                `;
+
+                const notificationResults = await Promise.allSettled([
+                    sendAccountRequestEmail('support@fleetconnect.be', 'Nieuwe FleetConnect accountaanvraag', fleetConnectHtml, requestId, 'ACCOUNT_REQUEST_INTERNAL'),
+                    sendAccountRequestEmail(email, 'Uw FleetConnect accountaanvraag is ontvangen', requesterHtml, requestId, 'ACCOUNT_REQUEST_CONFIRMATION')
+                ]);
+
+                const failed = notificationResults.filter((result) => result.status === 'rejected');
+                if (failed.length) {
+                    console.error('ACCOUNT_REQUEST email delivery failed:', failed.map((result) => result.reason?.message || result.reason));
+                    msg.textContent = 'Aanvraag opgeslagen. E-mailnotificatie kon niet automatisch worden verzonden; FleetConnect volgt dit handmatig op.';
+                } else {
+                    msg.textContent = 'Aanvraag ontvangen. FleetConnect en de aanvrager kregen een bevestiging per e-mail.';
+                }
+            } catch (err) {
+                console.error('ACCOUNT_REQUEST submission failed:', err);
+                msg.textContent = 'Aanvraag kon niet worden opgeslagen: ' + err.message;
+            } finally {
+                sendAccountRequest.disabled = false;
+                sendAccountRequest.innerHTML = 'Aanvraag versturen';
+            }
         });
 
         // Login logica via Supabase
