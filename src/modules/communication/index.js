@@ -189,9 +189,14 @@ export class CommunicationService {
     }
 
     async sendAccountWelcome(customer, supabaseClient) {
+        return this.sendCustomerRegistrationConfirmation(customer, supabaseClient);
+    }
+
+    async sendCustomerRegistrationConfirmation(customer, supabaseClient) {
         const startTime = performance.now();
         const snapshot = {
             id: customer.id || customer.email,
+            booking_id: customer.booking_id || customer.booking || '',
             token: customer.token || '',
             booking_id: customer.booking_id || customer.booking || '',
             customer: {
@@ -215,6 +220,8 @@ export class CommunicationService {
             const result = await this.activeProvider.send(snapshot.customer.email, subject, html, {
                 bookingId: snapshot.id,
                 trigger,
+                from: 'FleetConnect Support <support@fleetconnect.be>',
+                replyTo: 'support@fleetconnect.be',
                 supabaseUrl: supabaseClient?.supabaseUrl,
                 supabaseKey: supabaseClient?.supabaseKey
             });
