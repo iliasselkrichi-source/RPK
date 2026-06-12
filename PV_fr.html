@@ -108,6 +108,14 @@
         input,select,textarea,button{max-width:100%;min-width:0}
         .footer-dark a{color:#e0edf5;text-decoration:none;display:inline-block;margin:4px 0}
         .footer-dark a:hover{text-decoration:underline}
+        .testimonials-section{padding:42px 0 20px}
+        .testimonials-section h2{margin-bottom:12px}
+        .testimonial-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:16px 0 24px}
+        .testimonial-card{background:white;border:1px solid var(--border-light);border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,0.06)}
+        .testimonial-stars{color:#c9a03d;font-weight:800;letter-spacing:1px;margin-bottom:8px}
+        .testimonial-card p{color:var(--text-dark);line-height:1.5;margin-bottom:10px}
+        .testimonial-card small,.testimonial-empty{color:var(--text-light)}
+        .google-review-cta{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border-light);border-radius:40px;padding:10px 16px;text-decoration:none;color:var(--primary);font-weight:800;background:white}
         @media (max-width:800px){
             .container{padding:0 12px}
             .booking-container{width:100%;max-width:100%;border-radius:18px;margin:0 auto 28px}
@@ -255,6 +263,8 @@
         <a href="PV_Koeriersdienst.html" class="service-card"><div class="service-icon"><i class="fas fa-file-signature"></i></div><h3>Service de messagerie</h3><p>Livraison rapide de documents</p><div class="service-summary">Livraison rapide et fiable de documents dans toute la Belgique. Découvrez notre service de messagerie.</div><div class="read-more-hint"><i class="fas fa-arrow-right"></i> En savoir plus <i class="fas fa-search"></i></div></a>
     </div></div>
 
+    <section class="testimonials-section"><div class="container"><h2>Highlighted Testimonials</h2><div id="highlightedTestimonials" class="testimonial-grid"></div><h2>See All Testimonials</h2><div id="allTestimonials" class="testimonial-grid"></div><a id="googleReviewCta" class="google-review-cta" href="https://www.google.com/search?q=FleetConnect+Belgium+reviews" target="_blank" rel="noopener"><i class="fab fa-google"></i> Google Reviews</a></div></section>
+
     <div class="contact-wrapper" id="contact"><div class="contact-row"><div class="contact-form"><h3><i class="fas fa-paper-plane"></i>Envoyez un message</h3><div class="compact-form"><div class="form-group"><label><i class="fas fa-user"></i> Votre nom *</label><input type="text" id="contactNaam"></div><div class="form-group"><label><i class="fas fa-envelope"></i> E-mail *</label><input type="email" id="contactEmail"></div><div class="form-group"><label><i class="fas fa-comment"></i> Message *</label><textarea id="contactBericht" rows="2"></textarea></div><div class="button-row"><button class="btn-primary" id="verstuurBerichtBtn"><i class="fas fa-paper-plane"></i> Envoyer</button><a href="https://wa.me/32470123456" target="_blank" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a></div></div></div></div></div>
 
     <footer class="footer-dark"><div class="container"><div class="footer-grid"><div class="footer-brand"><h4><i class="fas fa-car"></i> FleetConnect</h4><p>Transport taxi professionnel en Belgique - style, ponctualite et service.</p><a href="/booking#booking">Reserver</a><br><a href="/PV/index.html">Portail client</a><br><a href="/partner-login">Connexion partenaire</a></div><div class="footer-cities"><h4>Villes populaires</h4>
@@ -270,6 +280,7 @@
 
 <!-- Google Maps API with modern Places Autocomplete -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBv51ytW1FTJoSGRiD7hLNknGwNcM8cmcM&v=weekly&libraries=places&callback=initGoogleMaps" async defer></script>
+<script type="module">import { mountTestimonials } from '/src/modules/reviews/testimonials.js'; mountTestimonials({ emptyHighlighted: 'Aucun testimonial mis en avant pour le moment.', emptyAll: 'Aucun autre testimonial pour le moment.' }); const googleCta = document.getElementById('googleReviewCta'); if (googleCta && window.FLEETCONNECT_REVIEW_URL) googleCta.href = window.FLEETCONNECT_REVIEW_URL;</script>
 
 <script>
     window.gm_authFailure = function() { console.warn('Google Maps authentication failed; route validation is unavailable.'); };
@@ -327,6 +338,7 @@
     const ROUTE_ERROR_MESSAGE = "L'adresse ou l'itinéraire n'a pas pu être calculé. Choisissez une adresse complète dans les suggestions.";
     const MIN_RIDE_PRICE = 15;
     const MIN_RIDE_MESSAGE = "Tarif minimum applique : EUR 15";
+    const MANUAL_ROUTE_MESSAGE = "La verification Google des adresses n'est pas disponible. FleetConnect confirmera manuellement l'itineraire et le prix.";
     const BOOKING_PROCESSING_MESSAGE = "Reservation en cours de traitement...";
     
     window.initGoogleMaps = async function() {

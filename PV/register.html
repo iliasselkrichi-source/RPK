@@ -126,6 +126,7 @@
 
         function loginUrl(email = requestedEmail) {
             const params = new URLSearchParams();
+            params.set('reason', 'registered');
             if (requestedBookingId) params.set('booking', requestedBookingId);
             if (email) params.set('email', email);
             return params.toString() ? `/PV/index.html?${params.toString()}` : '/PV/index.html';
@@ -230,9 +231,10 @@
                         phone
                     }, supabase);
 
-                    showSuccess(`Uw account is aangemaakt. Controleer ${email} voor de verificatie- of bevestigingslink.`);
-                    alert(`Uw account is aangemaakt. Controleer ${email} voor de verificatie- of bevestigingslink.`);
-                    window.location.href = loginUrl(email);
+                    showSuccess('Account successfully created. Please verify your email address. If account approval is required, you will receive access once approved.');
+                    setTimeout(() => {
+                        window.location.href = loginUrl(email);
+                    }, 1800);
                 }
             } catch (err) {
                 showError(err.message);

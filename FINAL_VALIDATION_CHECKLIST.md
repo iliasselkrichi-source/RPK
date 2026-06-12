@@ -225,3 +225,17 @@ Before treating the checkpoint as preserved, confirm:
 6. Register a customer with a manually typed default pickup address; visible errors must appear for incomplete data and Google autocomplete must not block submission.
 7. Open the customer portal new-ride form and create a manual fallback booking using typed addresses.
 8. Confirm `Paneel/driver-login.html` does not show or accept `admin@ryzen.be`.
+
+## Phase A.4.4.4 Final Certification Blocker Checklist
+
+1. Apply `20260612050000_phase_a444_final_certification_blockers.sql` to live Supabase.
+2. Submit registration and confirm visible text: `Account successfully created. Please verify your email address. If account approval is required, you will receive access once approved.`
+3. Click the verification email and confirm visible text: `Email successfully verified. You can now log in if your account has been approved.`
+4. Before approval, confirm login shows: `Your account is awaiting approval.`
+5. Approve the account request and verify `account_requests.customer_id`, `account_requests.user_id`, matching `customers`, and matching `auth.users`.
+6. Log in and confirm the customer portal opens without redirect loop.
+7. Complete one ride, open `/review.html?booking=<BOOKING_ID>`, submit a review, and confirm `Thank you for your review.`
+8. Verify the review row exists in `ride_reviews`.
+9. Open `/nl`, `/fr`, and `/en`; confirm five-star comment reviews appear under `Highlighted Testimonials` newest-first and other comment reviews under `See All Testimonials`.
+10. Confirm the Google Reviews CTA is visible and points to the configured verified Google review URL when `window.FLEETCONNECT_REVIEW_URL` is set.
+11. Open the dashboard Account Requests tab and switch NL/FR/EN; verify headers, buttons, statuses, prompts, actions, and messages are translated.

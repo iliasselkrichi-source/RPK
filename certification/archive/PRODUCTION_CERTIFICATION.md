@@ -2121,3 +2121,33 @@ Certification decision:
 
 - FleetConnect is still NOT CERTIFIED.
 - Required next evidence: deployed browser validation for links, manual-address guest booking, manual-address registration, customer portal manual booking, dashboard receipt, email behavior, and removal of fake credential from live pages.
+
+## Phase A.4.4.4 Final Certification Blocker Remediation
+
+Status: NOT CERTIFIED - REPOSITORY REMEDIATION COMPLETE, LIVE MIGRATION AND VALIDATION REQUIRED.
+
+Repository fixes completed:
+
+- Registration now shows a visible success state after account creation: "Account successfully created. Please verify your email address. If account approval is required, you will receive access once approved."
+- Verification redirects to the customer login entry can display: "Email successfully verified. You can now log in if your account has been approved."
+- Pending approval state now displays: "Your account is awaiting approval."
+- Customer login now prefers the new authenticated `get_customer_portal_access()` RPC so approval/customer/auth linkage is checked server-side without weakening customer RLS.
+- Review submission now shows: "Thank you for your review."
+- Review page includes both internal review submission and a visible Google Reviews CTA.
+- Public testimonials are now loaded through `get_public_ride_reviews()` and rendered newest-first on active/root NL/FR/EN public pages.
+- Five-star reviews with comments render under `Highlighted Testimonials`; other comment reviews render under `See All Testimonials`.
+- Account Requests dashboard tab now uses translated NL/FR/EN strings for headings, descriptions, buttons, status labels, prompts, actions, and messages.
+- Direct dashboard mailbox access was not implemented because frontend IMAP/SMTP credentials would be unsafe. `MAIL_INTEGRATION_PLAN.md` documents the secure server-side plan.
+
+New migration:
+
+- `supabase/migrations/20260612050000_phase_a444_final_certification_blockers.sql`
+
+Live validation required:
+
+1. Apply the new migration to live Supabase.
+2. Register a customer, verify email, approve account request, confirm `account_requests -> customers -> auth.users` linkage, log in, and open the customer portal.
+3. Complete a ride, open review link, submit review, verify `ride_reviews`, and confirm homepage testimonial visibility/order.
+4. Switch Account Requests tab across NL/FR/EN and confirm no mixed-language strings remain.
+
+Certification status remains NOT CERTIFIED.
