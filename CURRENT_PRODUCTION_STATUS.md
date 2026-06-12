@@ -291,3 +291,30 @@ Still required:
 4. Test full inbox lifecycle: booking confirmation, accepted, driver assignment, driver accepted/assigned, account request.
 5. Implement manual/operator-created booking in a separately approved phase.
 6. Implement/certify review page, per-landing-page reviews, and completed-ride review CTA in a separately approved phase.
+
+## Phase A.4.4.4 19:39 Live Validation Status
+
+Status: NOT CERTIFIED - LIVE RETEST REQUIRED AFTER HOTFIX DEPLOYMENT.
+
+The 19:39 live validation failure showed that Google referrer blocking still prevented manual address entry in several paths and that at least one homepage/customer login route still reached a missing page. The repository has been updated so active/root NL/FR/EN customer links point to `/PV/index.html`, manual address fallback can persist through `create_public_booking` with `manual_route_required` and `google_places_unavailable` metadata, registration shows explicit errors, and fake `admin@ryzen.be` driver credentials have been removed.
+
+Production remains blocked until these fixes are deployed and browser-tested against the live Vercel domain and Supabase project.
+
+## Phase A.4.4.4 Final Certification Blockers
+
+Status: NOT CERTIFIED - FINAL BLOCKERS REPAIRED IN REPOSITORY, LIVE MIGRATION AND VALIDATION PENDING.
+
+Completed in repository:
+
+- Registration and verification states now have visible success/pending/approved messaging.
+- Customer portal login uses a dedicated access RPC to validate approved customer/auth linkage.
+- Review submission has visible success feedback.
+- Public testimonials render from persisted `ride_reviews` through a safe RPC.
+- Account Requests tab has NL/FR/EN translated headers, actions, status labels, prompts, and messages.
+- Unsafe frontend mailbox integration was not implemented; `MAIL_INTEGRATION_PLAN.md` documents the secure server-side approach.
+
+Pending:
+
+1. Apply `20260612050000_phase_a444_final_certification_blockers.sql`.
+2. Deploy this branch.
+3. Collect live screenshots/evidence for registration, verification, approval, login, portal access, review submission, testimonial visibility, and Account Requests translations.

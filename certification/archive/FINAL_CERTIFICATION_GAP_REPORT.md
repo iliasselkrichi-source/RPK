@@ -270,3 +270,29 @@ FleetConnect remains NOT CERTIFIED until live migration, browser, inbox, and acc
 | Multi-row selectors and full table sorting/filtering | OPEN ENHANCEMENT | Requested after blockers; not implemented in this blocker pass. | Schedule separately after live blockers pass. |
 
 FleetConnect remains NOT CERTIFIED.
+
+## Phase A.4.4.4 19:39 Live Hotfix Gap Update
+
+| Item | Classification | Evidence | Required next action |
+| --- | --- | --- | --- |
+| Homepage/dropdown login 404 | RESOLVED IN REPOSITORY, BLOCKED PENDING DEPLOYMENT | Active/root NL/FR/EN customer links now route to `/PV/index.html`; stale homepage `/customer`, `/client`, `/login`, and relative `index.html` routes no longer scan in touched public entry pages. | Redeploy and click all homepage/dropdown/footer customer links. |
+| Google referrer/manual address failure | MITIGATED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Public and customer portal booking flows now allow typed manual addresses when Google Places is unavailable and persist `manual_route_required` plus `google_places_unavailable`. | Test under the current `RefererNotAllowedMapError`; still add production domains to Google Cloud referrer allowlist. |
+| Registration silent failure | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Registration now uses explicit visible validation and does not require Google autocomplete for default pickup address. | Register with manual default pickup and verify visible errors/success. |
+| Fake `admin@ryzen.be` driver login | RESOLVED IN REPOSITORY, BLOCKED PENDING DEPLOYMENT | Driver login no longer pre-fills, documents, or accepts the fake hardcoded credential. | Redeploy and verify invalid driver login shows a clean error. |
+
+FleetConnect remains NOT CERTIFIED until this 19:39 hotfix is deployed and live-tested.
+
+## Phase A.4.4.4 Final Blocker Gap Update
+
+| Item | Classification | Evidence | Required next action |
+| --- | --- | --- | --- |
+| Registration success feedback | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Register page now shows the required success text and redirects with `reason=registered` so login page also displays the state. | Deploy and submit one registration. |
+| Email verification feedback | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Login page detects verification redirect state and shows the required verified-email message. | Click the Supabase verification email and confirm message. |
+| Approved account login | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE MIGRATION | Added authenticated `get_customer_portal_access()` RPC and login-page use of it. | Apply migration, approve request, verify login opens portal. |
+| Review submission feedback | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Review page now shows `Thank you for your review.` after successful RPC submission. | Submit one completed-ride review. |
+| Homepage testimonial visibility | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE MIGRATION | Added `get_public_ride_reviews()` RPC and testimonial renderer on active/root NL/FR/EN public pages. | Apply migration, submit review, verify newest-first display. |
+| Google Reviews CTA | PARTIALLY RESOLVED, VERIFIED URL STILL NEEDED | Visible Google Reviews CTA exists and uses `window.FLEETCONNECT_REVIEW_URL` when configured, with a Google search fallback. | Provide/configure verified Google Business review URL for final certification. |
+| Account Requests translation | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Account Requests tab uses NL/FR/EN translation keys for headers, actions, statuses, prompts, and messages. | Switch dashboard language and inspect tab. |
+| Dashboard Mail tab | SAFE PLAN COMPLETE, OUT OF CERTIFICATION BLOCKER SCOPE | `MAIL_INTEGRATION_PLAN.md` documents secure IMAP/SMTP architecture; no unsafe frontend mailbox credentials added. | Implement later through server-side proxy only. |
+
+FleetConnect remains NOT CERTIFIED until live migration and validation evidence pass.

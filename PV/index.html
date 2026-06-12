@@ -121,6 +121,16 @@
             margin-bottom: 20px;
             display: none;
         }
+        .info-msg {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: none;
+            text-align: left;
+        }
         .info-text {
             margin-top: 24px;
             font-size: 0.75rem;
@@ -142,6 +152,7 @@
         <p>Professioneel taxivervoer in BelgiÃ«</p>
 
         <div id="errorBox" class="error-msg"></div>
+        <div id="infoBox" class="info-msg"></div>
 
         <div class="field">
             <label><i class="fas fa-envelope"></i> E-mailadres</label>
@@ -173,6 +184,7 @@
         const emailInput = document.getElementById('emailInput');
         const passInput = document.getElementById('passInput');
         const errorBox = document.getElementById('errorBox');
+        const infoBox = document.getElementById('infoBox');
         const loginParams = new URLSearchParams(window.location.search);
         const requestedBookingId = loginParams.get('booking') || loginParams.get('booking_id') || loginParams.get('id') || '';
         const requestedEmail = loginParams.get('email') || '';
@@ -187,9 +199,17 @@
             registerLink.href = registerParams.toString() ? `/PV/register.html?${registerParams.toString()}` : '/PV/register.html';
         }
 
-        if (loginReason === 'pending') showError('Uw accountaanvraag wacht nog op goedkeuring door FleetConnect.', true);
+        if (loginReason === 'registered') showInfo('Account successfully created. Please verify your email address. If account approval is required, you will receive access once approved.', true);
+        if (loginReason === 'verified') showInfo('Email successfully verified. You can now log in if your account has been approved.', true);
+        if (loginReason === 'pending') showError('Your account is awaiting approval.', true);
         if (loginReason === 'profile') showError('Uw klantprofiel is nog niet gekoppeld. Log opnieuw in na verificatie of contacteer support.', true);
         if (loginReason === 'session') showError('Log in om het klantportaal te openen.', true);
+
+        const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+        const queryType = loginParams.get('type') || hashParams.get('type');
+        if (queryType === 'signup' || hashParams.get('access_token')) {
+            showInfo('Email successfully verified. You can now log in if your account has been approved.', true);
+        }
 
         function portalUrl() {
             return requestedBookingId
@@ -200,10 +220,22 @@
         function showError(msg, persist = false) {
             errorBox.innerText = msg;
             errorBox.style.display = 'block';
+            infoBox.style.display = 'none';
             if (!persist) {
                 setTimeout(() => {
                     errorBox.style.display = 'none';
                 }, 4000);
+            }
+        }
+
+        function showInfo(msg, persist = false) {
+            infoBox.innerText = msg;
+            infoBox.style.display = 'block';
+            errorBox.style.display = 'none';
+            if (!persist) {
+                setTimeout(() => {
+                    infoBox.style.display = 'none';
+                }, 5000);
             }
         }
 
@@ -221,9 +253,21 @@
         async function canOpenPortal(user) {
             if (!user?.email) return { allowed: false, message: 'Geen geldige sessie gevonden.' };
 
+            try {
+                const { data: access, error: accessError } = await supabase.rpc('get_customer_portal_access');
+                if (!accessError && access) {
+                    if (access.allowed) return { allowed: true };
+                    if (access.state === 'pending') return { allowed: false, message: 'Your account is awaiting approval.' };
+                    if (access.state === 'rejected') return { allowed: false, message: 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.' };
+                    if (access.message) return { allowed: false, message: access.message };
+                }
+            } catch (accessRpcError) {
+                console.warn('Customer portal access RPC unavailable:', accessRpcError.message);
+            }
+
             const status = await getRequestStatus(user.email);
             if (status?.found && status.status === 'pending') {
-                return { allowed: false, message: 'Uw accountaanvraag wacht nog op goedkeuring door FleetConnect.' };
+                return { allowed: false, message: 'Your account is awaiting approval.' };
             }
             if (status?.found && status.status === 'rejected') {
                 return { allowed: false, message: 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.' };
