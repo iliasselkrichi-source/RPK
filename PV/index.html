@@ -279,18 +279,56 @@
                 console.warn('Customer linkage unavailable:', linkError.message);
             }
 
-            const { data: customers, error } = await supabase
-                .from('customers')
-                .select('id,user_id,email')
-                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-                .limit(1);
+            // FIX RC-4 (also): defense-in-depth — if no linked customer, try the new
+            // create_customer_registration_profile RPC (added in supabase migration
+            // 20260613010000). If applied to live, this creates the missing customer row
+            // and the customer can open the portal. If not applied, the catch is silent
+            // and the user sees the diagnostic message.
+            let customers = null;
+            let profileCheckError = null;
+            try {
+                const result = await supabase
+                    .from('customers')
+                    .select('id,user_id,email')
+                    .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                    .limit(1);
+                customers = result.data;
+                profileCheckError = result.error;
+            } catch (queryErr) {
+                profileCheckError = queryErr;
+            }
 
-            if (error) {
-                console.warn('Customer profile check failed:', error.message);
+            if (profileCheckError) {
+                console.warn('Customer profile check failed:', profileCheckError.message);
                 return { allowed: false, message: 'Klantprofiel kon niet worden gecontroleerd. Probeer opnieuw of contacteer support.' };
             }
 
             if (customers?.length) return { allowed: true };
+
+            // No customer row — try to create it via the migration's RPC
+            try {
+                const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
+                const phone = user.user_metadata?.phone || '';
+                const { data: created, error: createError } = await supabase.rpc('create_customer_registration_profile', {
+                    p_full_name: fullName,
+                    p_email: user.email,
+                    p_phone: phone,
+                    p_default_pickup_address: ''
+                });
+                if (createError) {
+                    console.warn('create_customer_registration_profile failed (migration may not be applied):', createError.message);
+                } else if (created) {
+                    // Re-fetch the customer row to confirm creation
+                    const { data: refreshed } = await supabase
+                        .from('customers')
+                        .select('id,user_id,email')
+                        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                        .limit(1);
+                    if (refreshed?.length) return { allowed: true };
+                }
+            } catch (createErr) {
+                console.warn('create_customer_registration_profile unavailable (migration may not be applied):', createErr.message);
+            }
 
             if (status?.found && status.status === 'approved' && status.request_scope !== 'customer') {
                 return { allowed: false, message: 'Uw account is goedgekeurd, maar uw klantprofiel is nog niet gekoppeld. Controleer uw verificatiemail of contacteer support.' };

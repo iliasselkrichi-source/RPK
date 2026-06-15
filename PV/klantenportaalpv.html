@@ -1226,8 +1226,41 @@
             .limit(1);
         if (customerCheckError || !linkedCustomers?.length) {
             console.warn('Customer portal profile gate failed:', customerCheckError?.message || 'no linked customer');
-            await supabase.auth.signOut();
-            loginRedirect('profile');
+            // FIX RC-4: defense-in-depth — try to call the new create_customer_registration_profile RPC
+            // (added in supabase migration 20260613010000). If that migration is applied to live Supabase,
+            // this will create the missing customer row and the next portal load will succeed.
+            // If the migration is NOT applied, this will fail silently and the user will see the
+            // diagnostic message below (which the founder/operator can act on).
+            try {
+                const fullName = data.user.user_metadata?.full_name || data.user.email.split('@')[0];
+                const phone = data.user.user_metadata?.phone || '';
+                const { data: created, error: createError } = await supabase.rpc('create_customer_registration_profile', {
+                    p_full_name: fullName,
+                    p_email: data.user.email,
+                    p_phone: phone,
+                    p_default_pickup_address: ''
+                });
+                if (createError) {
+                    console.warn('create_customer_registration_profile failed (migration may not be applied):', createError.message);
+                } else if (created) {
+                    console.info('Customer profile created on portal entry; reloading...');
+                    // Reload the page once to re-run the auth gate with the new customer row
+                    window.location.reload();
+                    return false;
+                }
+            } catch (createErr) {
+                console.warn('create_customer_registration_profile unavailable (migration may not be applied):', createErr.message);
+            }
+            // Migration likely not applied. Show a clearer diagnostic instead of immediately
+            // signing out + redirecting (which causes the loop the founder reported).
+            // Display the message inline, do NOT signOut — let the user manually sign out
+            // when they want to. The session is preserved so a hotfix / migration apply
+            // can be performed by the operator without forcing the customer to re-verify.
+            if (customerCheckError) {
+                showError('Klantprofiel kon niet worden gecontroleerd. Probeer opnieuw of contacteer support@fleetconnect.be. Fout: ' + customerCheckError.message, true);
+            } else {
+                showError('Uw klantprofiel is nog niet gekoppeld. Dit kan betekenen dat de registratie nog niet voltooid is, of dat er een configuratiefout is. Log uit en log opnieuw in na verificatie, of contacteer support@fleetconnect.be.', true);
+            }
             return false;
         }
         await loadUserProfile();
