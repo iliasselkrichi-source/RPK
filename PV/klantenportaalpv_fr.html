@@ -400,8 +400,9 @@
             const supabase = getSupabase();
             if (supabase) await supabase.auth.signOut();
             localStorage.clear(); sessionStorage.clear();
-            window.location.href = 'index.html?t=' + Date.now();
-        } catch(err) { window.location.href = 'index.html?t=' + Date.now(); }
+            // FIX RC-5: use canonical /PV/ prefix
+            window.location.href = '/PV/index.html?t=' + Date.now();
+        } catch(err) { window.location.href = '/PV/index.html?t=' + Date.now(); }
     }
     document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
     
