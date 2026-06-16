@@ -1244,19 +1244,23 @@
             .limit(1);
         if (customerCheckError || !linkedCustomers?.length) {
             console.warn('Customer portal profile gate failed:', customerCheckError?.message || 'no linked customer');
-            // FIX RC-4: defense-in-depth — try to call the new create_customer_registration_profile RPC
-            // (added in supabase migration 20260613010000). If that migration is applied to live Supabase,
-            // this will create the missing customer row and the next portal load will succeed.
-            // If the migration is NOT applied, this will fail silently and the user will see the
-            // diagnostic message below (which the founder/operator can act on).
+            // FIX Blocker A (2026-06-16): the function takes a single `payload` jsonb
+            // parameter, not 4 named parameters. The previous call signature
+            // (p_full_name, p_email, p_phone, p_default_pickup_address) returned
+            // PGRST202 404 and the customer row was never created — leaving the user
+            // stuck on the login page in an infinite re-auth loop.
             try {
                 const fullName = data.user.user_metadata?.full_name || data.user.email.split('@')[0];
                 const phone = data.user.user_metadata?.phone || '';
+                const customerId = 'CUST-' + data.user.email.replace(/[^a-z0-9]/gi, '').substring(0, 30);
                 const { data: created, error: createError } = await supabase.rpc('create_customer_registration_profile', {
-                    p_full_name: fullName,
-                    p_email: data.user.email,
-                    p_phone: phone,
-                    p_default_pickup_address: ''
+                    payload: {
+                        id: customerId,
+                        name: fullName,
+                        email: data.user.email,
+                        phone: phone,
+                        default_pickup_address: ''
+                    }
                 });
                 if (createError) {
                     console.warn('create_customer_registration_profile failed (migration may not be applied):', createError.message);

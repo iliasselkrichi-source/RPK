@@ -305,18 +305,27 @@
 
             if (customers?.length) return { allowed: true };
 
-            // No customer row — try to create it via the migration's RPC
+            // No customer row — try to create it via the migration's RPC.
+            // FIX Blocker A (2026-06-16): the function takes a single `payload` jsonb
+            // parameter, not 4 named parameters. The previous call signature
+            // (p_full_name, p_email, p_phone, p_default_pickup_address) returned
+            // PGRST202 404 and the customer row was never created — leaving the user
+            // stuck on the login page in an infinite re-auth loop.
             try {
                 const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
                 const phone = user.user_metadata?.phone || '';
+                const customerId = 'CUST-' + user.email.replace(/[^a-z0-9]/gi, '').substring(0, 30);
                 const { data: created, error: createError } = await supabase.rpc('create_customer_registration_profile', {
-                    p_full_name: fullName,
-                    p_email: user.email,
-                    p_phone: phone,
-                    p_default_pickup_address: ''
+                    payload: {
+                        id: customerId,
+                        name: fullName,
+                        email: user.email,
+                        phone: phone,
+                        default_pickup_address: ''
+                    }
                 });
                 if (createError) {
-                    console.warn('create_customer_registration_profile failed (migration may not be applied):', createError.message);
+                    console.warn('create_customer_registration_profile failed:', createError.message);
                 } else if (created) {
                     // Re-fetch the customer row to confirm creation
                     const { data: refreshed } = await supabase
@@ -327,7 +336,7 @@
                     if (refreshed?.length) return { allowed: true };
                 }
             } catch (createErr) {
-                console.warn('create_customer_registration_profile unavailable (migration may not be applied):', createErr.message);
+                console.warn('create_customer_registration_profile unavailable:', createErr.message);
             }
 
             if (status?.found && status.status === 'approved' && status.request_scope !== 'customer') {
