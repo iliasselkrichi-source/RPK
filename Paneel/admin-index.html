@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FleetConnect - Operator Login</title>
+    <title>FleetConnect - Operator & Partner Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -15,7 +15,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -33,20 +33,20 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
         }
         
-        .ryzen-brand {
+        .fleetconnect-brand {
             font-size: 2.5rem;
             font-weight: 800;
             color: white;
             margin-bottom: 0.5rem;
         }
         
-        .ryzen-brand i {
-            color: #f59e0b;
+        .fleetconnect-brand i {
+            color: #c9a03d;
             margin-right: 10px;
         }
         
-        .ryzen-tagline {
-            color: #f59e0b;
+        .fleetconnect-tagline {
+            color: #c9a03d;
             font-size: 0.7rem;
             letter-spacing: 2px;
             margin-bottom: 1.5rem;
@@ -77,11 +77,11 @@
         }
 
         .login-form input:focus {
-            border-color: #f59e0b;
+            border-color: #c9a03d;
         }
         
         .login-btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, #c9a03d, #a8842f);
             color: #0f172a;
             border: none;
             padding: 1rem 2rem;
@@ -96,7 +96,7 @@
         
         .login-btn:hover {
             transform: translateY(-2px);
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            background: linear-gradient(135deg, #dfb94e, #c9a03d);
         }
 
         .login-btn:disabled {
@@ -135,7 +135,7 @@
         }
         
         .panel-card:hover {
-            border-color: #f59e0b;
+            border-color: #c9a03d;
             transform: translateY(-3px);
         }
         
@@ -170,7 +170,7 @@
             margin-top: 0.5rem;
         }
         
-        .ryzen-footer {
+        .fleetconnect-footer {
             margin-top: 1rem;
             font-size: 0.6rem;
             color: #475569;
@@ -185,7 +185,7 @@
             margin-top: 1rem;
             background: none;
             border: 0;
-            color: #f59e0b;
+            color: #c9a03d;
             font-weight: 600;
             cursor: pointer;
             text-decoration: underline;
@@ -218,14 +218,14 @@
 </head>
 <body>
     <div class="login-container">
-        <div class="ryzen-brand">
-            <i class="fas fa-crown"></i> RYZEN
+        <div class="fleetconnect-brand">
+            <i class="fas fa-car"></i> FleetConnect
         </div>
-        <div class="ryzen-tagline">
-            AUTOMOTIVE EXCELLENCE
+        <div class="fleetconnect-tagline">
+            DISPATCH PLATFORM
         </div>
         <div class="subtitle">
-            Premium Dispatch Platform
+            Professioneel taxivervoer in België
         </div>
         
         <div id="loginSection">
@@ -234,12 +234,18 @@
                 <input type="password" id="password" placeholder="Wachtwoord" required>
             </div>
             <button class="login-btn" id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> Inloggen bij Ryzen
+                <i class="fas fa-sign-in-alt"></i> Inloggen bij FleetConnect
             </button>
             <div id="errorMsg" class="error-message"></div>
             <button type="button" class="request-account-link" id="toggleAccountRequest">Nieuwe account aanvragen</button>
             <div class="account-request" id="accountRequestSection">
                 <input type="text" id="requestName" placeholder="Naam" autocomplete="name">
+                <!-- FIX Issue 5b (2026-06-16 cert cycle 5): the form has no explicit
+                     request_scope. The default behavior treats 'Client' as customer and
+                     everything else as operator, which is correct for our needs. We add
+                     a hidden request_scope field that updates based on the selected
+                     account_type, so dashboard filters (e.g. ?scope=operator) work cleanly. -->
+                <input type="hidden" id="requestScope" value="operator">
                 <input type="email" id="requestEmail" placeholder="E-mailadres" autocomplete="email">
                 <input type="tel" id="requestPhone" placeholder="Telefoonnummer" autocomplete="tel">
                 <input type="text" id="requestCompany" placeholder="Bedrijf / partnernaam">
@@ -252,13 +258,13 @@
                 </select>
                 <textarea id="requestNotes" rows="3" placeholder="Notities / gewenste toegang"></textarea>
                 <button type="button" class="login-btn" id="sendAccountRequest">Aanvraag versturen</button>
-                <div class="welcome-text" id="requestAccountMsg">Accounts worden alleen na goedkeuring door Ryzen/FleetConnect aangemaakt.</div>
+                <div class="welcome-text" id="requestAccountMsg">Accounts worden alleen na goedkeuring door FleetConnect aangemaakt.</div>
             </div>
         </div>
         
         <div class="panel-select" id="panelSelect">
-            <p style="color: #f59e0b; font-size: 0.85rem;">
-                <i class="fas fa-check-circle"></i> Welkom bij Ryzen!
+            <p style="color: #c9a03d; font-size: 0.85rem;">
+                <i class="fas fa-check-circle"></i> Welkom bij FleetConnect!
             </p>
             <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 0.25rem;">
                 Kies uw werkpaneel:
@@ -286,8 +292,8 @@
         <div class="info-text">
             <i class="fas fa-shield-alt"></i> Beveiligde Supabase login
         </div>
-        <div class="ryzen-footer">
-            Ryzen - Master-level Automotive
+        <div class="fleetconnect-footer">
+            © 2026 FleetConnect — Dispatch Platform
         </div>
     </div>
     
@@ -383,6 +389,11 @@
                 phone,
                 company,
                 account_type: accountType,
+                // FIX Issue 5b (2026-06-16 cert cycle 5): explicit request_scope.
+                // The function default ('operator' for non-Client) is correct, but we
+                // set it explicitly so the dashboard query ?scope=... and the customer
+                // RLS policies behave correctly. Client -> customer, everything else -> operator.
+                request_scope: accountType === 'Client' ? 'customer' : 'operator',
                 notes,
                 source: 'operator-login',
                 user_agent: navigator.userAgent
@@ -474,7 +485,7 @@
                 console.error('Login fout:', err.message);
                 errorMsg.textContent = 'Login mislukt: ' + err.message;
                 loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Inloggen bij Ryzen';
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Inloggen bij FleetConnect';
             }
         });
         
