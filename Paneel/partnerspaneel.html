@@ -3,26 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>NH - Partner Paneel (Demo - alle velden zichtbaar)</title>
+    <title>FleetConnect - Partnerportaal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        :root {
+            --fc-primary: #2c6e9e;
+            --fc-primary-dark: #1e4a6e;
+            --fc-accent-gold: #c9a03d;
+            --fc-sidebar-bg: #1e4a6e;
+            --fc-sidebar-hover: #2c6e9e;
+            --fc-sidebar-text: #e2edf7;
+            --fc-sidebar-section: #6b8caf;
+            --fc-sidebar-active-bg: rgba(201,160,61,0.18);
+            --fc-sidebar-active-text: #c9a03d;
+            --fc-bg-body: #f4f7fc;
+            --fc-border-light: #e2edf7;
+            --fc-text-dark: #1a2a3a;
+            --fc-text-light: #4a627a;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f1f5f9; height: 100vh; display: flex; }
-        .sidebar { width: 280px; background: #0f172a; color: #e2e8f0; overflow-y: auto; display: flex; flex-direction: column; flex-shrink: 0; transition: width 0.3s ease; }
+        body { font-family: 'Inter', sans-serif; background: var(--fc-bg-body); height: 100vh; display: flex; }
+        .sidebar { width: 280px; background: var(--fc-sidebar-bg); color: var(--fc-sidebar-text); overflow-y: auto; display: flex; flex-direction: column; flex-shrink: 0; transition: width 0.3s ease; }
         .sidebar.collapsed { width: 80px; }
         .sidebar.collapsed .logo .logo-text, .sidebar.collapsed .logo small, .sidebar.collapsed .nav-item span, .sidebar.collapsed .nav-section-title { display: none; }
         .sidebar.collapsed .nav-item { justify-content: center; }
-        .logo { padding: 24px 20px; font-size: 1.3rem; font-weight: 700; border-bottom: 1px solid #1e293b; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-        .logo i.fa-bars { color: #e2e8f0; font-size: 1.3rem; }
-        .logo .logo-text { flex: 1; }
+        .logo { padding: 24px 20px; font-size: 1.3rem; font-weight: 700; border-bottom: 1px solid var(--fc-sidebar-hover); display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .logo i.fa-bars { color: var(--fc-sidebar-text); font-size: 1.3rem; }
+        .logo .logo-text { flex: 1; color: var(--fc-sidebar-text); }
+        .logo small { color: var(--fc-accent-gold); font-size: 0.7rem; font-weight: 500; letter-spacing: 1px; }
         .nav-menu { padding: 20px 16px; flex: 1; }
         .nav-section { margin-bottom: 20px; }
-        .nav-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; padding: 8px 12px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 12px; font-weight: 500; font-size: 0.9rem; color: #cbd5e1; cursor: pointer; transition: all 0.2s; }
-        .nav-item:hover { background: #1e293b; }
-        .nav-item.active { background: #2dd4bf20; color: #2dd4bf; }
+        .nav-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--fc-sidebar-section); padding: 8px 12px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 12px; font-weight: 500; font-size: 0.9rem; color: var(--fc-sidebar-text); cursor: pointer; transition: all 0.2s; }
+        .nav-item:hover { background: var(--fc-sidebar-hover); }
+        .nav-item.active { background: var(--fc-sidebar-active-bg); color: var(--fc-sidebar-active-text); }
         .nav-item i { width: 22px; }
         .nav-item.logout-item { margin-top: 16px; border-top: 1px solid #1e293b; padding-top: 16px; color: #f87171; }
         .main { flex: 1; display: flex; flex-direction: column; overflow: auto; }
@@ -128,8 +144,8 @@
     <div class="logo" onclick="app.toggleSidebar()">
         <i class="fas fa-bars"></i>
         <div class="logo-text">
-            <i class="fas fa-taxi"></i> NH
-            <br><small id="logoSubtext">Partner Paneel</small>
+            <i class="fas fa-car"></i> FleetConnect
+            <br><small id="logoSubtext">Partnerportaal</small>
         </div>
     </div>
     <div class="nav-menu">
@@ -266,7 +282,7 @@
         { id: "DRV-002", driver_code: "DRV-002", name: "Sofie Claes", email: "sofie@example.com", vehicle: "Mercedes E", license_plate: "1-DEF-456", partner_id: 1, color: "Wit" }
     ];
     let partners = [
-        { id: 1, name: "NH Hoofdpartner", is_hoofd: true, prefix: "NH", contact: "Jan", email: "info@nh.be", phone: "0470123456" }
+        { id: 1, name: "Eigen onderneming", is_hoofd: true, prefix: "DFC", contact: "Jan", email: "info@fleetconnect.be", phone: "0470123456" }
     ];
 
     let nextDriverIdCounter = 3;
@@ -689,7 +705,7 @@
                 <h3>📅 ${t('navAgenda')}</h3><p>${t('noRidesPlanning')}</p>
                 <h3>👥 ${t('navDrivers')}</h3><p>${t('addDriver')}</p>
                 <h3>💰 ${t('navFinancial')}</h3><p>${t('chartLabel')}</p>
-                <hr><p style="text-align:center;">© 2026 NH – Partner Paneel met alle velden zichtbaar</p>
+                <hr><p style="text-align:center;">© 2026 FleetConnect — Partnerportaal</p>
             </div>`;
             document.getElementById('pageTitle').innerHTML = t('pageTitleWiki') + ' <span class="demo-badge">DEMO MODE</span>';
         }
