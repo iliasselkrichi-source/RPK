@@ -660,13 +660,25 @@
             async showAddDriverForm() { let t = translations[currentLang]; let targetPartner = this.partners.find(p => p.is_hoofd === true); if (!targetPartner && this.partners.length > 0) targetPartner = this.partners[0]; if (!targetPartner) { this.showToast(t.noPartners, true); return; } let name = prompt(`${t.ficheName} ${t.tableDriver}:`); if (!name) return; let email = prompt(`${t.ficheEmail} ${t.tableDriver}:`); if (!email) return; let vehicle = prompt(`${t.ficheVehicle}:`) || 'Standaard'; const { count } = await supabase.from('drivers').select('*', { count: 'exact', head: true }).eq('partner_id', targetPartner.id); const nextNumber = (count || 0) + 1; const driverCode = `${targetPartner.prefix || 'DRV'}-${String(nextNumber).padStart(2, '0')}`; const { error } = await supabase.rpc('create_operator_driver', { payload: { partner_id: targetPartner.id, driver_code: driverCode, name: name, email: email, vehicle: vehicle, color: 'Zwart', license_plate: 'Onbekend' } }); if (error) { this.showToast(`${t.toastError} ${t.btnAddDriver}: ` + error.message, true); return; } this.showToast(`${name} ${t.toastAdded}`); await this.loadDrivers(); if (this.currentTab === 'drivers') this.renderDrivers(); if (this.currentTab === 'partners') this.renderPartners(); },
             async showAddPartnerForm() { document.getElementById('partnerModal').style.display = 'flex'; },
             async savePartner() { let t = translations[currentLang]; const name = document.getElementById('p_name').value; if (!name) { this.showToast(t.ficheName + ' is verplicht', true); return; } const contact = document.getElementById('p_contact').value; const email = document.getElementById('p_email').value; const phone = document.getElementById('p_phone').value; const prefix = document.getElementById('p_prefix').value || name.slice(0,2).toUpperCase(); const isHoofd = document.getElementById('p_is_hoofd').checked; const { error } = await supabase.rpc('create_operator_partner', { payload: { name: name, is_hoofd: isHoofd, prefix: prefix, contact: contact, email: email, phone: phone } }); if (error) { this.showToast(`${t.toastError} ${t.btnAddPartner}: ` + error.message, true); return; } this.showToast(`${name} ${t.toastAdded}`); this.closePartnerModal(); await this.loadPartners(); if (this.currentTab === 'partners') this.renderPartners(); },
-            async sendAccountDecisionEmail(request, approved, reason = '', approvalResult = {}) { if (!request?.email) return; const subject = approved ? 'Uw FleetConnect accountaanvraag is goedgekeurd' : 'Uw FleetConnect accountaanvraag is beoordeeld';
+            async sendAccountDecisionEmail(request, approved, reason = '', approvalResult = {}, inviteEmailSent = false) { if (!request?.email) return; const subject = approved ? 'Uw FleetConnect accountaanvraag is goedgekeurd' : 'Uw FleetConnect accountaanvraag is beoordeeld';
                 // FIX Blocker B (2026-06-16): the previous version of this email
                 // always sent the partner a CTA pointing to /PV/index.html (the
                 // CUSTOMER portal) with copy "U kunt nu inloggen via het
                 // klantportaal." — regardless of account_type. For Partner/Operations
                 // and Driver requests, this routed the requester to the wrong portal.
                 // We now branch the CTA URL and copy on account_type.
+                //
+                // FIX Blocker 2 (2026-06-16, second pass): the previous version
+                // pointed partners to /Paneel/partner-login.html, but newly-approved
+                // partners had no password set, so the login page asked for a
+                // password they did not have. We now branch on `inviteEmailSent`:
+                //   - true:  the partner has been sent a Supabase Auth password
+                //            recovery link, so the CTA points to partner-login.html
+                //            with copy "check your email, set your password, then
+                //            log in"
+                //   - false: fall back to partner-login.html (the partner can use
+                //            the "wachtwoord vergeten" link to trigger a new
+                //            recovery email)
                 const accountType = (request.account_type || 'Other').toLowerCase();
                 const isOperator = accountType === 'partner' || accountType === 'operations';
                 const isDriver = accountType === 'driver';
@@ -676,13 +688,17 @@
                     portalUrl = `${window.location.origin}/Paneel/partner-login.html?email=${encodeURIComponent(request.email)}`;
                     ctaText = 'Partnerportaal openen';
                     approvalText = approvalResult.auth_user_linked
-                        ? 'Uw partnerprofiel is gekoppeld aan uw FleetConnect login. U kunt nu inloggen via het partnerportaal.'
+                        ? (inviteEmailSent
+                            ? 'Uw partnerprofiel is aangemaakt. We hebben u een aparte e-mail gestuurd met een link om uw wachtwoord in te stellen. Klik op de link in die e-mail, stel uw wachtwoord in, en log daarna in op het partnerportaal.'
+                            : 'Uw partnerprofiel is aangemaakt. Klik op "Wachtwoord vergeten?" op de partnerportaal-inlogpagina om een wachtwoord-instellink per e-mail te ontvangen, en log daarna in op het partnerportaal.')
                         : 'Uw partnerprofiel is aangemaakt. Activeer of verifieer uw login via de beveiligde FleetConnect registratie/verificatie voordat u inlogt op het partnerportaal.';
                 } else if (isDriver) {
                     portalUrl = `${window.location.origin}/Paneel/driver-login.html?email=${encodeURIComponent(request.email)}`;
                     ctaText = 'Chauffeurportaal openen';
                     approvalText = approvalResult.auth_user_linked
-                        ? 'Uw chauffeurprofiel is gekoppeld aan uw FleetConnect login. U kunt nu inloggen via het chauffeurportaal.'
+                        ? (inviteEmailSent
+                            ? 'Uw chauffeurprofiel is aangemaakt. We hebben u een aparte e-mail gestuurd met een link om uw wachtwoord in te stellen. Klik op de link in die e-mail, stel uw wachtwoord in, en log daarna in op het chauffeurportaal.'
+                            : 'Uw chauffeurprofiel is aangemaakt. Klik op "Wachtwoord vergeten?" op de chauffeurportaal-inlogpagina om een wachtwoord-instellink per e-mail te ontvangen, en log daarna in op het chauffeurportaal.')
                         : 'Uw chauffeurprofiel is aangemaakt. Activeer of verifieer uw login via de beveiligde FleetConnect registratie/verificatie voordat u inlogt op het chauffeurportaal.';
                 } else {
                     // Client or Other — keep the original (correct) customer-portal behavior
@@ -693,7 +709,50 @@
                         : 'Uw klantprofiel is aangemaakt. Activeer of verifieer uw login via de beveiligde FleetConnect registratie/verificatie voordat u inlogt.';
                 }
                 const html = `<div style="font-family: Inter, Arial, sans-serif; color:#0f172a;"><h2>${subject}</h2><p>Beste ${this.escapeHtml(request.name || 'aanvrager')},</p><p>${approved ? approvalText : 'Uw accountaanvraag werd niet goedgekeurd.'}</p>${approvalResult.customer_id ? `<p><strong>Klantprofiel:</strong> ${this.escapeHtml(approvalResult.customer_id)}</p>` : ''}${reason ? `<p><strong>Reden:</strong> ${this.escapeHtml(reason)}</p>` : ''}${approved ? `<p><a href="${portalUrl}" style="display:inline-block; background:#0f172a; color:#ffffff; padding:12px 18px; border-radius:8px; text-decoration:none; font-weight:700;">${ctaText}</a></p>` : ''}<p>Contacteer support@fleetconnect.be bij vragen.</p></div>`; const result = await comms.activeProvider.send(request.email, subject, html, { trigger: approved ? 'ACCOUNT_REQUEST_APPROVED' : 'ACCOUNT_REQUEST_REJECTED', supabaseUrl: SUPABASE_URL, supabaseKey: SUPABASE_ANON_KEY }); if (!result.success) console.warn('Account decision email failed:', result.error); },
-            async approveAccountRequest(requestId) { const t = translations[currentLang]; const request = this.accountRequests.find(r => r.id === requestId); if (!confirm(t.accountRequestsApproveConfirm)) return; const { data, error } = await supabase.rpc('approve_account_request', { p_request_id: requestId }); if (error) { this.showToast(`${t.accountRequestsApproveFailed}: ${error.message}`, true); return; } await this.sendAccountDecisionEmail(request, true, '', data || {}); this.showToast(data?.auth_user_linked ? t.accountRequestsApprovedLinked : t.accountRequestsApprovedAuthRequired); await this.loadAccountRequests(); this.renderAccountRequests(); },
+            async approveAccountRequest(requestId) {
+                const t = translations[currentLang];
+                const request = this.accountRequests.find(r => r.id === requestId);
+                if (!confirm(t.accountRequestsApproveConfirm)) return;
+
+                // FIX Blocker 2 (2026-06-16, second pass): use the new
+                // approve_account_request_with_invite RPC, which:
+                //   1. Creates the auth user (if missing) for partner/driver/ops
+                //   2. Returns set_password_url + set_password_token
+                // For customer scope, falls back to the original behavior.
+                const { data, error } = await supabase.rpc('approve_account_request_with_invite', {
+                    p_request_id: requestId,
+                    p_redirect_to: `${window.location.origin}/Paneel/partner-set-password.html`
+                });
+                if (error) { this.showToast(`${t.accountRequestsApproveFailed}: ${error.message}`, true); return; }
+
+                // If the approval flow requires the partner to set a password
+                // (i.e. a new auth user was created), trigger a password-recovery
+                // email via Supabase Auth so the partner gets a working set-password
+                // link. This is the only way to deliver a token_hash that the
+                // partner-set-password.html page can call verifyOtp on, since
+                // SQL SECURITY DEFINER cannot call the GoTrue generateLink Go function.
+                let inviteEmailSent = false;
+                if (data?.requires_invite) {
+                    try {
+                        const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+                            data.email,
+                            { redirectTo: `${window.location.origin}/Paneel/partner-set-password.html` }
+                        );
+                        if (resetError) {
+                            console.warn('resetPasswordForEmail failed (partner will need to use the "wachtwoord vergeten" link on the partner login page):', resetError.message);
+                        } else {
+                            inviteEmailSent = true;
+                        }
+                    } catch (resetErr) {
+                        console.warn('resetPasswordForEmail unavailable:', resetErr.message);
+                    }
+                }
+
+                await this.sendAccountDecisionEmail(request, true, '', data || {}, inviteEmailSent);
+                this.showToast(data?.auth_user_linked ? t.accountRequestsApprovedLinked : t.accountRequestsApprovedAuthRequired);
+                await this.loadAccountRequests();
+                this.renderAccountRequests();
+            },
             async rejectAccountRequest(requestId) { const t = translations[currentLang]; const request = this.accountRequests.find(r => r.id === requestId); const reason = prompt(t.accountRequestsRejectReason) || ''; const { error } = await supabase.rpc('reject_account_request', { p_request_id: requestId, p_reason: reason }); if (error) { this.showToast(`${t.accountRequestsRejectFailed}: ${error.message}`, true); return; } await this.sendAccountDecisionEmail(request, false, reason); this.showToast(t.accountRequestsRejected); await this.loadAccountRequests(); this.renderAccountRequests(); },
             refreshCurrentTab() { switch(this.currentTab) { case 'neworders': this.renderNewOrders(); break; case 'orders': this.renderOrders(); break; case 'history': this.renderHistory(); break; case 'agenda': this.renderAgenda(); break; case 'drivers': this.renderDrivers(); break; case 'partners': this.renderPartners(); break; case 'customers': this.renderCustomers(); break; case 'accountrequests': this.renderAccountRequests(); break; case 'financieel': this.renderFinance(); break; case 'settlements': this.renderSettlements(); break; case 'wiki': this.renderWiki(); break; default: this.renderNewOrders(); } },
             switchTab(tabName) { this.currentTab = tabName; document.querySelectorAll('.nav-item').forEach(item => { const itemTab = item.getAttribute('data-tab'); if (itemTab === tabName) item.classList.add('active'); else item.classList.remove('active'); }); this.refreshCurrentTab(); },
