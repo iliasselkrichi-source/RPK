@@ -12,13 +12,51 @@ const ALLOWED_ORIGINS = [
   'https://fleetconnect.be',
   'https://www.fleetconnect.be',
   'https://rpk-mu.vercel.app',
+  'https://fleetconnectfork.vercel.app',
+  'https://fleet-connect-fork.vercel.app',
+  'https://portal.fleetconnect.be',
+  'https://client.fleetconnect.be',
+  'https://partners.fleetconnect.be',
   'http://localhost:3000',
   'http://127.0.0.1:5500'
 ]
 
+const EXTRA_ALLOWED_ORIGINS = (Deno.env.get('FLEETCONNECT_ALLOWED_ORIGINS') || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+function isAllowedFleetConnectOrigin(origin: string | null) {
+  if (!origin) return false
+  if (ALLOWED_ORIGINS.includes(origin) || EXTRA_ALLOWED_ORIGINS.includes(origin)) return true
+
+  try {
+    const url = new URL(origin)
+    if (url.protocol !== 'https:') return false
+    return (
+      url.hostname === 'fleetconnect.be' ||
+      url.hostname.endsWith('.fleetconnect.be') ||
+      /^fleetconnectfork(-.*)?\.vercel\.app$/.test(url.hostname) ||
+      /^fleet-connect-fork(-.*)?\.vercel\.app$/.test(url.hostname)
+    )
+  } catch (_) {
+    return false
+  }
+}
+
+function sanitizeResendTag(value: unknown) {
+  const cleaned = String(value ?? '')
+    .replace(/[^A-Za-z0-9_-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 40)
+
+  return cleaned || 'unknown'
+}
+
 serve(async (req) => {
   const origin = req.headers.get('origin')
-  const isAllowedOrigin = origin && ALLOWED_ORIGINS.includes(origin)
+  const isAllowedOrigin = isAllowedFleetConnectOrigin(origin)
 
   const corsHeaders = {
     'Access-Control-Allow-Origin': isAllowedOrigin ? origin : ALLOWED_ORIGINS[0],
@@ -61,27 +99,42 @@ serve(async (req) => {
     console.log(`[Email Dispatch] Trigger: ${metadata?.trigger || 'Unknown'} | To: ${recipients.join(', ')}`);
 
     // 3. Dispatch via Resend
-    // FORCE canonical sender if not provided or doesn't match FleetConnect domain
-  const sender = 'FleetConnect <onboarding@resend.dev>';
+    // Allow verified FleetConnect-domain senders, otherwise use the canonical configured sender.
+    const senderEnv = Deno.env.get('FLEETCONNECT_EMAIL_FROM')
+    const requestedSender = typeof from === 'string' ? from : ''
+    const requestedSenderAllowed = /@fleetconnect\\.be>?$/i.test(requestedSender.trim())
+    const sender = requestedSenderAllowed ? requestedSender : (senderEnv || 'FleetConnect <bookings@fleetconnect.be>')
+    const senderFallbackUsed = !requestedSenderAllowed && !senderEnv
+    console.log(`[Email Dispatch] FLEETCONNECT_EMAIL_FROM exists: ${senderEnv ? 'yes' : 'no'}`)
+    console.log(`[Email Dispatch] Requested sender allowed: ${requestedSenderAllowed ? 'yes' : 'no'}`)
+    console.log(`[Email Dispatch] Sender fallback used: ${senderFallbackUsed ? 'yes' : 'no'}`)
+    console.log(`[Email Dispatch] Sender address used: ${sender}`)
 
     const { data, error } = await resend.emails.send({
       from: sender,
       to: to,
       subject: subject,
       html: html,
-      reply_to: reply_to || 'fleetconnect.os@gmail.com',
+      reply_to: reply_to || 'support@fleetconnect.be',
       // Pass metadata as tags for Resend dashboard tracking
       tags: metadata ? Object.entries(metadata).map(([name, value]) => ({
-        name: name.substring(0, 40),
-        value: String(value).substring(0, 40)
+        name: sanitizeResendTag(name),
+        value: sanitizeResendTag(value)
       })) : []
     })
 
     if (error) {
       console.error('[Resend SDK Error]', error)
-      return new Response(JSON.stringify({ success: false, error: error.message }), {
+      const errorMessage = error.message || 'Resend rejected the email request'
+      return new Response(JSON.stringify({
+        success: false,
+        error: errorMessage,
+        provider: 'resend',
+        code: error.name || 'resend_error',
+        statusCode: error.statusCode || 400
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: error.statusCode || 400,
       })
     }
 

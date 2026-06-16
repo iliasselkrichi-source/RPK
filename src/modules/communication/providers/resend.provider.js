@@ -52,12 +52,17 @@ export class ResendProvider extends BaseEmailProvider {
                 body: JSON.stringify(payload)
             });
 
-            if (!response.ok) {
-                const data = await response.json().catch(() => ({}));
-                throw new Error(data.error || data.message || `HTTP ${response.status}: Dispatch failed via backend`);
+            const raw = await response.text();
+            let data = {};
+            try {
+                data = raw ? JSON.parse(raw) : {};
+            } catch (parseError) {
+                data = { error: raw || parseError.message };
             }
 
-            const data = await response.json();
+            if (!response.ok || data.success === false) {
+                throw new Error(data.error || data.message || `HTTP ${response.status}: Dispatch failed via backend`);
+            }
 
             return {
                 success: true,
@@ -65,7 +70,12 @@ export class ResendProvider extends BaseEmailProvider {
                 provider: 'resend'
             };
         } catch (error) {
-            console.error('❌ ResendProvider error:', error.message);
+            console.error('[ResendProvider] send-email failed:', {
+                message: error.message,
+                trigger: options.trigger,
+                bookingId: options.bookingId,
+                recipients: payload.to
+            });
             return {
                 success: false,
                 error: error.message,

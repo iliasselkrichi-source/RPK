@@ -19,6 +19,10 @@ export class CommunicationService {
         };
         this.activeProvider = this.providers[CommunicationConfig.settings.provider] || this.providers.mock;
         this.escalationKeys = new Set();
+        this.internalOnlyTriggers = new Set([
+            'BOOKING_ACCEPTED',
+            'DRIVER_DECLINED'
+        ]);
     }
 
     /**
@@ -67,11 +71,12 @@ export class CommunicationService {
                 if (!to) throw new Error('Driver email missing for assignment request');
             }
 
-            if (!options.operationsOnly && !to) throw new Error('Recipient email missing');
+            const internalOnly = options.operationsOnly || this.internalOnlyTriggers.has(trigger);
+            if (!internalOnly && !to) throw new Error('Recipient email missing');
 
-            let result = { success: true, provider: this.activeProvider.constructor.name };
+            let result = { success: true, provider: this.activeProvider.constructor.name, internalOnly };
 
-            if (!options.operationsOnly) {
+            if (!internalOnly) {
                 console.log(`[CommunicationService] Sending ${trigger} to ${to} via ${this.activeProvider.constructor.name}`);
 
                 result = await this.activeProvider.send(to, subject, html, {
@@ -82,7 +87,7 @@ export class CommunicationService {
                 });
             }
 
-            const operationsResult = await this.sendOperationsCopy(trigger, snapshot, subject, html, to, supabaseClient);
+            const operationsResult = await this.sendOperationsCopy(trigger, snapshot, subject, html, internalOnly ? null : to, supabaseClient);
             if (!result.success || !operationsResult.success) {
                 await this.sendTechnicalEscalation(trigger, snapshot.id, result.error || operationsResult.error || 'Communication delivery failure', supabaseClient);
             }
@@ -184,10 +189,16 @@ export class CommunicationService {
     }
 
     async sendAccountWelcome(customer, supabaseClient) {
+        return this.sendCustomerRegistrationConfirmation(customer, supabaseClient);
+    }
+
+    async sendCustomerRegistrationConfirmation(customer, supabaseClient) {
         const startTime = performance.now();
         const snapshot = {
             id: customer.id || customer.email,
+            booking_id: customer.booking_id || customer.booking || '',
             token: customer.token || '',
+            booking_id: customer.booking_id || customer.booking || '',
             customer: {
                 name: customer.name || customer.full_name,
                 email: customer.email,
@@ -200,7 +211,7 @@ export class CommunicationService {
         try {
             const lang = LanguageEngine.detectLanguage(snapshot, snapshot.customer);
             const mode = CommunicationConfig.settings.fallbackMode;
-            const trigger = 'ACCOUNT_ONBOARDING';
+            const trigger = 'CUSTOMER_REGISTRATION_CONFIRMATION';
             const subject = mode === 'trilingual'
                 ? LanguageEngine.getTrilingualSubject(trigger)
                 : LanguageEngine.getSubject(trigger, lang);
@@ -209,6 +220,8 @@ export class CommunicationService {
             const result = await this.activeProvider.send(snapshot.customer.email, subject, html, {
                 bookingId: snapshot.id,
                 trigger,
+                from: 'FleetConnect Support <support@fleetconnect.be>',
+                replyTo: 'support@fleetconnect.be',
                 supabaseUrl: supabaseClient?.supabaseUrl,
                 supabaseKey: supabaseClient?.supabaseKey
             });
@@ -233,12 +246,12 @@ export class CommunicationService {
             return result;
         } catch (error) {
             CommunicationLogger.log({
-                trigger: 'ACCOUNT_ONBOARDING',
+                trigger: 'CUSTOMER_REGISTRATION_CONFIRMATION',
                 status: 'error',
                 bookingId: snapshot.id,
                 error: error.message
             });
-            await this.sendTechnicalEscalation('ACCOUNT_ONBOARDING', snapshot.id, error.message, supabaseClient);
+            await this.sendTechnicalEscalation('CUSTOMER_REGISTRATION_CONFIRMATION', snapshot.id, error.message, supabaseClient);
             return { success: false, error: error.message };
         }
     }

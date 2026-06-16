@@ -79,14 +79,20 @@ export class TemplateRenderer {
             case 'BOOKING_ACCEPTED': return this.renderBookingAccepted(data, labels, subjects, lang);
             case 'DRIVER_ASSIGNMENT_REQUEST': return this.renderDriverAssignmentRequest(data, labels, subjects, lang);
             case 'DRIVER_ASSIGNED': return this.renderDriverAssigned(data, labels, subjects, lang);
+            case 'DRIVER_REASSIGNED': return this.renderDriverReassigned(data, labels, subjects, lang);
             case 'DRIVER_DECLINED': return this.renderDriverDeclined(data, labels, subjects, lang);
             case 'BOOKING_CANCELLED': return this.renderBookingCancelled(data, labels, subjects, lang);
+            case 'BOOKING_REJECTED': return this.renderBookingRejected(data, labels, subjects, lang);
+            case 'RIDE_COMPLETED_REVIEW_REQUEST':
             case 'BOOKING_COMPLETED':
             case 'RIDE_COMPLETED':
                 return this.renderBookingCompleted(data, labels, subjects, lang);
             case 'ACCOUNT_WELCOME':
             case 'ACCOUNT_ONBOARDING':
+            case 'CUSTOMER_REGISTRATION_CONFIRMATION':
                 return this.renderAccountWelcome(data, labels, subjects, lang);
+            case 'CUSTOMER_REGISTRATION_CONFIRMATION':
+                return this.renderCustomerRegistrationConfirmation(data, labels, subjects, lang);
             case 'PAYMENT_REFUND_CONFIRMATION':
                 return this.renderPaymentRefundConfirmation(data, labels, subjects, lang);
             default: return `<p style="font-family: sans-serif;">Update regarding booking ${data.reference || data.id}</p>`;
@@ -101,14 +107,33 @@ export class TemplateRenderer {
     }
 
     static renderBookingConfirmation(data, labels, subjects, lang) {
-        const viewUrl = RouteBuilder.build('view-booking', { id: data.id });
-        const distance =
-  data.distance_km ||
-  data.form_data?.distance_km ||
-  data.metadata?.distance_km ||
-  data.distance ||
-  '...';
+        const viewUrl = RouteBuilder.build('view-booking', { id: data.id, email: data.customer?.email || data.email });
+        const distanceValue = Number(
+            data.distance_km ||
+            data.route_distance_km ||
+            data.form_data?.route_distance_km ||
+            data.form_data?.distance_km ||
+            data.metadata?.route_distance_km ||
+            data.metadata?.distance_km ||
+            data.distance
+        );
+        const manualRoute = data.manual_route_required === true
+            || data.form_data?.manual_route_required === true
+            || data.metadata?.manual_route_required === true;
+        const asapRequested = data.asap_requested === true
+            || data.form_data?.asap_requested === true
+            || data.metadata?.asap_requested === true;
+        if (!manualRoute && (!Number.isFinite(distanceValue) || distanceValue <= 0)) {
+            throw new Error(`Booking confirmation distance missing for ${data.reference || data.id || 'unknown booking'}`);
+        }
+        const durationValue = Number(
+            data.duration_min ||
+            data.route_duration_min ||
+            data.form_data?.route_duration_min ||
+            data.metadata?.route_duration_min
+        );
         const customerName = this.getCustomerName(data, labels);
+        const amountValue = Number(data.amount || 0);
 
         return `
             <h2 style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 22px; color: ${CommunicationConfig.theme.secondaryColor};">${subjects.BOOKING_CONFIRMATION}</h2>
@@ -122,10 +147,12 @@ export class TemplateRenderer {
                 ${EmailComponents.detailsRow(labels.pickup, data.pickup || '...')}
                 ${EmailComponents.detailsRow(labels.destination, data.destination || '...')}
                 ${EmailComponents.detailsRow(labels.vehicle, data.vehicle || 'Standard')}
-                ${EmailComponents.detailsRow(labels.distance, `${distance} km`)}
-                ${EmailComponents.detailsRow(labels.price, `€ ${parseFloat(data.amount || 0).toFixed(2)}`)}
+                ${manualRoute ? EmailComponents.detailsRow(labels.distance, labels.manualRoutePending || 'FleetConnect will confirm route and price') : EmailComponents.detailsRow(labels.distance, `${distanceValue.toFixed(1)} km`)}
+                ${Number.isFinite(durationValue) && durationValue > 0 ? EmailComponents.detailsRow(labels.duration || 'Duration', `${Math.round(durationValue)} min`) : ''}
+                ${EmailComponents.detailsRow(labels.price, `EUR ${amountValue.toFixed(2)}`)}
                 ${EmailComponents.detailsRow(labels.payment, data.payment || 'Unspecified')}
             </table>
+            ${asapRequested ? `<p style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 14px; color: #92400e; line-height: 22px;"><strong>${labels.asapRide || 'ASAP ride'}:</strong> ${labels.asapConfirmation || 'FleetConnect will confirm by email when the driver can arrive.'}</p>` : ''}
             ${EmailComponents.cta(labels.viewBooking, viewUrl)}
         `;
     }
@@ -133,10 +160,10 @@ export class TemplateRenderer {
     static renderBookingAccepted(data, labels, subjects, lang) {
         const customerName = this.getCustomerName(data, labels);
 
-        // CTA Routing Decision
-        const ctaUrl = data.is_registered
-            ? RouteBuilder.build('view-booking', { id: data.id })
-            : RouteBuilder.build('setup-account-prefilled', { id: data.id, email: data.customer?.email || data.email });
+        const ctaUrl = RouteBuilder.build('customer-booking', {
+            id: data.id,
+            email: data.customer?.email || data.email
+        });
 
         return `
             <h2 style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 22px; color: ${CommunicationConfig.theme.primaryColor};">${subjects.BOOKING_ACCEPTED}</h2>
@@ -199,32 +226,43 @@ export class TemplateRenderer {
     static renderDriverAssigned(data, labels, subjects, lang) {
         const d = data.driver || {};
         const customerName = this.getCustomerName(data, labels);
-        const driverFirstName = d.name ? d.name.split(' ')[0] : (labels.driver || 'Your FleetConnect Driver');
+        const driverName = d.name || (labels.driver || 'Your FleetConnect Driver');
+        const driverPhone = d.phone || CommunicationConfig.brand.supportPhone;
+        const amountValue = Number(data.amount || 0);
+        const distanceValue = Number(data.distance_km || data.route_distance_km || data.form_data?.route_distance_km || data.metadata?.route_distance_km || 0);
+        const durationValue = Number(data.duration_min || data.route_duration_min || data.form_data?.route_duration_min || data.metadata?.route_duration_min || 0);
+        const ctaUrl = RouteBuilder.build('view-booking', { id: data.id, email: data.customer?.email || data.email });
 
         return `
             <h2 style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 22px; color: ${CommunicationConfig.theme.secondaryColor};">${subjects.DRIVER_ASSIGNED}</h2>
             <p style="margin: 0 0 30px 0; font-family: 'Inter', sans-serif; font-size: 15px; color: #475569; line-height: 24px;">
-                ${labels.greeting(customerName)} ${labels.assignedBody}
+                ${labels.greeting(customerName)} ${labels.rideConfirmedBody || labels.assignedBody}
             </p>
-            ${EmailComponents.sectionTitle(labels.driver)}
+            ${EmailComponents.sectionTitle(labels.summary)}
             <table width="100%" style="margin-bottom: 30px;">
-                ${EmailComponents.detailsRow(labels.name, driverFirstName)}
-                ${EmailComponents.detailsRow(labels.vehicle, `${d.vehicle || 'Luxury Vehicle'} (${d.color || '...'})`)}
-                ${EmailComponents.detailsRow(labels.plate, d.license_plate || '...')}
-            </table>
-            ${EmailComponents.sectionTitle(labels.pickupInfo)}
-            <table width="100%" style="margin-bottom: 30px;">
+                ${EmailComponents.detailsRow(labels.bookingReference, data.reference || data.id)}
                 ${EmailComponents.detailsRow(labels.dateTime, `${data.datetime} ${data.time}`)}
                 ${EmailComponents.detailsRow(labels.pickup, data.pickup || '...')}
                 ${EmailComponents.detailsRow(labels.destination, data.destination || '...')}
+                ${Number.isFinite(distanceValue) && distanceValue > 0 ? EmailComponents.detailsRow(labels.distance, `${distanceValue.toFixed(1)} km`) : ''}
+                ${Number.isFinite(durationValue) && durationValue > 0 ? EmailComponents.detailsRow(labels.duration || 'Duration', `${Math.round(durationValue)} min`) : ''}
+                ${EmailComponents.detailsRow(labels.price, `EUR ${amountValue.toFixed(2)}`)}
             </table>
-            <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
-                <p style="margin: 0; font-family: 'Inter', sans-serif; font-size: 14px; color: #64748b; text-align: center;">
-                    ${labels.dispatchContact}: <strong>${CommunicationConfig.brand.supportPhone}</strong>
-                </p>
-            </div>
-            ${EmailComponents.cta(labels.viewBooking, RouteBuilder.build('view-booking', { id: data.id }))}
+            ${EmailComponents.sectionTitle(labels.driver)}
+            <table width="100%" style="margin-bottom: 30px;">
+                ${EmailComponents.detailsRow(labels.name, driverName)}
+                ${EmailComponents.detailsRow(labels.phone || 'Phone', driverPhone)}
+                ${EmailComponents.detailsRow(labels.vehicle, `${d.vehicle || data.vehicle || 'Vehicle'}${d.color ? ` (${d.color})` : ''}`)}
+                ${EmailComponents.detailsRow(labels.plate, d.license_plate || '...')}
+            </table>
+            ${EmailComponents.cta(labels.viewBooking, ctaUrl)}
         `;
+    }
+
+    static renderDriverReassigned(data, labels, subjects, lang) {
+        const html = this.renderDriverAssigned(data, labels, subjects, lang);
+        return html.replace(subjects.DRIVER_ASSIGNED, subjects.DRIVER_REASSIGNED || subjects.DRIVER_ASSIGNED)
+            .replace(labels.rideConfirmedBody || labels.assignedBody, labels.driverReassignedBody || labels.rideConfirmedBody || labels.assignedBody);
     }
 
     static renderDriverDeclined(data, labels, subjects, lang) {
@@ -247,11 +285,26 @@ export class TemplateRenderer {
 
     static renderBookingCancelled(data, labels, subjects, lang) {
         const customerName = this.getCustomerName(data, labels);
+        const reason = data.metadata?.cancellation_reason || data.cancellation_reason || '';
         return `
             <h2 style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 22px; color: #ef4444;">${subjects.BOOKING_CANCELLED}</h2>
             <p style="margin: 0 0 30px 0; font-family: 'Inter', sans-serif; font-size: 15px; color: #475569; line-height: 24px;">
                 ${labels.greeting(customerName)} ${labels.cancelledBody(data.reference || data.id)}
             </p>
+            ${reason ? `<p style="font-family: 'Inter', sans-serif; font-size: 14px; color: #475569;"><strong>${labels.reason || 'Reason'}:</strong> ${reason}</p>` : ''}
+            ${EmailComponents.cta(labels.bookNew, RouteBuilder.build('book-new'))}
+        `;
+    }
+
+    static renderBookingRejected(data, labels, subjects, lang) {
+        const customerName = this.getCustomerName(data, labels);
+        const reason = data.metadata?.rejection_reason || data.rejection_reason || '';
+        return `
+            <h2 style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 22px; color: #ef4444;">${subjects.BOOKING_REJECTED || 'Booking request declined'}</h2>
+            <p style="margin: 0 0 30px 0; font-family: 'Inter', sans-serif; font-size: 15px; color: #475569; line-height: 24px;">
+                ${labels.greeting(customerName)} ${labels.rejectedBody ? labels.rejectedBody(data.reference || data.id) : `your booking request ${data.reference || data.id} could not be accepted.`}
+            </p>
+            ${reason ? `<p style="font-family: 'Inter', sans-serif; font-size: 14px; color: #475569;"><strong>${labels.reason || 'Reason'}:</strong> ${reason}</p>` : ''}
             ${EmailComponents.cta(labels.bookNew, RouteBuilder.build('book-new'))}
         `;
     }
@@ -273,7 +326,7 @@ export class TemplateRenderer {
                 ${EmailComponents.detailsRow(labels.driver, d.name || '...')}
                 ${EmailComponents.detailsRow(labels.vehicle, `${d.vehicle || data.vehicle || '...'} (${d.color || '...'})`)}
             </table>
-            ${EmailComponents.cta(labels.writeReview, ReviewConfig.googleReviewUrl)}
+            ${EmailComponents.cta(labels.writeReview, RouteBuilder.build('review', { id: data.id }) || ReviewConfig.googleReviewUrl)}
             <div style="text-align: center; margin-top: 10px;">
                 <a href="${RouteBuilder.build('book-new')}" style="color: ${CommunicationConfig.theme.primaryColor}; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; text-decoration: none;">
                     &rarr; ${labels.bookNew}
@@ -284,12 +337,31 @@ export class TemplateRenderer {
 
     static renderAccountWelcome(data, labels, subjects, lang) {
         const customerName = this.getCustomerName(data, labels);
+        const portalUrl = RouteBuilder.build('customer-login', { email: data.customer?.email || data.email });
         return `
-            <h2 style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 22px; color: ${CommunicationConfig.theme.secondaryColor};">${subjects.ACCOUNT_WELCOME}</h2>
+            <h2 style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 22px; color: ${CommunicationConfig.theme.secondaryColor};">${subjects.CUSTOMER_REGISTRATION_CONFIRMATION || subjects.ACCOUNT_WELCOME}</h2>
             <p style="margin: 0 0 30px 0; font-family: 'Inter', sans-serif; font-size: 15px; color: #475569; line-height: 24px;">
-                ${labels.greeting(customerName)} ${labels.welcomeBody}
+                ${labels.greeting(customerName)} ${labels.registrationConfirmationBody || labels.welcomeBody}
             </p>
-            ${EmailComponents.cta(labels.setupAccount, RouteBuilder.build('account-welcome', { token: data.token }))}
+            ${EmailComponents.cta(labels.confirmRegistration || labels.setupAccount, portalUrl)}
+        `;
+    }
+
+    static renderCustomerRegistrationConfirmation(data, labels, subjects, lang) {
+        const customerName = this.getCustomerName(data, labels);
+        const portalUrl = RouteBuilder.build('customer-login', { email: data.customer?.email || data.email });
+
+        return `
+            <h2 style="margin: 0 0 20px 0; font-family: 'Inter', sans-serif; font-size: 22px; color: ${CommunicationConfig.theme.secondaryColor};">${subjects.CUSTOMER_REGISTRATION_CONFIRMATION || subjects.ACCOUNT_ONBOARDING}</h2>
+            <p style="margin: 0 0 24px 0; font-family: 'Inter', sans-serif; font-size: 15px; color: #475569; line-height: 24px;">
+                ${labels.greeting(customerName)} ${labels.registrationConfirmationBody || labels.welcomeBody}
+            </p>
+            ${EmailComponents.sectionTitle(labels.summary)}
+            <table width="100%" style="margin-bottom: 30px;">
+                ${EmailComponents.detailsRow(labels.accountStatus || 'Account status', labels.accountCreated || 'Account created')}
+                ${EmailComponents.detailsRow(labels.support, CommunicationConfig.brand.supportEmail)}
+            </table>
+            ${EmailComponents.cta(labels.confirmRegistration || labels.setupAccount, portalUrl)}
         `;
     }
 

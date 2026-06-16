@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
@@ -121,6 +121,16 @@
             margin-bottom: 20px;
             display: none;
         }
+        .info-msg {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: none;
+            text-align: left;
+        }
         .info-text {
             margin-top: 24px;
             font-size: 0.75rem;
@@ -139,13 +149,14 @@
     <div class="login-card">
         <i class="fas fa-car" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 16px;"></i>
         <h1>FleetConnect</h1>
-        <p>Professioneel taxivervoer in BelgiÃ«</p>
+        <p>Professioneel taxivervoer in België</p>
 
         <div id="errorBox" class="error-msg"></div>
+        <div id="infoBox" class="info-msg"></div>
 
         <div class="field">
             <label><i class="fas fa-envelope"></i> E-mailadres</label>
-            <input type="email" id="emailInput" placeholder="admin@ryzen.be" value="admin@ryzen.be">
+            <input type="email" id="emailInput" placeholder="uw@email.be">
         </div>
         <div class="field">
             <label><i class="fas fa-lock"></i> Wachtwoord</label>
@@ -157,29 +168,208 @@
         </button>
 
         <div class="info-text">
-            <i class="fas fa-info-circle"></i> Demo account: admin@ryzen.be / admin@ryzen.be
+            <i class="fas fa-info-circle"></i> Log in met uw FleetConnect klantaccount.
+            <br><br><a id="registerLink" href="register.html" style="color: var(--primary); font-weight: 700;">Account aanmaken</a>
         </div>
     </div>
 
-    <script>
-        // ========== VASTE INLOG GEGEVENS ==========
-        const VALID_EMAIL = 'admin@ryzen.be';
-        const VALID_PASSWORD = 'admin@ryzen.be';
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const loginBtn = document.getElementById('loginBtn');
         const emailInput = document.getElementById('emailInput');
         const passInput = document.getElementById('passInput');
         const errorBox = document.getElementById('errorBox');
+        const infoBox = document.getElementById('infoBox');
+        const loginParams = new URLSearchParams(window.location.search);
+        const requestedBookingId = loginParams.get('booking') || loginParams.get('booking_id') || loginParams.get('id') || '';
+        const requestedEmail = loginParams.get('email') || '';
+        const loginReason = loginParams.get('reason') || '';
 
-        function showError(msg) {
-            errorBox.innerText = msg;
-            errorBox.style.display = 'block';
-            setTimeout(() => {
-                errorBox.style.display = 'none';
-            }, 4000);
+        if (requestedEmail) emailInput.value = requestedEmail;
+        const registerLink = document.getElementById('registerLink');
+        if (registerLink) {
+            const registerParams = new URLSearchParams();
+            if (requestedBookingId) registerParams.set('booking', requestedBookingId);
+            if (requestedEmail) registerParams.set('email', requestedEmail);
+            registerLink.href = registerParams.toString() ? `/PV/register.html?${registerParams.toString()}` : '/PV/register.html';
         }
 
-        function handleLogin() {
+        if (loginReason === 'registered') showInfo('Account successfully created. Please verify your email address. After verification you can log in to the customer portal.', true);
+        if (loginReason === 'verified') showInfo('Email successfully verified. You can now log in if your account has been approved.', true);
+        if (loginReason === 'pending') showError('Your account is awaiting approval.', true);
+        if (loginReason === 'profile') showError('Uw klantprofiel is nog niet gekoppeld. Log opnieuw in na verificatie of contacteer support.', true);
+        if (loginReason === 'session') showError('Log in om het klantportaal te openen.', true);
+
+        const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+        const queryType = loginParams.get('type') || hashParams.get('type');
+        if (queryType === 'signup' || hashParams.get('access_token')) {
+            showInfo('Email successfully verified. You can now log in if your account has been approved.', true);
+        }
+
+        function portalUrl() {
+            return requestedBookingId
+                ? `/PV/klantenportaalpv.html?id=${encodeURIComponent(requestedBookingId)}`
+                : '/PV/klantenportaalpv.html';
+        }
+
+        function showError(msg, persist = false) {
+            errorBox.innerText = msg;
+            errorBox.style.display = 'block';
+            infoBox.style.display = 'none';
+            if (!persist) {
+                setTimeout(() => {
+                    errorBox.style.display = 'none';
+                }, 4000);
+            }
+        }
+
+        function showInfo(msg, persist = false) {
+            infoBox.innerText = msg;
+            infoBox.style.display = 'block';
+            errorBox.style.display = 'none';
+            if (!persist) {
+                setTimeout(() => {
+                    infoBox.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        async function getRequestStatus(email) {
+            if (!email) return null;
+            try {
+                const { data } = await supabase.rpc('get_account_request_status', { p_email: email });
+                return data || null;
+            } catch (statusError) {
+                console.warn('Account request status unavailable:', statusError.message);
+                return null;
+            }
+        }
+
+        async function canOpenPortal(user) {
+            if (!user?.email) return { allowed: false, message: 'Geen geldige sessie gevonden.' };
+
+            try {
+                const { data: access, error: accessError } = await supabase.rpc('get_customer_portal_access');
+                if (!accessError && access) {
+                    if (access.allowed) return { allowed: true };
+                    if (access.state === 'pending') return { allowed: false, message: 'Your account is awaiting approval.' };
+                    if (access.state === 'rejected') return { allowed: false, message: 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.' };
+                    if (access.message) return { allowed: false, message: access.message };
+                }
+            } catch (accessRpcError) {
+                console.warn('Customer portal access RPC unavailable:', accessRpcError.message);
+            }
+
+            const status = await getRequestStatus(user.email);
+            if (status?.found && status.status === 'pending' && status.request_scope !== 'customer') {
+                return { allowed: false, message: 'Your account is awaiting approval.' };
+            }
+            if (status?.found && status.status === 'rejected' && status.request_scope !== 'customer') {
+                return { allowed: false, message: 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.' };
+            }
+
+            try {
+                await supabase.rpc('link_customer_after_registration');
+            } catch (linkError) {
+                console.warn('Customer linkage unavailable:', linkError.message);
+            }
+
+            // FIX RC-4 (also): defense-in-depth — if no linked customer, try the new
+            // create_customer_registration_profile RPC (added in supabase migration
+            // 20260613010000). If applied to live, this creates the missing customer row
+            // and the customer can open the portal. If not applied, the catch is silent
+            // and the user sees the diagnostic message.
+            let customers = null;
+            let profileCheckError = null;
+            try {
+                const result = await supabase
+                    .from('customers')
+                    .select('id,user_id,email')
+                    .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                    .limit(1);
+                customers = result.data;
+                profileCheckError = result.error;
+            } catch (queryErr) {
+                profileCheckError = queryErr;
+            }
+
+            if (profileCheckError) {
+                console.warn('Customer profile check failed:', profileCheckError.message);
+                return { allowed: false, message: 'Klantprofiel kon niet worden gecontroleerd. Probeer opnieuw of contacteer support.' };
+            }
+
+            if (customers?.length) return { allowed: true };
+
+            // No customer row — try to create it via the migration's RPC.
+            // FIX Blocker A (2026-06-16): the function takes a single `payload` jsonb
+            // parameter, not 4 named parameters. The previous call signature
+            // (p_full_name, p_email, p_phone, p_default_pickup_address) returned
+            // PGRST202 404 and the customer row was never created — leaving the user
+            // stuck on the login page in an infinite re-auth loop.
+            try {
+                const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
+                const phone = user.user_metadata?.phone || '';
+                const customerId = 'CUST-' + user.email.replace(/[^a-z0-9]/gi, '').substring(0, 30);
+                const { data: created, error: createError } = await supabase.rpc('create_customer_registration_profile', {
+                    payload: {
+                        id: customerId,
+                        name: fullName,
+                        email: user.email,
+                        phone: phone,
+                        default_pickup_address: ''
+                    }
+                });
+                if (createError) {
+                    console.warn('create_customer_registration_profile failed:', createError.message);
+                } else if (created) {
+                    // Re-fetch the customer row to confirm creation
+                    const { data: refreshed } = await supabase
+                        .from('customers')
+                        .select('id,user_id,email')
+                        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                        .limit(1);
+                    if (refreshed?.length) return { allowed: true };
+                }
+            } catch (createErr) {
+                console.warn('create_customer_registration_profile unavailable:', createErr.message);
+            }
+
+            if (status?.found && status.status === 'approved' && status.request_scope !== 'customer') {
+                return { allowed: false, message: 'Uw account is goedgekeurd, maar uw klantprofiel is nog niet gekoppeld. Controleer uw verificatiemail of contacteer support.' };
+            }
+
+            return { allowed: false, message: 'Geen gekoppeld klantprofiel gevonden. Maak eerst een account aan of wacht op goedkeuring.' };
+        }
+
+        const authCode = loginParams.get('code');
+        if (authCode) {
+            try {
+                const { error: codeError } = await supabase.auth.exchangeCodeForSession(window.location.href);
+                if (codeError) {
+                    showError('Verificatie kon niet worden afgerond: ' + codeError.message, true);
+                } else {
+                    showInfo('Uw e-mailadres is bevestigd. We controleren nu uw klanttoegang.', true);
+                    window.history.replaceState({}, document.title, `/PV/index.html${requestedBookingId ? `?booking=${encodeURIComponent(requestedBookingId)}` : ''}`);
+                }
+            } catch (codeExchangeError) {
+                showError('Verificatie kon niet worden afgerond. Probeer opnieuw of contacteer support@fleetconnect.be.', true);
+                console.warn('Supabase verification exchange failed:', codeExchangeError.message);
+            }
+        }
+
+        const { data: existingSession } = await supabase.auth.getSession();
+        if (existingSession?.session?.user) {
+            const access = await canOpenPortal(existingSession.session.user);
+            if (access.allowed) window.location.replace(portalUrl());
+            else showError(access.message, true);
+        }
+
+        async function handleLogin() {
             const email = emailInput.value.trim();
             const password = passInput.value.trim();
 
@@ -188,19 +378,41 @@
                 return;
             }
 
-            if (email === VALID_EMAIL && password === VALID_PASSWORD) {
-                // Inloggen succesvol - sla sessie op
-                sessionStorage.setItem('loggedIn', 'true');
-                sessionStorage.setItem('userEmail', email);
-                sessionStorage.setItem('userName', 'Admin Ryzen');
-                
-                // Redirect naar klantenportaal
-                window.location.href = 'klantenportaalpv.html';
-            } else {
-                showError('Ongeldige inloggegevens. Probeer opnieuw.');
-                // Reset wachtwoord veld
+            loginBtn.disabled = true;
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inloggen...';
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                if (!data.session) throw new Error('Login kon niet worden bevestigd.');
+
+                const access = await canOpenPortal(data.session.user);
+                if (!access.allowed) {
+                    await supabase.auth.signOut();
+                    showError(access.message, true);
+                    return;
+                }
+
+                window.location.href = portalUrl();
+            } catch (err) {
+                let message = err.message || 'Ongeldige inloggegevens. Probeer opnieuw.';
+                const requestStatus = await getRequestStatus(email);
+                if (requestStatus?.found && requestStatus.status === 'pending') {
+                    message = 'Uw accountaanvraag wacht nog op goedkeuring door FleetConnect.';
+                } else if (requestStatus?.found && requestStatus.status === 'approved') {
+                    message = 'Uw account is goedgekeurd. Controleer uw verificatiemail of maak uw wachtwoord opnieuw aan via de officiële Supabase verificatielink.';
+                } else if (requestStatus?.found && requestStatus.status === 'rejected') {
+                    message = 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.';
+                } else if (String(message).toLowerCase().includes('email not confirmed')) {
+                    message = 'Uw e-mailadres is nog niet bevestigd. Controleer uw verificatiemail.';
+                }
+                showError(message, true);
                 passInput.value = '';
                 passInput.focus();
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = originalText;
             }
         }
 
@@ -215,12 +427,7 @@
             if (e.key === 'Enter') handleLogin();
         });
         
-        // Prefill demo gegevens voor gebruiksgemak
-        emailInput.value = 'admin@ryzen.be';
-        
-        console.log("âœ… Login pagina gereed - Gebruik admin@ryzen.be / admin@ryzen.be");
+        console.log("FleetConnect klantlogin gereed");
     </script>
 </body>
 </html>
-
-

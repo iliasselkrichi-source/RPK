@@ -239,3 +239,74 @@ FleetConnect remains NOT CERTIFIED pending live browser/inbox validation and oth
 | Booking fiche close X | RESOLVED IN REPOSITORY | Modal header close button is sticky and accessible. | Redeploy and browser-test while modal body is scrolled. |
 
 FleetConnect remains NOT CERTIFIED pending redeploy, browser testing, inbox testing, and previously documented non-Stripe blockers.
+
+## Phase A.4.4.4 Live Blocker Gap Update
+
+| Item | Classification | Evidence | Required next action |
+| --- | --- | --- | --- |
+| Account request support notification | RESOLVED IN REPOSITORY | Account request email now includes a dashboard review CTA. | Redeploy and submit one request. |
+| Account request to customer conversion | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE VALIDATION | `approve_account_request` creates/updates `customers`, stores `account_requests.customer_id`, and links existing `auth.users` through `account_requests.user_id`. | Apply migration, approve one request, verify account_requests/auth.users/customers linkage. |
+| Missing Auth user during approval | BLOCKED PENDING MANUAL APPROVAL | Frontend cannot safely create Auth users with service-role privileges. Approval creates the customer row but reports whether Auth linkage exists. | Use Supabase Auth invite/verification flow when no matching Auth user exists. |
+| Customer portal multilingual persistence | RESOLVED IN REPOSITORY | Active customer portal language switcher persists NL/FR/EN in localStorage. | Browser-test NL/FR/EN portal labels after login. |
+| Customer portal direct booking insert | RESOLVED IN REPOSITORY | Customer portal booking now uses `create_public_booking` with place IDs, route distance, duration, and amount. | Browser-test one customer portal booking. |
+| Assignment sent status | RESOLVED IN REPOSITORY | Dashboard writes `assignment_sent`; driver accept RPC clears reassignment flags and sets `assigned`. | Assign a driver and validate dashboard status before/after accept. |
+| Driver archive active ride protection | RESOLVED IN REPOSITORY | Dashboard blocks archive when active rides are assigned and lists blocking ride IDs. | Browser-test archive attempt with active ride. |
+| Operator-created booking | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE VALIDATION | Added authenticated operator-only `create_operator_booking`. | Apply migration and create one controlled operator booking. |
+| Ride completed review workflow | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE VALIDATION | Added `operator_complete_booking`, `ride_reviews`, `submit_ride_review`, `/review`, and `review.html`. | Complete one ride, confirm email CTA, submit review, verify `ride_reviews`. |
+
+FleetConnect remains NOT CERTIFIED until live migration, browser, inbox, and account-linkage validation are complete.
+
+## Phase A.4.4.4 Live Validation Failure Gap Update
+
+| Item | Classification | Evidence | Required next action |
+| --- | --- | --- | --- |
+| Customer portal redirect loop | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Login/register/portal now gate portal entry on session plus linked customer profile. | Redeploy and test login/register/customer portal entry. |
+| Account request/customer/auth chain | LIVE DB READY, BLOCKED PENDING LIVE BROWSER TESTING | Live DB has customer/profile RPCs and account request linkage columns. | Submit, approve, verify, and log in with screenshots. |
+| Google referrer/address failure | MITIGATED IN REPOSITORY, REQUIRES GOOGLE CLOUD CONFIG | UI now allows manual route fallback if Google auth/referrer fails; live domain should still be added to Google API restrictions. | Add Vercel/custom domains to Google Cloud allowed referrers and retest autocomplete. |
+| Homepage login 404 | RESOLVED IN REPOSITORY | Public page login links now use `/PV/index.html`. | Redeploy and click NL/FR/EN menu login links. |
+| One-hour booking rule / ASAP | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Public forms enforce one hour unless ASAP; ASAP metadata is stored. | Test scheduled ride under 1h blocked; ASAP accepted with correct messaging. |
+| Driver double assignment | LIVE DB READY, BLOCKED PENDING LIVE BROWSER TESTING | Dashboard uses `operator_assign_driver`; live `driver_accept_assignment` rejects already-assigned rides; recall RPC exists. | Attempt second driver accept after first accepted. |
+| Review URL | RESOLVED IN REPOSITORY, BLOCKED PENDING DEPLOYMENT | `vercel.json` routes `/review` to `review.html`; `submit_ride_review` exists live. | Redeploy and open `/review` and `/review.html?booking=<ID>`. |
+| Multi-row selectors and full table sorting/filtering | OPEN ENHANCEMENT | Requested after blockers; not implemented in this blocker pass. | Schedule separately after live blockers pass. |
+
+FleetConnect remains NOT CERTIFIED.
+
+## Phase A.4.4.4 19:39 Live Hotfix Gap Update
+
+| Item | Classification | Evidence | Required next action |
+| --- | --- | --- | --- |
+| Homepage/dropdown login 404 | RESOLVED IN REPOSITORY, BLOCKED PENDING DEPLOYMENT | Active/root NL/FR/EN customer links now route to `/PV/index.html`; stale homepage `/customer`, `/client`, `/login`, and relative `index.html` routes no longer scan in touched public entry pages. | Redeploy and click all homepage/dropdown/footer customer links. |
+| Google referrer/manual address failure | MITIGATED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Public and customer portal booking flows now allow typed manual addresses when Google Places is unavailable and persist `manual_route_required` plus `google_places_unavailable`. | Test under the current `RefererNotAllowedMapError`; still add production domains to Google Cloud referrer allowlist. |
+| Registration silent failure | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Registration now uses explicit visible validation and does not require Google autocomplete for default pickup address. | Register with manual default pickup and verify visible errors/success. |
+| Fake `admin@ryzen.be` driver login | RESOLVED IN REPOSITORY, BLOCKED PENDING DEPLOYMENT | Driver login no longer pre-fills, documents, or accepts the fake hardcoded credential. | Redeploy and verify invalid driver login shows a clean error. |
+
+FleetConnect remains NOT CERTIFIED until this 19:39 hotfix is deployed and live-tested.
+
+## Phase A.4.4.4 Final Blocker Gap Update
+
+| Item | Classification | Evidence | Required next action |
+| --- | --- | --- | --- |
+| Registration success feedback | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Register page now shows the required success text and redirects with `reason=registered` so login page also displays the state. | Deploy and submit one registration. |
+| Email verification feedback | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Login page detects verification redirect state and shows the required verified-email message. | Click the Supabase verification email and confirm message. |
+| Approved account login | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE MIGRATION | Added authenticated `get_customer_portal_access()` RPC and login-page use of it. | Apply migration, approve request, verify login opens portal. |
+| Review submission feedback | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Review page now shows `Thank you for your review.` after successful RPC submission. | Submit one completed-ride review. |
+| Homepage testimonial visibility | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE MIGRATION | Added `get_public_ride_reviews()` RPC and testimonial renderer on active/root NL/FR/EN public pages. | Apply migration, submit review, verify newest-first display. |
+| Google Reviews CTA | PARTIALLY RESOLVED, VERIFIED URL STILL NEEDED | Visible Google Reviews CTA exists and uses `window.FLEETCONNECT_REVIEW_URL` when configured, with a Google search fallback. | Provide/configure verified Google Business review URL for final certification. |
+| Account Requests translation | RESOLVED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Account Requests tab uses NL/FR/EN translation keys for headers, actions, statuses, prompts, and messages. | Switch dashboard language and inspect tab. |
+| Dashboard Mail tab | SAFE PLAN COMPLETE, OUT OF CERTIFICATION BLOCKER SCOPE | `MAIL_INTEGRATION_PLAN.md` documents secure IMAP/SMTP architecture; no unsafe frontend mailbox credentials added. | Implement later through server-side proxy only. |
+
+FleetConnect remains NOT CERTIFIED until live migration and validation evidence pass.
+
+## Phase A.4.4.4 Customer Self-Service Gap Update
+
+| Item | Classification | Evidence | Required next action |
+| --- | --- | --- | --- |
+| Customer registration approval requirement | RESOLVED IN REPOSITORY AND LIVE DB, BLOCKED PENDING LIVE BROWSER TESTING | Customer registration no longer submits customer approval requests; customer-scope pending requests were converted to approved/informational. | Register a new customer, verify email, log in, and confirm no manual operator approval is required. |
+| `defaultPickupAddress` / `default_pickup_address` mismatch | RESOLVED IN REPOSITORY AND LIVE DB, BLOCKED PENDING LIVE BROWSER TESTING | Live `customers.default_pickup_address` exists; profile RPC normalizes `default_pickup_address`, `defaultPickupAddress`, and legacy typo variant. | Register with manual default pickup address and confirm no schema/mapping error. |
+| Customer dashboard visibility | RESOLVED IN REPOSITORY AND LIVE DB, BLOCKED PENDING LIVE BROWSER TESTING | Dashboard snapshot now includes `customers`; dashboard has `Klanten` tab with active/archived customers and auth-linkage state. | Log in as mapped operator and confirm newly registered customers appear under `Klanten`. |
+| Customer/operator account request separation | RESOLVED IN REPOSITORY AND LIVE DB, BLOCKED PENDING LIVE BROWSER TESTING | Account Requests tab filters out customer-scope records; normal customer registrations are no longer pending operator approvals. | Confirm Account Requests contains dashboard/operator requests only. |
+| Google API unavailable during registration | MITIGATED IN REPOSITORY, BLOCKED PENDING LIVE BROWSER TESTING | Registration catches Google API error states and validates manual address text only. | Retest with `ApiNotActivatedMapError` / `RefererNotAllowedMapError`. |
+| `België` mojibake | RESOLVED IN REPOSITORY, BLOCKED PENDING DEPLOYMENT | Scoped scan of active PV/Paneel/Supabase paths found no `BelgiÃ` or malformed `Belgie` variants. | Redeploy and visually confirm on touched live pages. |
+| Scope B dashboard power features | DEFERRED | Multi-row selectors, bulk actions, table sorting/filtering, and Agenda fiche buttons were not implemented in this blocker pass. | Reopen only after Scope A customer self-service live validation passes. |
+
+FleetConnect remains NOT CERTIFIED until Scope A live validation passes.

@@ -356,7 +356,7 @@
     <footer class="footer-dark">
         <div class="footer-grid">
             <div><h4>FleetConnect</h4><p>Transport taxi professionnel</p></div>
-            <div><h4>FleetConnect</h4><a href="#">Panneau de contrôle</a></div>
+            <div><h4>FleetConnect</h4><a href="/customer">Customer portal</a><br><a href="/booking#booking">Book a ride</a></div>
             <div><h4>Juridique</h4><a href="PVfaq.html">❓ FAQ</a><br><a href="PVprivacy.html">🔒 Vie privée</a><br><a href="PVcookiebeleid.html">🍪 Politique des cookies</a><br><a href="PValgemene-voorwaarden.html">📜 Conditions générales</a></div>
             <div><h4>Partenaires</h4><a href="#">Support</a></div>
         </div>
@@ -394,14 +394,15 @@
     
     async function handleLogout() {
         const logoutBtn = document.getElementById('logoutBtn');
-        logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Déconnexion...';
+        logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logout...';
         logoutBtn.disabled = true;
         try {
             const supabase = getSupabase();
             if (supabase) await supabase.auth.signOut();
             localStorage.clear(); sessionStorage.clear();
-            window.location.href = 'index.html?t=' + Date.now();
-        } catch(err) { window.location.href = 'index.html?t=' + Date.now(); }
+            // FIX RC-5: use canonical /PV/ prefix
+            window.location.href = '/PV/index.html?t=' + Date.now();
+        } catch(err) { window.location.href = '/PV/index.html?t=' + Date.now(); }
     }
     document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
     

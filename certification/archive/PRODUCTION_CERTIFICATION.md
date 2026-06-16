@@ -4,6 +4,29 @@ Date: 2026-06-02
 
 Status: PHASE 1 COMPLETE - audit only, no application code modified
 
+## Phase A.4.4.1 Live Validation Hotfix Status
+
+Date: 2026-06-11
+Repository: Javalin13/FleetConnectFork
+Branch: phase-a4.4.1-live-validation-hotfixes
+
+Status: NOT CERTIFIED - repository and live database hotfixes completed; frontend and Edge Function deployment validation pending.
+
+Summary:
+
+- Added immediate booking processing state and disabled confirmation button during booking/email processing.
+- Enforced EUR 15 minimum public ride fare in frontend payloads and `create_public_booking`.
+- Added authenticated customer booking attachment by booking number/email match through `attach_booking_to_customer`.
+- Replaced demo-only customer login with Supabase `signInWithPassword` so customer portal booking attachment has a real authenticated session.
+- Fixed customer email CTAs to route through the customer login/register portal with booking ID preserved.
+- Added driver decline reassignment state, operations-only notification trigger, dashboard reassignment alert, and driver-accept cleanup.
+- Added `CUSTOMER_REGISTRATION_CONFIRMATION` communication trigger for customer registration.
+
+Live validation:
+
+- Rollback-only Supabase validation passed for minimum fare, customer attach, driver decline, and driver accept cleanup.
+- Live `send-email` deployment from this shell failed/timed out; repository code is fixed but manual Edge Function deployment remains required.
+
 ## Phase Scope
 
 This ledger covers repository extraction, lineage analysis, repository forensics, and change classification only.
@@ -1988,3 +2011,235 @@ Remaining validation:
 - Browser-test PV popup timing and customer confirmation email.
 - Browser-test accepted-booking UI timing and accepted email.
 - Browser-test fiche close X while modal body is scrolled.
+
+## Phase A.4.4 - Final Lifecycle Blockers
+
+Status: REPOSITORY AND LIVE SUPABASE REMEDIATION COMPLETE - NOT CERTIFIED
+
+Date: 2026-06-11
+Branch: phase-a4.4-final-lifecycle-blockers
+
+Completed:
+
+- Public bookings now require selected Google place IDs for pickup/dropoff, route distance, route duration, and positive calculated amount.
+- Live `create_public_booking(payload jsonb)` enforces those requirements server-side.
+- Booking confirmation email now receives an explicit snapshot and refuses missing route distance instead of rendering placeholder distance.
+- Driver assigned email now uses assigned driver phone when present, with dispatch phone only as fallback.
+- Dashboard driver assignment stores full driver snapshot details.
+- Live `account_requests` table and `submit_account_request(payload jsonb)` RPC are deployed.
+- Driver hard delete was replaced by operator-only edit/archive RPCs.
+- Live rollback validation passed for account request, strict booking rejection, and valid strict booking creation.
+
+Remaining blockers:
+
+- Vercel deployment of this branch is still required.
+- Live browser/inbox validation is still required for booking confirmation, accepted, driver assignment, driver accepted/assigned, and account request emails.
+- Manual/operator-created ride creation remains an open functional gap.
+- Review page, per-landing-page reviews, and completed-ride review CTA remain open functional gaps.
+
+Certification status: NOT CERTIFIED until deployment and live validation evidence are complete.
+
+## Phase A.4.4.4 - Live Auth, Email CTA, Dashboard, And Review Remediation
+
+Status: REPOSITORY REMEDIATION COMPLETE - NOT CERTIFIED
+
+Date: 2026-06-12
+Branch: phase-a4.4.4-live-auth-email-dashboard-remediation
+
+Completed:
+
+- Customer portal active page now persists NL/FR/EN language switching for core navigation/profile labels.
+- Registration flow now has address autocomplete, repeat-password validation, clearer verification wording, and no reset-link wording.
+- Registration/customer welcome emails now use registration confirmation CTA text and route to customer login.
+- Account request operator email now includes a dashboard review CTA.
+- Account request approval now creates or updates a `customers` row and links `account_requests.customer_id`.
+- Existing matching Supabase Auth users are linked through `account_requests.user_id`; newly authenticated customers can call `link_customer_after_registration`.
+- Customer portal booking creation now uses `create_public_booking` with Google place IDs, route distance, duration, and positive amount.
+- Dashboard assignment now uses `assignment_sent` until driver acceptance and hides reassignment controls after a driver accepts.
+- Dashboard silently refreshes every 30 seconds when the fiche modal is closed.
+- Driver archive now blocks active assigned rides and lists the blocking rides.
+- Operator-created bookings now go through authenticated operator-only `create_operator_booking`.
+- Ride completion now uses operator-only `operator_complete_booking`, triggers `RIDE_COMPLETED_REVIEW_REQUEST`, and provides `/review` / `review.html` with Supabase-backed `ride_reviews`.
+
+Validation:
+
+- Communication modules parsed with `node --check`.
+- Touched HTML inline scripts parsed.
+- `vercel.json` parsed as valid JSON.
+- Targeted static scans found no touched-path direct `bookings.insert`, `manual_route_required`, placeholder Supabase key, or Resend testing sender.
+
+Remaining blockers:
+
+- Live migrations must be applied.
+- Live browser validation must confirm account request approval, Auth/customer linkage, customer portal login, customer portal booking, assignment, completion, and review submission.
+- Inbox validation remains required for account, booking, driver, and review lifecycle emails.
+- If an account request is approved before a matching `auth.users` row exists, Supabase Auth activation still requires the safe verification/invite path; this must be validated before certification.
+
+Certification status: NOT CERTIFIED.
+
+## Phase A.4.4.4 Live Validation Failure Remediation
+
+Status: LIVE DATABASE READY FOR RETEST - FRONTEND/BROWSER VALIDATION FAILED UNTIL REDEPLOYED AND RETESTED
+
+Date: 2026-06-12
+
+Live database updates applied:
+
+- Account conversion/profile functions and columns.
+- Operator booking/review functions.
+- `ride_reviews` table and `submit_ride_review`.
+- Operator assignment/unassignment RPCs.
+- Hardened driver acceptance RPC that rejects already-assigned rides.
+- Hardened public booking RPC with a marked manual-route exception and minimum EUR 15.
+
+Repository updates:
+
+- Deterministic customer auth routing removes the index/portal redirect loop.
+- Registration creates customer profile through RPC and returns to login entry after signup.
+- Login displays pending approval, rejected approval, unverified email, and missing profile messages.
+- Public page login links now point to `/PV/index.html`.
+- Public forms now expose an account CTA near booking.
+- Public forms enforce one-hour minimum scheduling unless ASAP is selected.
+- ASAP/manual-route metadata is stored and reflected in confirmation email wording.
+- Dashboard assignment uses server-side assignment RPCs and requires recall before reassignment.
+
+Certification status remains NOT CERTIFIED.
+
+## Phase A.4.4.4 Customer Self-Service Repair - 2026-06-13
+
+Status: NOT CERTIFIED - REPOSITORY AND LIVE SUPABASE REPAIR APPLIED, LIVE BROWSER VALIDATION REQUIRED.
+
+Certification blockers addressed in this pass:
+
+- Customer registration no longer requires manual operator approval.
+- Customer profile creation now normalizes `default_pickup_address`, `defaultPickupAddress`, and the legacy typo variant without failing profile creation.
+- Live `customers` schema now includes `default_pickup_address`, `is_active`, `archived_at`, and `updated_at`.
+- Customer portal access can auto-link a verified Supabase Auth user to a customer profile by auth email/user id.
+- Dashboard exposes a separate `Klanten` section for active and archived customer records.
+- Dashboard/operator account requests remain separate from normal customer registrations.
+- Customer archive/deactivate is RPC-based and preserves bookings/history.
+- Google Places failure remains non-blocking for customer registration manual address entry.
+- Visible `België` encoding issues in touched active pages were corrected.
+
+Live Supabase evidence:
+
+- Verified customer columns: `default_pickup_address`, `is_active`, `archived_at`, `updated_at`.
+- Verified RPCs: `create_customer_registration_profile`, `link_customer_after_registration`, `get_customer_portal_access`, `archive_operator_customer`, `get_operator_dashboard_snapshot`.
+- Customer request statuses after repair: approved 1, rejected 1, pending 0.
+- Customer rows after repair: total 4, active 4, linked 1.
+
+Local validation:
+
+- `git diff --check` passed.
+- Inline module script parsing passed for active touched customer/dashboard/booking pages.
+- Scoped typo scan found no remaining `BelgiÃ`, malformed `Belgie`, stale `customeraccountrequests`, or lower-case `defaultpickupadress` references in active PV/Paneel/Supabase paths.
+
+Remaining certification blocker:
+
+- Live browser retest must prove registration -> verification email -> login -> customer portal -> dashboard `Klanten` visibility -> safe archive/deactivate.
+
+Scope B dashboard power features:
+
+- Multi-row selectors, bulk actions, table-wide sorting/filtering, and Agenda `Bekijk fiche` were intentionally not implemented in this pass.
+- They remain deferred until Scope A live customer lifecycle validation is stable.
+
+## Phase A.4.4.4 Critical Dashboard Visibility Regression
+
+Status: NOT CERTIFIED - HOTFIX APPLIED, LIVE UI RETEST REQUIRED.
+
+Latest live retest reported that dashboard data disappeared after the A.4.4.4 migration/deploy cycle.
+
+Read-only live Supabase evidence:
+
+- `bookings`: 99 rows.
+- `drivers`: 5 rows.
+- `partners`: 3 rows.
+- `customers`: 3 rows.
+- `account_requests`: 2 rows.
+- Hoofd/operator partner mappings exist for `admin@ryzen.be` and `iliass.el.krichi@gmail.com`.
+
+Conclusion:
+
+- No data deletion was found.
+- The failure is a visibility/auth/RLS fetch regression.
+
+Remediation:
+
+- Added `supabase/migrations/20260613000000_phase_a444_dashboard_visibility_repair.sql`.
+- Live-applied `public.get_operator_dashboard_snapshot()`.
+- The dashboard now validates Supabase session state, loads one guarded operator snapshot, and falls back to legacy table queries if the RPC is unavailable.
+- If `public.is_operator()` fails, dashboard now reports an operator mapping problem instead of silently rendering empty data.
+- Registration Google API error handling was hardened for `ApiNotActivatedMapError` / `RefererNotAllowedMapError`.
+
+Certification status remains NOT CERTIFIED until live dashboard visibility and customer registration/verification/approval/login are retested successfully.
+
+## Phase A.4.4.4 Final Live Retest Remediation
+
+Status: NOT CERTIFIED - REPOSITORY REMEDIATION UPDATED, LIVE MIGRATION AND RETEST REQUIRED.
+
+Final live retest failures addressed in repository:
+
+- Google `ApiNotActivatedMapError` / `RefererNotAllowedMapError` is now treated as an unavailable enhancement. Registration and booking address fields remain plain manual inputs.
+- Customer verification redirects now exchange the Supabase confirmation `code` before portal access validation.
+- New migration `supabase/migrations/20260612060000_phase_a444_live_retest_blockers.sql` scopes customer account requests separately, creates/links customer profiles, links verified Auth users by email, and preserves pending approval as a clear login state.
+- Dashboard now exposes Customer Account Requests separately from operator/dashboard account requests.
+- Public booking validation no longer overwrites the one-hour/ASAP message with a generic address/route error.
+- Dashboard New Orders now includes `pending_payment` bookings as well as `pending`, addressing the confirmed-email-but-not-visible dashboard regression.
+
+Required live validation before certification:
+
+1. Apply `20260612060000_phase_a444_live_retest_blockers.sql`.
+2. Redeploy this branch.
+3. Register with manual address while Google API is unavailable.
+4. Verify email, approve customer request, and log in without profile-link dead end or redirect loop.
+5. Create scheduled and ASAP guest bookings and confirm both appear in New Orders.
+6. Confirm customer registration request notification and booking confirmation emails.
+
+Certification status remains NOT CERTIFIED.
+
+## Phase A.4.4.4 19:39 Live Hotfix Status
+
+Status: NOT CERTIFIED - REPOSITORY HOTFIX COMPLETE, LIVE RETEST REQUIRED.
+
+Scope completed:
+
+- Customer/login links on active/root NL/FR/EN public booking pages now point to `/PV/index.html`.
+- Public booking and customer portal booking no longer hard-require Google `place_id` when Google Places is unavailable; typed addresses can persist through `create_public_booking` with `manual_route_required` and `google_places_unavailable` metadata.
+- Minimum EUR 15 protection remains in the manual fallback path.
+- Registration now surfaces explicit validation errors and allows manual default pickup address entry without Google autocomplete.
+- `Paneel/driver-login.html` no longer presents or accepts `admin@ryzen.be` as a fake live credential.
+
+Certification decision:
+
+- FleetConnect is still NOT CERTIFIED.
+- Required next evidence: deployed browser validation for links, manual-address guest booking, manual-address registration, customer portal manual booking, dashboard receipt, email behavior, and removal of fake credential from live pages.
+
+## Phase A.4.4.4 Final Certification Blocker Remediation
+
+Status: NOT CERTIFIED - REPOSITORY REMEDIATION COMPLETE, LIVE MIGRATION AND VALIDATION REQUIRED.
+
+Repository fixes completed:
+
+- Registration now shows a visible success state after account creation: "Account successfully created. Please verify your email address. If account approval is required, you will receive access once approved."
+- Verification redirects to the customer login entry can display: "Email successfully verified. You can now log in if your account has been approved."
+- Pending approval state now displays: "Your account is awaiting approval."
+- Customer login now prefers the new authenticated `get_customer_portal_access()` RPC so approval/customer/auth linkage is checked server-side without weakening customer RLS.
+- Review submission now shows: "Thank you for your review."
+- Review page includes both internal review submission and a visible Google Reviews CTA.
+- Public testimonials are now loaded through `get_public_ride_reviews()` and rendered newest-first on active/root NL/FR/EN public pages.
+- Five-star reviews with comments render under `Highlighted Testimonials`; other comment reviews render under `See All Testimonials`.
+- Account Requests dashboard tab now uses translated NL/FR/EN strings for headings, descriptions, buttons, status labels, prompts, actions, and messages.
+- Direct dashboard mailbox access was not implemented because frontend IMAP/SMTP credentials would be unsafe. `MAIL_INTEGRATION_PLAN.md` documents the secure server-side plan.
+
+New migration:
+
+- `supabase/migrations/20260612050000_phase_a444_final_certification_blockers.sql`
+
+Live validation required:
+
+1. Apply the new migration to live Supabase.
+2. Register a customer, verify email, approve account request, confirm `account_requests -> customers -> auth.users` linkage, log in, and open the customer portal.
+3. Complete a ride, open review link, submit review, verify `ride_reviews`, and confirm homepage testimonial visibility/order.
+4. Switch Account Requests tab across NL/FR/EN and confirm no mixed-language strings remain.
+
+Certification status remains NOT CERTIFIED.

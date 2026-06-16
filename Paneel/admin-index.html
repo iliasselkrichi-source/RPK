@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
@@ -181,6 +181,39 @@
             font-size: 0.8rem;
             margin-top: 0.5rem;
         }
+        .request-account-link {
+            margin-top: 1rem;
+            background: none;
+            border: 0;
+            color: #f59e0b;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .account-request {
+            display: none;
+            margin-top: 1rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.25);
+            padding-top: 1rem;
+            text-align: left;
+        }
+
+        .account-request.show { display: block; }
+
+        .account-request input,
+        .account-request select,
+        .account-request textarea {
+            width: 100%;
+            margin-bottom: 0.6rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: inherit;
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
@@ -204,6 +237,23 @@
                 <i class="fas fa-sign-in-alt"></i> Inloggen bij Ryzen
             </button>
             <div id="errorMsg" class="error-message"></div>
+            <button type="button" class="request-account-link" id="toggleAccountRequest">Nieuwe account aanvragen</button>
+            <div class="account-request" id="accountRequestSection">
+                <input type="text" id="requestName" placeholder="Naam" autocomplete="name">
+                <input type="email" id="requestEmail" placeholder="E-mailadres" autocomplete="email">
+                <input type="tel" id="requestPhone" placeholder="Telefoonnummer" autocomplete="tel">
+                <input type="text" id="requestCompany" placeholder="Bedrijf / partnernaam">
+                <select id="requestAccountType">
+                    <option value="Operations">Operations</option>
+                    <option value="Partner">Partner</option>
+                    <option value="Driver">Driver</option>
+                    <option value="Client">Client</option>
+                    <option value="Other">Other</option>
+                </select>
+                <textarea id="requestNotes" rows="3" placeholder="Notities / gewenste toegang"></textarea>
+                <button type="button" class="login-btn" id="sendAccountRequest">Aanvraag versturen</button>
+                <div class="welcome-text" id="requestAccountMsg">Accounts worden alleen na goedkeuring door Ryzen/FleetConnect aangemaakt.</div>
+            </div>
         </div>
         
         <div class="panel-select" id="panelSelect">
@@ -217,17 +267,17 @@
                 <div class="panel-card card-dealer" id="btnDealer">
                     <i class="fas fa-car-side"></i>
                     <h3>Operations</h3>
-                    <p>Voorraad Â· Verkopen Â· Facturen Â· Winstmarges</p>
+                    <p>Voorraad / Verkopen / Facturen / Winstmarges</p>
                 </div>
                 <div class="panel-card card-taxi" id="btnTaxi">
                     <i class="fas fa-taxi"></i>
                     <h3>Onderaannemer</h3>
-                    <p>Ritten Â· Chauffeurs Â· Partners Â· FinanciÃ«n</p>
+                    <p>Ritten / Chauffeurs / Partners / Financiën</p>
                 </div>
                 <div class="panel-card card-woningen" id="btnWoningen">
                     <i class="fas fa-home"></i>
                     <h3>Woningen Verhuur</h3>
-                    <p>Boekingen Â· Agenda Â· Team Â· Financieel</p>
+                    <p>Boekingen / Agenda / Team / Financieel</p>
                 </div>
             </div>
             <div id="selectedHint" class="welcome-text"></div>
@@ -237,7 +287,7 @@
             <i class="fas fa-shield-alt"></i> Beveiligde Supabase login
         </div>
         <div class="ryzen-footer">
-            <i class="fas fa-copyright"></i> Ryzen - Master-level Automotive
+            Ryzen - Master-level Automotive
         </div>
     </div>
     
@@ -253,11 +303,142 @@
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const errorMsg = document.getElementById('errorMsg');
+        const toggleAccountRequest = document.getElementById('toggleAccountRequest');
+        const accountRequestSection = document.getElementById('accountRequestSection');
+        const sendAccountRequest = document.getElementById('sendAccountRequest');
 
         function showPanels() {
             loginSection.style.display = 'none';
             panelSelect.classList.add('show');
         }
+
+        toggleAccountRequest?.addEventListener('click', function() {
+            accountRequestSection.classList.toggle('show');
+        });
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function sendAccountRequestEmail(to, subject, html, requestId, trigger) {
+            const response = await fetch(`${SB_URL}/functions/v1/send-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SB_KEY,
+                    'Authorization': `Bearer ${SB_KEY}`
+                },
+                body: JSON.stringify({
+                    to: Array.isArray(to) ? to : [to],
+                    subject,
+                    html,
+                    reply_to: 'support@fleetconnect.be',
+                    metadata: {
+                        trigger,
+                        requestId
+                    }
+                })
+            });
+
+            const raw = await response.text();
+            let body = {};
+            try {
+                body = raw ? JSON.parse(raw) : {};
+            } catch (parseError) {
+                body = { error: raw || parseError.message };
+            }
+
+            if (!response.ok || body.success === false) {
+                throw new Error(body.error || body.message || `send-email HTTP ${response.status}`);
+            }
+
+            return body;
+        }
+
+        sendAccountRequest?.addEventListener('click', async function() {
+            const name = document.getElementById('requestName').value.trim();
+            const email = document.getElementById('requestEmail').value.trim();
+            const phone = document.getElementById('requestPhone').value.trim();
+            const accountType = document.getElementById('requestAccountType').value;
+            const company = document.getElementById('requestCompany').value.trim();
+            const notes = document.getElementById('requestNotes').value.trim();
+            const msg = document.getElementById('requestAccountMsg');
+            if (!name || !email || !phone || !company) {
+                msg.textContent = 'Vul naam, e-mail, telefoonnummer en bedrijf/partnernaam in.';
+                return;
+            }
+
+            sendAccountRequest.disabled = true;
+            sendAccountRequest.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Aanvraag versturen...';
+            msg.textContent = '';
+
+            const payload = {
+                name,
+                email,
+                phone,
+                company,
+                account_type: accountType,
+                notes,
+                source: 'operator-login',
+                user_agent: navigator.userAgent
+            };
+
+            try {
+                const { data, error } = await supabaseClient.rpc('submit_account_request', { payload });
+                if (error) throw error;
+
+                const requestId = data?.id || email;
+                const dashboardReviewUrl = `${window.location.origin}/Paneel/admin-index.html`;
+                const fleetConnectHtml = `
+                    <div style="font-family: Inter, Arial, sans-serif; color: #0f172a;">
+                        <h2>Nieuwe FleetConnect accountaanvraag</h2>
+                        <p><strong>Aanvraag ID:</strong> ${escapeHtml(requestId)}</p>
+                        <p><strong>Naam:</strong> ${escapeHtml(name)}</p>
+                        <p><strong>E-mail:</strong> ${escapeHtml(email)}</p>
+                        <p><strong>Telefoon:</strong> ${escapeHtml(phone)}</p>
+                        <p><strong>Bedrijf / partner:</strong> ${escapeHtml(company)}</p>
+                        <p><strong>Account type:</strong> ${escapeHtml(accountType)}</p>
+                        <p><strong>Notities:</strong> ${escapeHtml(notes || '-')}</p>
+                        <p>Deze aanvraag vereist handmatige goedkeuring. Er is geen account automatisch aangemaakt.</p>
+                        <p><a href="${dashboardReviewUrl}" style="display:inline-block; background:#0f172a; color:#ffffff; padding:12px 18px; border-radius:8px; text-decoration:none; font-weight:700;">Accountaanvraag beoordelen</a></p>
+                        <p style="font-size:12px; color:#64748b;">Open dashboard: ${dashboardReviewUrl}</p>
+                    </div>
+                `;
+                const requesterHtml = `
+                    <div style="font-family: Inter, Arial, sans-serif; color: #0f172a;">
+                        <h2>Uw FleetConnect accountaanvraag is ontvangen</h2>
+                        <p>Beste ${escapeHtml(name)},</p>
+                        <p>We hebben uw aanvraag voor een ${escapeHtml(accountType)} account ontvangen.</p>
+                        <p><strong>Aanvraag ID:</strong> ${escapeHtml(requestId)}</p>
+                        <p>FleetConnect controleert de aanvraag handmatig. Er is nog geen account aangemaakt.</p>
+                    </div>
+                `;
+
+                const notificationResults = await Promise.allSettled([
+                    sendAccountRequestEmail('support@fleetconnect.be', 'Nieuwe FleetConnect accountaanvraag', fleetConnectHtml, requestId, 'ACCOUNT_REQUEST_INTERNAL'),
+                    sendAccountRequestEmail(email, 'Uw FleetConnect accountaanvraag is ontvangen', requesterHtml, requestId, 'ACCOUNT_REQUEST_CONFIRMATION')
+                ]);
+
+                const failed = notificationResults.filter((result) => result.status === 'rejected');
+                if (failed.length) {
+                    console.error('ACCOUNT_REQUEST email delivery failed:', failed.map((result) => result.reason?.message || result.reason));
+                    msg.textContent = 'Aanvraag opgeslagen. E-mailnotificatie kon niet automatisch worden verzonden; FleetConnect volgt dit handmatig op.';
+                } else {
+                    msg.textContent = 'Aanvraag ontvangen. FleetConnect en de aanvrager kregen een bevestiging per e-mail.';
+                }
+            } catch (err) {
+                console.error('ACCOUNT_REQUEST submission failed:', err);
+                msg.textContent = 'Aanvraag kon niet worden opgeslagen: ' + err.message;
+            } finally {
+                sendAccountRequest.disabled = false;
+                sendAccountRequest.innerHTML = 'Aanvraag versturen';
+            }
+        });
 
         // Login logica via Supabase
         loginBtn.addEventListener('click', async function(e) {
@@ -270,7 +451,7 @@
             errorMsg.textContent = '';
 
             if (!email || !password) {
-                errorMsg.textContent = 'âŒ Vul e-mail en wachtwoord in.';
+                errorMsg.textContent = 'Vul e-mail en wachtwoord in.';
                 return;
             }
 
@@ -334,4 +515,3 @@
     </script>
 </body>
 </html>
-

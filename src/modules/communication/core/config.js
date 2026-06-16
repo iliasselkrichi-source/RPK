@@ -5,14 +5,14 @@
 export const CommunicationConfig = {
     brand: {
         name: 'FleetConnect',
-        email: 'fleetconnect.os@gmail.com',
-        website: window.FLEETCONNECT_BASE_URL || 'https://rpk-mu.vercel.app',
+        email: 'support@fleetconnect.be',
+        website: window.FLEETCONNECT_BASE_URL || 'https://fleetconnect.be',
         reviewUrl: '',
         logoUrl: '', // To be filled later
         supportPhone: '+3200000000',
         supportWhatsapp: '3200000000',
-        operationsEmail: 'fleetconnect.os@gmail.com',
-        technicalEscalationEmail: 'ryzenoutsourcing@gmail.com'
+        operationsEmail: 'dispatch@fleetconnect.be',
+        technicalEscalationEmail: 'tech@fleetconnect.be'
     },
     theme: {
         primaryColor: '#2dd4bf', // Teal/Turquoise
@@ -28,6 +28,7 @@ export const CommunicationConfig = {
         trilingualOrder: ['nl', 'fr', 'en'],
         provider: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'mock' : 'resend',
         supabaseUrl: 'https://rreqjjrmvytnwnsidmqi.supabase.co',
+        supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA',
         edgeFunctionBase: '/functions/v1',
         ASSIGNMENT_TIMEOUT_MINUTES: 30
     },
@@ -36,8 +37,8 @@ export const CommunicationConfig = {
             // Secure backend endpoint (Supabase Edge Function)
             // This prevents exposing the Resend API Key in the browser.
             endpoint: '/send-email',
-            from: 'FleetConnect <onboarding@resend.dev>',
-            replyTo: 'fleetconnect.os@gmail.com'
+            from: 'FleetConnect <bookings@fleetconnect.be>',
+            replyTo: 'support@fleetconnect.be'
         }
     }
 };

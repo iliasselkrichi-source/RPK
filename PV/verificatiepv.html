@@ -55,7 +55,8 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('success').style.display = 'block';
                 setTimeout(() => {
-                    window.location.href = 'klantenportaalpv.html';
+                    // FIX RC-3: use canonical /PV/ prefix; matches vercel.json rewrite
+                    window.location.href = '/PV/klantenportaalpv.html';
                 }, 2000);
             } else {
                 // If no session but landed here, might be a direct link or hash
@@ -65,9 +66,11 @@
                     if (retrySession) {
                         document.getElementById('loading').style.display = 'none';
                         document.getElementById('success').style.display = 'block';
-                        window.location.href = 'klantenportaalpv.html';
+                        // FIX RC-3: use canonical /PV/ prefix
+                        window.location.href = '/PV/klantenportaalpv.html';
                     } else {
-                         window.location.href = 'index.html';
+                        // FIX RC-3: use canonical /PV/ prefix
+                        window.location.href = '/PV/index.html';
                     }
                 }, 1000);
             }
@@ -322,7 +325,9 @@
         // De redirect URL na klikken op de magic link:
         // Deze moet verwijzen naar een pagina die de sessie afhandelt,
         // bijvoorbeeld de klantenportaal-pagina.
-        const redirectTo = `${window.location.origin}/klantenportaalpv.html?lang=${currentLang}`;
+        // FIX RC-2: include the /PV/ prefix to match the actual file location
+        // and align with vercel.json rewrites (/klantenportaal, /klantenportaalpv, etc.)
+        const redirectTo = `${window.location.origin}/PV/klantenportaalpv.html?lang=${currentLang}`;
         
         try {
             const { data, error } = await supabase.auth.signInWithOtp({
@@ -359,7 +364,8 @@
         if (!email) {
             showMessage(translations[currentLang].errorNoEmail, 'error');
             setTimeout(() => {
-                window.location.href = `index.html?lang=${currentLang}&logout=expired`;
+                // FIX RC-3: use canonical /PV/ prefix
+                window.location.href = `/PV/index.html?lang=${currentLang}&logout=expired`;
             }, 2000);
             return;
         }
@@ -377,7 +383,8 @@
         await supabase.auth.signOut();
         sessionStorage.removeItem('loggedInEmail');
         sessionStorage.removeItem('verified');
-        window.location.href = `index.html?lang=${currentLang}&logout=success`;
+        // FIX RC-3: use canonical /PV/ prefix
+        window.location.href = `/PV/index.html?lang=${currentLang}&logout=success`;
     }
 
     // Event listeners
