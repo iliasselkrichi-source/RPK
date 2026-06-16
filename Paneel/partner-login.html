@@ -3,14 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>NH - Partner Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>FleetConnect - Partnerportaal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary: #2c6e9e;
+            --primary-dark: #1e4a6e;
+            --accent-gold: #c9a03d;
+            --text-dark: #1a2a3a;
+            --text-light: #4a627a;
+            --bg-body: #f4f7fc;
+            --white: #ffffff;
+            --border-light: #e2edf7;
+            --shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: var(--bg-body);
+            background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -18,12 +34,14 @@
             padding: 20px;
         }
         .login-container {
-            background: white;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
             border-radius: 32px;
             padding: 40px;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.6);
         }
         .language-switch {
             display: flex;
@@ -36,16 +54,16 @@
             background: none;
             border: none;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            padding: 4px 8px;
+            padding: 4px 12px;
             border-radius: 20px;
             transition: all 0.2s;
-            color: #64748b;
+            color: var(--text-light);
         }
         .lang-btn.active {
-            background: #2dd4bf;
-            color: #0f172a;
+            background: var(--primary);
+            color: white;
         }
         .logo {
             text-align: center;
@@ -53,98 +71,116 @@
         }
         .logo i {
             font-size: 3rem;
-            color: #2dd4bf;
+            color: var(--primary);
+            margin-bottom: 8px;
         }
         .logo h1 {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #0f172a;
+            color: var(--primary);
         }
         .logo p {
-            color: #64748b;
+            color: var(--text-light);
             font-size: 0.85rem;
             margin-top: 4px;
         }
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         label {
-            font-weight: 500;
-            color: #334155;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-light);
             margin-bottom: 8px;
             display: block;
+            letter-spacing: 0.5px;
         }
         input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
+            padding: 14px 18px;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
             font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            transition: all 0.2s;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            outline: none;
+            background: rgba(255,255,255,0.95);
         }
         input:focus {
-            border-color: #2dd4bf;
-            box-shadow: 0 0 0 3px rgba(45,212,191,0.2);
-            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44,110,158,0.1);
         }
         button[type="submit"] {
             width: 100%;
-            padding: 12px;
-            background: #2dd4bf;
-            color: #0f172a;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
             font-weight: 700;
             border: none;
-            border-radius: 40px;
+            border-radius: 12px;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            margin-top: 10px;
         }
         button[type="submit"]:hover {
-            background: #14b8a6;
-            transform: scale(1.02);
+            background: var(--primary-dark);
+            transform: translateY(-1px);
         }
         .error-msg {
             background: #fee2e2;
             color: #b91c1c;
             padding: 12px;
-            border-radius: 16px;
+            border-radius: 12px;
             margin-top: 16px;
             display: none;
-            text-align: center;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        .info-msg {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 16px;
+            display: none;
+            text-align: left;
+            font-size: 0.85rem;
         }
         .forgot-password {
             text-align: center;
-            margin-top: 16px;
-            font-size: 0.8rem;
+            margin-top: 20px;
+            font-size: 0.85rem;
         }
         .forgot-password a {
-            color: #2c7da0;
+            color: var(--primary);
             cursor: pointer;
             text-decoration: none;
+            font-weight: 600;
         }
         .forgot-password a:hover {
             text-decoration: underline;
         }
         .info-text {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 12px;
             margin-top: 24px;
+            font-size: 0.75rem;
+            color: var(--text-light);
             text-align: center;
-            font-size: 0.7rem;
-            border: 1px solid #e2e8f0;
-            color: #475569;
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+        .info-text i {
+            color: var(--accent-gold);
         }
         @media (max-width: 480px) {
-            .login-container { padding: 24px 20px; }
+            .login-container { padding: 30px 24px; }
             .logo h1 { font-size: 1.5rem; }
             .logo i { font-size: 2.5rem; }
-            .lang-btn { font-size: 0.85rem; padding: 4px 10px; }
         }
     </style>
 </head>
@@ -153,32 +189,32 @@
     <div class="language-switch">
         <button class="lang-btn" data-lang="nl">NL</button>
         <button class="lang-btn" data-lang="fr">FR</button>
-        <button class="lang-btn" data-lang="es">ES</button>
         <button class="lang-btn" data-lang="en">EN</button>
     </div>
     <div class="logo">
-        <i class="fas fa-taxi"></i>
-        <h1 id="title">NH Partner</h1>
+        <i class="fas fa-car"></i>
+        <h1 id="title">FleetConnect</h1>
         <p id="subtitle">Partnerportaal</p>
     </div>
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="infoMsg" class="info-msg"></div>
     <form id="loginForm">
         <div class="form-group">
             <label id="emailLabel">E-mailadres</label>
-            <input type="email" id="email" placeholder="partner@example.com">
+            <input type="email" id="email" placeholder="partner@uwbedrijf.be">
         </div>
         <div class="form-group">
             <label id="passwordLabel">Wachtwoord</label>
             <input type="password" id="password" placeholder="Uw wachtwoord">
         </div>
         <button type="submit" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Inloggen</button>
-        <div id="errorMsg" class="error-msg"></div>
         <div class="forgot-password">
             <a id="forgotPwLink">Wachtwoord vergeten?</a>
         </div>
     </form>
     <div class="info-text">
-        <i class="fas fa-info-circle"></i> Gebruik uw partneraccount om in te loggen.<br>
-        Vraag uw inloggegevens aan de beheerder.
+        <i class="fas fa-info-circle"></i> Log in met uw FleetConnect partneraccount.<br>
+        Heeft u nog geen account? Vraag uw inloggegevens aan uw FleetConnect operator.
     </div>
 </div>
 
@@ -186,15 +222,14 @@
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
     const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
+    const SUPABASE_ANON_KEY = 'eyJhbG...8MTA';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Vertalingen (alleen UI)
     const translations = {
-        nl: { title: "NH Partner", subtitle: "Partnerportaal", emailLabel: "E-mailadres", passwordLabel: "Wachtwoord", loginBtn: "Inloggen", errorMsg: "Ongeldige inloggegevens of geen partnerrechten." },
-        fr: { title: "NH Partenaire", subtitle: "Portail partenaire", emailLabel: "Adresse e-mail", passwordLabel: "Mot de passe", loginBtn: "Se connecter", errorMsg: "Identifiants invalides ou droits partenaire manquants." },
-        es: { title: "NH Socio", subtitle: "Portal de socios", emailLabel: "Correo electrónico", passwordLabel: "Contraseña", loginBtn: "Iniciar sesión", errorMsg: "Credenciales inválidas o sin permisos de socio." },
-        en: { title: "NH Partner", subtitle: "Partner portal", emailLabel: "Email address", passwordLabel: "Password", loginBtn: "Login", errorMsg: "Invalid credentials or no partner rights." }
+        nl: { title: "FleetConnect", subtitle: "Partnerportaal", emailLabel: "E-mailadres", passwordLabel: "Wachtwoord", loginBtn: "Inloggen", errorMsg: "Ongeldige inloggegevens of geen partnerrechten." },
+        fr: { title: "FleetConnect", subtitle: "Portail partenaire", emailLabel: "Adresse e-mail", passwordLabel: "Mot de passe", loginBtn: "Se connecter", errorMsg: "Identifiants invalides ou droits partenaire manquants." },
+        en: { title: "FleetConnect", subtitle: "Partner portal", emailLabel: "Email address", passwordLabel: "Password", loginBtn: "Login", errorMsg: "Invalid credentials or no partner rights." }
     };
 
     let currentLang = 'nl';
@@ -227,20 +262,31 @@
         return 'https://fleetconnect.be';
     }
 
-    // Inloggen met Supabase Auth
     const form = document.getElementById('loginForm');
     const errorDiv = document.getElementById('errorMsg');
+    const infoDiv = document.getElementById('infoMsg');
     const loginBtn = document.getElementById('loginBtn');
+
+    function showError(msg) {
+        errorDiv.textContent = msg;
+        errorDiv.style.display = 'block';
+        infoDiv.style.display = 'none';
+    }
+    function showInfo(msg) {
+        infoDiv.textContent = msg;
+        infoDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+    }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorDiv.style.display = 'none';
+        infoDiv.style.display = 'none';
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
 
         if (!email || !password) {
-            errorDiv.textContent = translations[currentLang].errorMsg;
-            errorDiv.style.display = 'block';
+            showError(translations[currentLang].errorMsg);
             return;
         }
 
@@ -257,13 +303,11 @@
                 throw new Error('Geen partnerrechten');
             }
 
-            // Sla minimale info op
             sessionStorage.setItem('partner_logged_in', 'true');
             sessionStorage.setItem('partner_email', email);
             window.location.href = 'partnerspaneel.html';
         } catch (err) {
-            errorDiv.textContent = translations[currentLang].errorMsg;
-            errorDiv.style.display = 'block';
+            showError(translations[currentLang].errorMsg);
             loginBtn.disabled = false;
             loginBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> ${translations[currentLang].loginBtn}`;
         }
@@ -273,21 +317,18 @@
     document.getElementById('forgotPwLink').addEventListener('click', async () => {
         const email = document.getElementById('email').value.trim();
         if (!email) {
-            errorDiv.textContent = 'Vul eerst uw e-mailadres in.';
-            errorDiv.style.display = 'block';
+            showError('Vul eerst uw e-mailadres in.');
             return;
         }
 
         const baseUrl = getBaseUrl();
-        const redirectTo = `${baseUrl}/Paneel/partner-reset-password.html`;
+        const redirectTo = `${baseUrl}/Paneel/partner-set-password.html`;
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 
         if (error) {
-            errorDiv.textContent = error.message;
-            errorDiv.style.display = 'block';
+            showError(error.message);
         } else {
-            alert(`Een resetlink is verzonden naar ${email}. Controleer uw e-mail.`);
-            errorDiv.style.display = 'none';
+            showInfo(`Een wachtwoord-instellink is verzonden naar ${email}. Controleer uw inbox en klik op de link om uw wachtwoord in te stellen.`);
         }
     });
 </script>
