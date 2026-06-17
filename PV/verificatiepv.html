@@ -7,12 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        :root { --primary: #2c6e9e; --primary-dark: #1e4a6e; --success: #10b981; --bg-body: #f4f7fc; }
+        :root { --primary: #2c6e9e; --primary-dark: #1e4a6e; --success: #10b981; --bg-body: #f4f7fc; --text-dark: #1a2a3a; --text-light: #4a627a; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-body);
-            color: #1a2a3a;
+            color: var(--text-dark);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -34,8 +34,8 @@
         .icon.error { color: #ef4444; }
         .spinner { animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        h1 { font-size: 1.6rem; color: #1a2a3a; margin-bottom: 12px; }
-        p { color: #4a627a; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
+        h1 { font-size: 1.6rem; color: var(--text-dark); margin-bottom: 12px; }
+        p { color: var(--text-light); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
         .btn-primary {
             display: inline-block;
             background: var(--primary);
@@ -47,6 +47,29 @@
             margin-top: 8px;
         }
         .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary {
+            display: inline-block;
+            background: transparent;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            border: 1px solid var(--primary);
+            cursor: pointer;
+        }
+        .info-list {
+            text-align: left;
+            background: #f0f7fb;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        .info-list li { margin-bottom: 6px; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -56,17 +79,44 @@
             <h1>Verificatie wordt verwerkt...</h1>
             <p>Een ogenblik geduld terwijl wij uw e-mailadres bevestigen.</p>
         </div>
-        <div id="success" style="display:none;">
+
+        <div id="success" class="hidden">
             <span class="icon success"><i class="fas fa-check-circle"></i></span>
             <h1>✓ Uw account is succesvol geverifieerd.</h1>
             <p>U kunt nu inloggen.</p>
             <a id="loginLink" href="/PV/index.html" class="btn-primary">Naar inloggen</a>
         </div>
-        <div id="error" style="display:none;">
+
+        <div id="needsLogin" class="hidden">
+            <span class="icon success"><i class="fas fa-check-circle"></i></span>
+            <h1>✓ Uw account is succesvol geverifieerd.</h1>
+            <p>Uw e-mailadres is bevestigd. Log in met uw e-mailadres en wachtwoord om verder te gaan.</p>
+            <a id="loginLink2" href="/PV/index.html" class="btn-primary">Naar inloggen</a>
+        </div>
+
+        <div id="error" class="hidden">
             <span class="icon error"><i class="fas fa-times-circle"></i></span>
-            <h1>Verificatie mislukt</h1>
+            <h1>Verificatie kon niet worden afgerond</h1>
             <p id="errorMsg"></p>
-            <a href="/PV/index.html" class="btn-primary">Terug naar inloggen</a>
+            <div class="info-list">
+                <strong>Wat kunt u doen?</strong>
+                <ul>
+                    <li>Klik opnieuw op de link in de verificatiemail.</li>
+                    <li>Open de link in dezelfde browser waarin u zich heeft geregistreerd.</li>
+                    <li>Controleer of de link nog geldig is (24 uur geldig).</li>
+                    <li>Neem contact op met support@fleetconnect.be als het probleem blijft bestaan.</li>
+                </ul>
+            </div>
+            <a href="/PV/index.html" class="btn-primary">Naar inloggen</a>
+            <a href="/PV/register.html" class="btn-secondary">Opnieuw registreren</a>
+        </div>
+
+        <div id="directVisit" class="hidden">
+            <span class="icon loading"><i class="fas fa-envelope"></i></span>
+            <h1>Controleer uw e-mail</h1>
+            <p>Wij hebben u een verificatiemail gestuurd. Klik op de link in die e-mail om uw account te bevestigen.</p>
+            <p id="emailHint" style="font-size:0.85rem;"></p>
+            <a href="/PV/index.html" class="btn-primary">Naar inloggen</a>
         </div>
     </div>
 
@@ -75,45 +125,44 @@
 
         const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbG...8MTA';
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // createClient with detectSessionInUrl=true (default) will auto-parse:
+        //   - ?code=xxx              (PKCE flow)
+        //   - #access_token=xxx      (implicit flow — Supabase default for signUp)
+        //   - #error_description=xxx (auth error)
+        // It will create a session from the URL params if valid.
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+        });
 
         function show(id) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('success').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-            document.getElementById(id).style.display = 'block';
+            for (const elId of ['loading', 'success', 'needsLogin', 'error', 'directVisit']) {
+                document.getElementById(elId).classList.add('hidden');
+            }
+            document.getElementById(id).classList.remove('hidden');
         }
 
-        function setLoginLink() {
-            // Preserve booking context if present
+        function buildLoginLink() {
             const params = new URLSearchParams(window.location.search);
             const booking = params.get('booking') || params.get('booking_id') || '';
             const email = params.get('email') || '';
-            const link = document.getElementById('loginLink');
             const next = new URLSearchParams();
             next.set('reason', 'verified');
             if (booking) next.set('booking', booking);
             if (email) next.set('email', email);
-            link.href = '/PV/index.html?' + next.toString();
+            return '/PV/index.html?' + next.toString();
         }
 
         async function verify() {
             try {
-                // 1. If Supabase delivered a ?code= param, exchange it for a session.
-                const url = new URL(window.location.href);
-                const code = url.searchParams.get('code');
-                if (code) {
-                    const { error: exError } = await supabase.auth.exchangeCodeForSession(url.href);
-                    if (exError) {
-                        document.getElementById('errorMsg').textContent = exError.message;
-                        show('error');
-                        return;
-                    }
-                }
+                // Wait a tick for Supabase JS to finish processing the URL hash/query
+                // (the createClient call above triggers auto-detection asynchronously)
+                await new Promise(r => setTimeout(r, 100));
 
-                // 2. Check for an active session (Supabase implicit-flow puts tokens in the hash
-                //    and the JS lib parses them automatically on createClient()).
-                let { data: { session }, error: sessError } = await supabase.auth.getSession();
+                // Check the current session — Supabase should have already created it
+                // from the URL hash/query on createClient()
+                const { data: { session }, error: sessError } = await supabase.auth.getSession();
+
                 if (sessError) {
                     document.getElementById('errorMsg').textContent = sessError.message;
                     show('error');
@@ -121,19 +170,35 @@
                 }
 
                 if (session?.user) {
-                    setLoginLink();
+                    // We have a session — the email was verified!
+                    // Update the link in both success states
+                    const loginLink = buildLoginLink();
+                    document.getElementById('loginLink').href = loginLink;
+                    document.getElementById('loginLink2').href = loginLink;
                     show('success');
-                    // Auto-redirect after 3s so the user can read the message first
+                    // Auto-redirect after 3s
                     setTimeout(() => {
-                        window.location.href = document.getElementById('loginLink').href;
+                        window.location.href = loginLink;
                     }, 3000);
                     return;
                 }
 
-                // 3. No session and no code — this is a direct visit to the verification page.
-                //    Show an instructive error.
-                document.getElementById('errorMsg').textContent = 'Geen verificatiecode gevonden. Open de link uit de verificatiemail in deze browser, of log in op uw account.';
-                show('error');
+                // No session — check if there was an error in the URL hash
+                const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+                const errorDescription = hashParams.get('error_description') || hashParams.get('error');
+                if (errorDescription) {
+                    document.getElementById('errorMsg').textContent = errorDescription.replace(/\+/g, ' ');
+                    show('error');
+                    return;
+                }
+
+                // No session and no error — this is a direct visit (no email link clicked).
+                // Show the "check your email" message instead of a scary error.
+                const queryEmail = new URLSearchParams(window.location.search).get('email');
+                if (queryEmail) {
+                    document.getElementById('emailHint').textContent = 'Email verzonden naar: ' + queryEmail;
+                }
+                show('directVisit');
             } catch (err) {
                 document.getElementById('errorMsg').textContent = err.message || String(err);
                 show('error');

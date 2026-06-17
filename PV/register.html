@@ -227,9 +227,19 @@
                         // redirects to the login page with reason=verified). Previously
                         // this pointed to /PV/index.html, which made the user land
                         // immediately on the login form with no confirmation.
+                        // FIX Issue 2026-06-17 cert cycle 6: the apex domain fleetconnect.be
+                        // 308-redirects to www.fleetconnect.be, which STRIPS the URL hash
+                        // fragment (HTTP spec). Supabase's default verification flow uses
+                        // implicit flow with #access_token=... in the hash, so a user
+                        // clicking the email link would land on www.fleetconnect.be WITHOUT
+                        // the hash, and the verification would silently fail.
+                        // We force the www subdomain to avoid the redirect entirely.
+                        const wwwOrigin = window.location.hostname.startsWith('www.')
+                            ? window.location.origin
+                            : window.location.protocol + '//www.' + window.location.hostname.replace(/^www\./, '');
                         emailRedirectTo: requestedBookingId
-                            ? `${window.location.origin}/PV/verificatiepv.html?booking=${encodeURIComponent(requestedBookingId)}&email=${encodeURIComponent(email)}`
-                            : `${window.location.origin}/PV/verificatiepv.html?email=${encodeURIComponent(email)}`
+                            ? `${wwwOrigin}/PV/verificatiepv.html?booking=${encodeURIComponent(requestedBookingId)}&email=${encodeURIComponent(email)}`
+                            : `${wwwOrigin}/PV/verificatiepv.html?email=${encodeURIComponent(email)}`
                     }
                 });
 
