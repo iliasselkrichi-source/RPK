@@ -236,10 +236,15 @@
 
         async function resendVerificationEmail(email) {
             try {
+                // FIX Issue 2026-06-17 cert cycle 6: force the www subdomain to avoid
+                // the apex→www 308 redirect that strips the URL hash fragment.
+                const wwwOrigin = window.location.hostname.startsWith('www.')
+                    ? window.location.origin
+                    : window.location.protocol + '//www.' + window.location.hostname.replace(/^www\./, '');
                 const { error } = await supabase.auth.resend({
                     type: 'signup',
                     email: email,
-                    options: { emailRedirectTo: window.location.origin + '/PV/index.html' }
+                    options: { emailRedirectTo: wwwOrigin + '/PV/index.html' }
                 });
                 if (error) {
                     showError('Verificatiemail kon niet worden verstuurd: ' + error.message, true);
