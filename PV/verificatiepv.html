@@ -2,410 +2,227 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificatie | FleetConnect</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="../translations.js"></script>
-    <style>
-        :root { --primary: #2c7da0; --bg: #f4f7fc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); width: 100%; max-width: 400px; text-align: center; }
-        .icon { font-size: 4rem; color: var(--primary); margin-bottom: 24px; }
-        .spinner { animation: spin 1s linear infinite; display: inline-block; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <div id="loading">
-            <div class="icon"><i class="fas fa-circle-notch spinner"></i></div>
-            <h1 data-i18n="auth_verify_loading">Uw verificatie wordt verwerkt...</h1>
-        </div>
-        <div id="success" style="display:none;">
-            <div class="icon" style="color:#10b981;"><i class="fas fa-check-circle"></i></div>
-            <h1 data-i18n="auth_verify_success">Geverifieerd!</h1>
-            <p data-i18n="auth_verify_redirecting">U wordt doorverwezen naar uw portaal...</p>
-        </div>
-        <div id="error" style="display:none;">
-            <div class="icon" style="color:#ef4444;"><i class="fas fa-times-circle"></i></div>
-            <h1 data-i18n="auth_verify_failed">Verificatie mislukt</h1>
-            <p id="errorMsg"></p>
-            <a href="index.html" style="color:var(--primary); font-weight:600; text-decoration:none;" data-i18n="auth_back_to_login">Terug naar inloggen</a>
-        </div>
-    </div>
-
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-        const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        async function verify() {
-            const { data: { session }, error } = await supabase.auth.getSession();
-
-            if (error) {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').style.display = 'block';
-                document.getElementById('errorMsg').innerText = error.message;
-                return;
-            }
-
-            if (session) {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('success').style.display = 'block';
-                setTimeout(() => {
-                    // FIX RC-3: use canonical /PV/ prefix; matches vercel.json rewrite
-                    window.location.href = '/PV/klantenportaalpv.html';
-                }, 2000);
-            } else {
-                // If no session but landed here, might be a direct link or hash
-                // Supabase handled the auth via the URL hash already if successful
-                setTimeout(async () => {
-                    const { data: { session: retrySession } } = await supabase.auth.getSession();
-                    if (retrySession) {
-                        document.getElementById('loading').style.display = 'none';
-                        document.getElementById('success').style.display = 'block';
-                        // FIX RC-3: use canonical /PV/ prefix
-                        window.location.href = '/PV/klantenportaalpv.html';
-                    } else {
-                        // FIX RC-3: use canonical /PV/ prefix
-                        window.location.href = '/PV/index.html';
-                    }
-                }, 1000);
-            }
-        }
-
-        verify();
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Fleetconnect | Magic Link verificatie</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Verificatie | FleetConnect</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <style>
+        :root {
+            --fc-primary: #2c6e9e;
+            --fc-primary-dark: #1e4a6e;
+            --fc-accent-gold: #c9a03d;
+            --fc-bg: #f4f7fc;
+            --fc-text: #1a2a3a;
+            --fc-text-light: #4a627a;
+            --fc-success: #10b981;
+            --fc-warning: #f59e0b;
+            --fc-danger: #ef4444;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
-            background: #f4f7fc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--fc-bg);
+            color: var(--fc-text);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-        .magic-card {
+        .card {
             background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
             max-width: 480px;
             width: 100%;
-            padding: 40px 32px;
-            border-radius: 32px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            border: 1px solid #e2edf7;
+            padding: 48px 40px;
             text-align: center;
         }
-        .magic-card i {
-            font-size: 3rem;
-            color: #2c7da0;
-            margin-bottom: 20px;
-        }
-        h1 { font-size: 1.7rem; margin-bottom: 8px; color: #1a2a3a; }
-        .sub { color: #4a627a; font-size: 0.9rem; margin-bottom: 24px; }
-        .email-display {
-            background: #f1f5f9;
-            padding: 12px 16px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-bottom: 28px;
-            word-break: break-all;
-            color: #1e4a6e;
-        }
-        .btn {
-            background: #2c7da0;
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.2s;
-        }
-        .btn:hover { background: #1a5c8c; transform: translateY(-1px); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .resend-link {
-            background: none;
-            border: none;
-            color: #2c7da0;
-            font-weight: 600;
-            text-decoration: underline;
-            margin-top: 20px;
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
-        .message {
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            margin: 20px 0;
-            display: none;
-        }
-        .error { background: #fee2e2; color: #b91c1c; }
-        .success { background: #dcfce7; color: #166534; }
-        .timer { font-size: 0.8rem; color: #4a627a; margin-top: 16px; }
-        .language-selector {
+        .icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
             display: flex;
-            gap: 12px;
+            align-items: center;
             justify-content: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e2edf7;
+            margin: 0 auto 24px;
+            font-size: 2.5rem;
         }
-        .lang-btn {
-            background: #f1f5f9;
-            border: 1px solid #e2edf7;
-            padding: 6px 14px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: #1a2a3a;
-            text-decoration: none;
-        }
-        .lang-btn.active {
-            background: #2c7da0;
+        .icon.success { background: #d1fae5; color: var(--fc-success); }
+        .icon.check { background: #dbeafe; color: var(--fc-primary); }
+        .icon.error { background: #fee2e2; color: var(--fc-danger); }
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; color: var(--fc-text); }
+        p { color: var(--fc-text-light); line-height: 1.6; margin-bottom: 20px; }
+        .email-highlight { color: var(--fc-primary-dark); font-weight: 600; word-break: break-all; }
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: var(--fc-primary);
             color: white;
-            border-color: #2c7da0;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
         }
-        @media (max-width: 500px) {
-            .magic-card { padding: 30px 20px; }
-        }
+        .btn:hover { background: var(--fc-primary-dark); transform: translateY(-1px); }
+        .btn-ghost { background: transparent; color: var(--fc-primary); border: 2px solid var(--fc-primary); margin-left: 8px; }
+        .btn-ghost:hover { background: var(--fc-primary); color: white; }
+        .spinner { width: 24px; height: 24px; border: 3px solid #e5e7eb; border-top-color: var(--fc-primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .hidden { display: none; }
+        .redirect-msg { font-size: 0.85rem; color: var(--fc-text-light); margin-top: 12px; }
     </style>
 </head>
 <body>
+    <div class="card">
+        <!-- Loading state -->
+        <div id="state-loading">
+            <div class="spinner"></div>
+            <h1>Verificatie verwerken…</h1>
+            <p>Even geduld, we bevestigen uw e-mailadres.</p>
+        </div>
 
-<div class="magic-card">
-    <div class="language-selector">
-        <a href="#" class="lang-btn" data-lang="nl">Nederlands</a>
-        <a href="#" class="lang-btn" data-lang="fr">Français</a>
-        <a href="#" class="lang-btn" data-lang="en">English</a>
+        <!-- Success state — email verified, user is now active -->
+        <div id="state-success" class="hidden">
+            <div class="icon success">✓</div>
+            <h1>Uw account is succesvol geverifieerd</h1>
+            <p>Welkom bij FleetConnect! U kunt nu inloggen en direct een rit boeken.</p>
+            <p id="successEmailDisplay" class="email-highlight"></p>
+            <a id="loginLink" href="/PV/index.html" class="btn">Naar inloggen</a>
+            <p class="redirect-msg">U wordt automatisch doorgestuurd in <span id="countdown">5</span> seconden…</p>
+        </div>
+
+        <!-- Email-sent state — user just registered, hasn't clicked link yet -->
+        <div id="state-sent" class="hidden">
+            <div class="icon check">📧</div>
+            <h1>Controleer uw e-mail</h1>
+            <p>We hebben een verificatielink gestuurd naar:</p>
+            <p id="sentEmailDisplay" class="email-highlight"></p>
+            <p>Klik op de link in de e-mail om uw account te activeren. De link is 24 uur geldig.</p>
+            <a id="resendLink" href="#" class="btn">Verstuur opnieuw</a>
+            <a id="sentLoginLink" href="/PV/index.html" class="btn btn-ghost">Naar inloggen</a>
+        </div>
+
+        <!-- Error state — token expired, invalid, or already used -->
+        <div id="state-error" class="hidden">
+            <div class="icon error">✕</div>
+            <h1 id="errorTitle">Verificatie mislukt</h1>
+            <p id="errorMessage">De verificatielink is verlopen of al gebruikt.</p>
+            <a id="errorRegisterLink" href="/PV/register.html" class="btn">Opnieuw registreren</a>
+            <a id="errorLoginLink" href="/PV/index.html" class="btn btn-ghost">Naar inloggen</a>
+        </div>
     </div>
 
-    <i class="fas fa-envelope-open-text"></i>
-    <h1 id="title">Controleer uw e‑mail</h1>
-    <p id="subtitle" class="sub">Klik op de Magic Link om in te loggen</p>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    <div id="emailDisplay" class="email-display"></div>
-
-    <div id="messageBox" class="message"></div>
-
-    <button class="btn" id="sendMagicBtn">Stuur Magic Link</button>
-    <div id="timerText" class="timer"></div>
-
-    <button id="logoutBtn" class="resend-link">← Terug naar inloggen</button>
-</div>
-
-<script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-    // Supabase configuratie (gelijk aan uw andere pagina's)
-    const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // ------------------------------ TAAL & VERTALINGEN ------------------------------
-    const translations = {
-        nl: {
-            title: "Controleer uw e‑mail",
-            subtitle: "Klik op de Magic Link om in te loggen",
-            sendBtn: "Stuur Magic Link",
-            sending: "Verzenden...",
-            success: "Magic Link verzonden naar",
-            errorGeneric: "Er is een fout opgetreden. Probeer opnieuw.",
-            errorNoEmail: "Geen e‑mailadres gevonden. Log opnieuw in.",
-            timerText: "Vraag over {seconds} seconden opnieuw een link aan",
-            backToLogin: "Terug naar inloggen"
-        },
-        fr: {
-            title: "Vérifiez votre e‑mail",
-            subtitle: "Cliquez sur le Magic Link pour vous connecter",
-            sendBtn: "Envoyer le Magic Link",
-            sending: "Envoi...",
-            success: "Magic Link envoyé à",
-            errorGeneric: "Une erreur est survenue. Réessayez.",
-            errorNoEmail: "Adresse e‑mail introuvable. Reconnectez-vous.",
-            timerText: "Redemander dans {seconds} secondes",
-            backToLogin: "Retour à la connexion"
-        },
-        en: {
-            title: "Check your email",
-            subtitle: "Click the Magic Link to sign in",
-            sendBtn: "Send Magic Link",
-            sending: "Sending...",
-            success: "Magic Link sent to",
-            errorGeneric: "An error occurred. Please try again.",
-            errorNoEmail: "Email address not found. Please log in again.",
-            timerText: "Request a new link in {seconds} seconds",
-            backToLogin: "Back to login"
-        }
-    };
-
-    let currentLang = 'nl';
-    let resendTimer = null;
-    let timerSeconds = 0;
-    let currentEmail = "";
-
-    function getLanguageFromURL() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const langParam = urlParams.get('lang');
-        if (langParam && ['nl','fr','en'].includes(langParam)) return langParam;
-        const saved = localStorage.getItem('preferred_lang');
-        if (saved && ['nl','fr','en'].includes(saved)) return saved;
-        return 'nl';
-    }
-
-    function applyLanguage(lang) {
-        currentLang = lang;
-        const t = translations[lang];
-        document.getElementById('title').innerText = t.title;
-        document.getElementById('subtitle').innerText = t.subtitle;
-        document.getElementById('sendMagicBtn').innerText = t.sendBtn;
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            if (btn.dataset.lang === lang) btn.classList.add('active');
-            else btn.classList.remove('active');
+        const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA'; // Injected at deploy time
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
         });
-        localStorage.setItem('preferred_lang', lang);
-        const url = new URL(window.location);
-        url.searchParams.set('lang', lang);
-        window.history.pushState({}, '', url);
-    }
 
-    function showMessage(msg, type) {
-        const box = document.getElementById('messageBox');
-        box.innerText = msg;
-        box.className = `message ${type === 'error' ? 'error' : 'success'}`;
-        box.style.display = 'block';
-        setTimeout(() => box.style.display = 'none', 6000);
-    }
+        const $ = id => document.getElementById(id);
+        const show = name => { ['loading', 'success', 'sent', 'error'].forEach(s => $(`state-${s}`).classList.toggle('hidden', s !== name)); };
 
-    function startResendTimer() {
-        if (resendTimer) clearInterval(resendTimer);
-        timerSeconds = 60;
-        const btn = document.getElementById('sendMagicBtn');
-        const timerSpan = document.getElementById('timerText');
-        const t = translations[currentLang];
-        
-        btn.disabled = true;
-        const originalText = btn.innerText;
-        
-        const updateTimer = () => {
-            if (timerSeconds <= 0) {
-                clearInterval(resendTimer);
-                btn.disabled = false;
-                btn.innerText = t.sendBtn;
-                timerSpan.innerText = '';
-            } else {
-                btn.innerText = `${t.sending} (${timerSeconds}s)`;
-                timerSpan.innerText = t.timerText.replace('{seconds}', timerSeconds);
-                timerSeconds--;
-            }
-        };
-        updateTimer();
-        resendTimer = setInterval(updateTimer, 1000);
-    }
+        const queryEmail = new URLSearchParams(window.location.search).get('email') || '';
+        const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+        const hashError = hashParams.get('error_description') || hashParams.get('error') || '';
+        const hashAccessToken = hashParams.get('access_token') || '';
 
-    // ------------------------------ MAGIC LINK FUNCTIE ------------------------------
-    async function sendMagicLink(email) {
-        if (!email) {
-            showMessage(translations[currentLang].errorNoEmail, 'error');
-            return false;
-        }
-        
-        // De redirect URL na klikken op de magic link:
-        // Deze moet verwijzen naar een pagina die de sessie afhandelt,
-        // bijvoorbeeld de klantenportaal-pagina.
-        // FIX RC-2: include the /PV/ prefix to match the actual file location
-        // and align with vercel.json rewrites (/klantenportaal, /klantenportaalpv, etc.)
-        const redirectTo = `${window.location.origin}/PV/klantenportaalpv.html?lang=${currentLang}`;
-        
-        try {
-            const { data, error } = await supabase.auth.signInWithOtp({
-                email: email,
-                options: {
-                    emailRedirectTo: redirectTo,
+        // ============ Verify on load ============
+        async function verify() {
+            try {
+                // Wait for Supabase to finish processing URL hash (if any)
+                await new Promise(r => setTimeout(r, 200));
+
+                // Case 1: URL has #access_token=... (the normal implicit flow)
+                // Supabase has already consumed it and stored the session
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    if (session.user.email_confirmed_at) {
+                        // Success
+                        const email = session.user.email || queryEmail;
+                        $('successEmailDisplay').textContent = email;
+                        const loginUrl = buildLoginLink();
+                        $('loginLink').href = loginUrl;
+                        show('success');
+                        startCountdown(5, loginUrl);
+                        return;
+                    }
                 }
-            });
-            
-            if (error) {
-                console.error("Magic link error:", error);
-                showMessage(error.message || translations[currentLang].errorGeneric, 'error');
-                return false;
+
+                // Case 2: URL has #error_description=... (token expired, already used, etc.)
+                if (hashError) {
+                    $('errorTitle').textContent = 'Verificatie mislukt';
+                    $('errorMessage').textContent = humanizeError(hashError);
+                    show('error');
+                    return;
+                }
+
+                // Case 3: No token in URL, no session — this is a direct visit (user just registered)
+                if (queryEmail) {
+                    $('sentEmailDisplay').textContent = queryEmail;
+                    $('resendLink').onclick = async (e) => {
+                        e.preventDefault();
+                        try {
+                            const { error } = await supabase.auth.resend({ type: 'signup', email: queryEmail, options: { emailRedirectTo: window.location.origin + '/PV/verificatiepv.html?email=' + encodeURIComponent(queryEmail) } });
+                            if (error) throw error;
+                            $('resendLink').textContent = '✓ Verstuurd — controleer uw inbox';
+                            setTimeout(() => { $('resendLink').textContent = 'Verstuur opnieuw'; }, 4000);
+                        } catch (err) {
+                            $('resendLink').textContent = 'Fout: ' + err.message;
+                        }
+                    };
+                    show('sent');
+                    return;
+                }
+
+                // Case 4: No email, no token, no error — totally empty URL
+                $('errorTitle').textContent = 'Geen verificatie gestart';
+                $('errorMessage').textContent = 'Open deze pagina via de link in uw verificatiemail.';
+                show('error');
+            } catch (err) {
+                $('errorTitle').textContent = 'Onverwachte fout';
+                $('errorMessage').textContent = err.message || String(err);
+                show('error');
             }
-            
-            showMessage(`${translations[currentLang].success} ${email}`, 'success');
-            startResendTimer();
-            return true;
-        } catch (err) {
-            console.error(err);
-            showMessage(translations[currentLang].errorGeneric, 'error');
-            return false;
         }
-    }
 
-    // ------------------------------ INITIALISATIE ------------------------------
-    async function init() {
-        // Haal e-mail uit URL of sessionStorage
-        const urlParams = new URLSearchParams(window.location.search);
-        let email = urlParams.get('email');
-        const storedEmail = sessionStorage.getItem('loggedInEmail');
-        if (!email && storedEmail) email = storedEmail;
-        
-        if (!email) {
-            showMessage(translations[currentLang].errorNoEmail, 'error');
-            setTimeout(() => {
-                // FIX RC-3: use canonical /PV/ prefix
-                window.location.href = `/PV/index.html?lang=${currentLang}&logout=expired`;
-            }, 2000);
-            return;
+        function buildLoginLink() {
+            const params = new URLSearchParams();
+            params.set('reason', 'verified');
+            if (queryEmail) params.set('email', queryEmail);
+            return '/PV/index.html?' + params.toString();
         }
-        
-        currentEmail = email;
-        sessionStorage.setItem('loggedInEmail', email);
-        document.getElementById('emailDisplay').innerHTML = `<i class="fas fa-at"></i> ${email}`;
-        
-        // Verstuur automatisch de eerste magic link
-        await sendMagicLink(email);
-    }
 
-    // Terug naar login + sessie wissen
-    async function handleLogout() {
-        await supabase.auth.signOut();
-        sessionStorage.removeItem('loggedInEmail');
-        sessionStorage.removeItem('verified');
-        // FIX RC-3: use canonical /PV/ prefix
-        window.location.href = `/PV/index.html?lang=${currentLang}&logout=success`;
-    }
+        function humanizeError(raw) {
+            const lower = raw.toLowerCase();
+            if (lower.includes('expired') || lower.includes('otp_expired')) {
+                return 'De verificatielink is verlopen (geldig 24 uur). Registreer opnieuw om een nieuwe link te ontvangen.';
+            }
+            if (lower.includes('already') || lower.includes('confirmed')) {
+                return 'Dit e-mailadres is al geverifieerd. U kunt direct inloggen.';
+            }
+            if (lower.includes('invalid')) {
+                return 'De verificatielink is ongeldig. Gebruik de link uit uw verificatiemail of registreer opnieuw.';
+            }
+            return raw.replace(/\+/g, ' ');
+        }
 
-    // Event listeners
-    document.getElementById('sendMagicBtn').addEventListener('click', () => sendMagicLink(currentEmail));
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    
-    // Taal buttons
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            applyLanguage(btn.dataset.lang);
-            // Verander ook de knoptekst als die bezig is met timer
-            const btnEl = document.getElementById('sendMagicBtn');
-            if (!btnEl.disabled) btnEl.innerText = translations[btn.dataset.lang].sendBtn;
-        });
-    });
+        function startCountdown(n, url) {
+            let s = n;
+            const el = $('countdown');
+            const t = setInterval(() => {
+                s--;
+                if (el) el.textContent = s;
+                if (s <= 0) { clearInterval(t); window.location.href = url; }
+            }, 1000);
+        }
 
-    // Start
-    const initialLang = getLanguageFromURL();
-    applyLanguage(initialLang);
-    init();
-</script>
+        verify();
+    </script>
 </body>
 </html>
