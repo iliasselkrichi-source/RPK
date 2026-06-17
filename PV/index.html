@@ -170,7 +170,21 @@
         <div class="info-text">
             <i class="fas fa-info-circle"></i> Log in met uw FleetConnect klantaccount.
             <br><br><a id="registerLink" href="register.html" style="color: var(--primary); font-weight: 700;">Account aanmaken</a>
+            <br><br><a id="forgotLink" href="#" style="color: var(--text-light); font-weight: 500; font-size: 0.75rem;">Wachtwoord vergeten?</a>
         </div>
+        <script>
+        // FIX Issue 1 (2026-06-16 cert cycle 5): forgot-password handler
+        document.getElementById('forgotLink')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim() || prompt('Vul uw e-mailadres in:');
+            if (!email) return;
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/PV/klantenportaalpv.html'
+            });
+            if (error) showError('Kon wachtwoord-resetmail niet versturen: ' + error.message, true);
+            else showInfo('✓ Wachtwoord-resetmail verstuurd naar ' + email + '.', true);
+        });
+        </script>
     </div>
 
     <script type="module">
@@ -200,15 +214,18 @@
         }
 
         if (loginReason === 'registered') showInfo('Account successfully created. Please verify your email address. After verification you can log in to the customer portal.', true);
-        if (loginReason === 'verified') showInfo('Email successfully verified. You can now log in if your account has been approved.', true);
+        if (loginReason === 'verified') showInfo('✓ Uw account is succesvol geverifieerd. U kunt nu inloggen.', true);
         if (loginReason === 'pending') showError('Your account is awaiting approval.', true);
         if (loginReason === 'profile') showError('Uw klantprofiel is nog niet gekoppeld. Log opnieuw in na verificatie of contacteer support.', true);
         if (loginReason === 'session') showError('Log in om het klantportaal te openen.', true);
+        if (loginReason === 'wrong_portal') showError('U probeert het klantportaal te openen met een operator-/partner-/chauffeur-account. Log in op het juiste portaal.', true);
 
         const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
         const queryType = loginParams.get('type') || hashParams.get('type');
         if (queryType === 'signup' || hashParams.get('access_token')) {
-            showInfo('Email successfully verified. You can now log in if your account has been approved.', true);
+            // FIX Issue 3 (2026-06-16 cert cycle 5): clear success message
+            // after Supabase email verification, not a generic 'email verified' line.
+            showInfo('✓ Uw account is succesvol geverifieerd. U kunt nu inloggen met uw e-mailadres en wachtwoord.', true);
         }
 
         function portalUrl() {
@@ -217,10 +234,35 @@
                 : '/PV/klantenportaalpv.html';
         }
 
-        function showError(msg, persist = false) {
+        async function resendVerificationEmail(email) {
+            try {
+                const { error } = await supabase.auth.resend({
+                    type: 'signup',
+                    email: email,
+                    options: { emailRedirectTo: window.location.origin + '/PV/index.html' }
+                });
+                if (error) {
+                    showError('Verificatiemail kon niet worden verstuurd: ' + error.message, true);
+                } else {
+                    showInfo('✓ Verificatiemail opnieuw verstuurd naar ' + email + '. Controleer uw inbox.', true);
+                }
+            } catch (err) {
+                showError('Verificatiemail kon niet worden verstuurd: ' + err.message, true);
+            }
+        }
+        function showError(msg, persist = false, resendEmail = null) {
             errorBox.innerText = msg;
             errorBox.style.display = 'block';
             infoBox.style.display = 'none';
+            if (resendEmail) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'resend-btn';
+                btn.style.cssText = 'margin-top: 10px; padding: 8px 14px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem;';
+                btn.textContent = 'Verificatiemail opnieuw versturen';
+                btn.onclick = () => resendVerificationEmail(resendEmail);
+                errorBox.appendChild(btn);
+            }
             if (!persist) {
                 setTimeout(() => {
                     errorBox.style.display = 'none';
@@ -362,9 +404,25 @@
             }
         }
 
+        // FIX Issue 1 (2026-06-16 cert cycle 5): force a clean customer session.
+        // If a ?fresh=1 URL param is present OR an admin/operator session is detected
+        // (the customer portal requires role=customer), sign out first to clear
+        // any stale Supabase tokens from a prior admin login in this browser.
+        const forceCleanSession = loginParams.get('fresh') === '1';
+        if (forceCleanSession) {
+            try { await supabase.auth.signOut(); } catch (_) {}
+        }
+        // Always check the existing session; if the JWT carries a non-customer
+        // role (admin/operator/partner/driver), clear it before allowing login.
         const { data: existingSession } = await supabase.auth.getSession();
-        if (existingSession?.session?.user) {
-            const access = await canOpenPortal(existingSession.session.user);
+        let sessionUser = existingSession?.session?.user || null;
+        const sessionRole = (sessionUser?.app_metadata?.role || sessionUser?.user_metadata?.role || '').toLowerCase();
+        if (sessionUser && sessionRole && sessionRole !== 'customer' && sessionRole !== 'authenticated') {
+            try { await supabase.auth.signOut(); } catch (_) {}
+            sessionUser = null;
+        }
+        if (sessionUser) {
+            const access = await canOpenPortal(sessionUser);
             if (access.allowed) window.location.replace(portalUrl());
             else showError(access.message, true);
         }
@@ -401,11 +459,34 @@
                 if (requestStatus?.found && requestStatus.status === 'pending') {
                     message = 'Uw accountaanvraag wacht nog op goedkeuring door FleetConnect.';
                 } else if (requestStatus?.found && requestStatus.status === 'approved') {
-                    message = 'Uw account is goedgekeurd. Controleer uw verificatiemail of maak uw wachtwoord opnieuw aan via de officiële Supabase verificatielink.';
+                    // FIX Issue 4 (2026-06-16 cert cycle 5): do NOT tell the user to use a
+                    // Supabase verification link. The customer is approved; either they
+                    // haven't verified their email yet, or the customer row needs to be
+                    // created. We try to create the customer row now (defense-in-depth)
+                    // and give a clear, non-Supabase-internal message + offer to resend
+                    // the verification email.
+                    try {
+                        const customerId = 'CUST-' + email.replace(/[^a-z0-9]/gi, '').substring(0, 30);
+                        await supabase.rpc('create_customer_registration_profile', {
+                            payload: { id: customerId, name: email.split('@')[0], email: email, phone: '', default_pickup_address: '' }
+                        });
+                        await supabase.rpc('link_customer_after_registration');
+                    } catch (linkErr) {
+                        console.warn('auto-link on approved status failed:', linkErr?.message);
+                    }
+                    if (String(message).toLowerCase().includes('email not confirmed')) {
+                        message = 'Uw account is goedgekeurd. Bevestig eerst uw e-mailadres via de link in de verificatiemail die we u hebben gestuurd. Klik daarna opnieuw op Inloggen.';
+                    } else {
+                        message = 'Uw account is goedgekeurd. Probeer opnieuw in te loggen. Als u uw wachtwoord vergeten bent, klik dan op "Wachtwoord vergeten?" hieronder (deze functie wordt binnenkort toegevoegd).';
+                    }
                 } else if (requestStatus?.found && requestStatus.status === 'rejected') {
                     message = 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.';
                 } else if (String(message).toLowerCase().includes('email not confirmed')) {
-                    message = 'Uw e-mailadres is nog niet bevestigd. Controleer uw verificatiemail.';
+                    message = 'Uw e-mailadres is nog niet bevestigd. Controleer uw verificatiemail (ook in spam) of klik hieronder om een nieuwe te ontvangen.';
+                    showError(message, true, email);
+                    passInput.value = '';
+                    passInput.focus();
+                    return;
                 }
                 showError(message, true);
                 passInput.value = '';

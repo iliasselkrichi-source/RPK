@@ -1250,6 +1250,14 @@
             loginRedirect('session');
             return false;
         }
+        // FIX Issue 1 (2026-06-16 cert cycle 5): do not allow admin/operator/partner/driver
+        // sessions to enter the customer portal. Sign them out and redirect to login.
+        const userRole = (data.user.app_metadata?.role || data.user.user_metadata?.role || '').toLowerCase();
+        if (userRole && ['admin', 'operator', 'partner', 'driver'].includes(userRole)) {
+            await supabase.auth.signOut();
+            loginRedirect('wrong_portal');
+            return false;
+        }
         const { data: requestStatus } = await supabase.rpc('get_account_request_status', { p_email: data.user.email });
         if (requestStatus?.found && requestStatus.status === 'pending') {
             await supabase.auth.signOut();
