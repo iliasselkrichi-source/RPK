@@ -570,6 +570,8 @@
             getDeclinedDriver(booking) { return booking.metadata?.declined_driver || null; },
             getStatusText(booking) { let t = translations[currentLang]; if (booking.status === 'assignment_sent') return t.statusAssignmentSent || 'Wachtend op reactie chauffeur'; if (booking.status === 'assigned') return t.statusAssigned; if (booking.status === 'accepted') return t.statusAccepted; if (booking.status === 'reassignment_needed' || booking.metadata?.requires_reassignment === true) return 'Opnieuw toewijzen'; if (booking.status === 'cancelled') return t.statusCancelled; if (booking.status === 'completed') return t.statusCompleted; return t.statusNew; },
             getAccountRequestStatusText(status) { const t = translations[currentLang]; const map = { pending: t.accountRequestsStatusPending, approved: t.accountRequestsStatusApproved, rejected: t.accountRequestsStatusRejected }; return map[status] || status || '-'; },
+            getAccountRequestPortalUrl(request) { const accountType = String(request?.account_type || '').toLowerCase(); const isPartnerOrDriver = ['partner', 'driver', 'operations'].includes(accountType) || request?.metadata?.requested_portal === 'partner-app'; return isPartnerOrDriver ? 'https://partner.fleetconnect.be/' : `${window.location.origin}/PV/index.html?email=${encodeURIComponent(request?.email || '')}`; },
+            getAccountRequestKindLabel(request) { const accountType = String(request?.account_type || '').toLowerCase(); if (accountType === 'driver') return 'Driver PWA'; if (accountType === 'partner') return 'Partner PWA'; if (accountType === 'operations') return 'Operations'; return this.escapeHtml(request?.account_type || 'Account'); },
             getTodayStats() { let todayStr = this.formatDate(new Date()); let todayRides = this.getRidesByDate(todayStr); let todayTotal = todayRides.reduce((sum, r) => sum + (r.amount || 0), 0); let todayCash = todayRides.filter(r => r.payment === 'Cash').reduce((sum, r) => sum + (r.amount || 0), 0); let nowTime = `${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`; let futureRidesToday = todayRides.filter(r => r.status !== 'completed' && r.status !== 'cancelled' && r.time > nowTime); return { total: todayTotal, cash: todayCash, completed: todayRides.filter(r => r.status === 'completed').length, canceled: todayRides.filter(r => r.status === 'cancelled').length, futureRides: futureRidesToday.length }; },
             
             shortenRoute(pickup, destination) {
@@ -997,13 +999,15 @@
                 const renderRequest = (r) => {
                     const created = fmtDate(r.created_at);
                     const isRecent = r.created_at && (Date.now() - new Date(r.created_at).getTime()) < 86400000;
+                    const metadata = r.metadata || {};
+                    const statusClass = r.status === 'approved' ? 'status-completed' : (r.status === 'rejected' ? 'status-cancelled' : 'status-pending');
                     return `<div style="border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-bottom:12px; ${isRecent ? 'border-left:4px solid var(--accent-gold);' : ''}">
                         <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
                             <div style="flex:1; min-width:280px;">
                                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:4px;">
                                     <strong>${this.escapeHtml(r.name)}</strong>
-                                    <span class="status-badge status-pending">${this.getAccountRequestStatusText(r.status)}</span>
-                                    <span class="status-badge" style="background:#dbeafe; color:#1e40af;">${this.escapeHtml(r.account_type)}</span>
+                                    <span class="status-badge ${statusClass}">${this.getAccountRequestStatusText(r.status)}</span>
+                                    <span class="status-badge" style="background:#dbeafe; color:#1e40af;">${this.getAccountRequestKindLabel(r)}</span>
                                     <small style="color:#94a3b8; font-weight:600;">📅 ${created}</small>
                                     ${isRecent ? '<span style="background:var(--accent-gold); color:white; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:700;">NIEUW</span>' : ''}
                                 </div>
@@ -1012,9 +1016,14 @@
                                     <strong>Tel:</strong> ${this.escapeHtml(r.phone || '-')}
                                     ${r.company ? ` · <strong>Bedrijf:</strong> ${this.escapeHtml(r.company)}` : ''}
                                 </div>
+                                <div style="color:#64748b; font-size:0.85rem; margin-top:6px;">
+                                    <strong>Voertuig:</strong> ${this.escapeHtml(metadata.vehicle_type || '-')} ·
+                                    <strong>Regio:</strong> ${this.escapeHtml(metadata.operating_area || '-')} ·
+                                    <strong>Taal:</strong> ${this.escapeHtml(metadata.preferred_language || '-')}
+                                </div>
                                 ${r.notes ? `<div style="color:#64748b; font-size:0.85rem; margin-top:6px; padding:8px; background:#f8fafc; border-radius:6px;"><strong>Notities:</strong> ${this.escapeHtml(r.notes)}</div>` : ''}
                                 <div style="color:#94a3b8; font-size:0.75rem; margin-top:6px;">
-                                    ${t.accountRequestsProfile || 'Profiel'}: ${this.escapeHtml(r.customer_id || '-')} · ${t.accountRequestsAuthLinked || 'Auth'}: ${r.user_id ? (t.accountRequestsYes || 'ja') : (t.accountRequestsNo || 'nee')}
+                                    ${t.accountRequestsProfile || 'Profiel'}: ${this.escapeHtml(metadata.partner_id || metadata.driver_id || r.customer_id || '-')} · ${t.accountRequestsAuthLinked || 'Auth'}: ${r.user_id ? (t.accountRequestsYes || 'ja') : (t.accountRequestsNo || 'nee')}
                                 </div>
                             </div>
                             <div style="display:flex; gap:6px; align-items:flex-start; flex-wrap:wrap;">
@@ -1029,7 +1038,7 @@
                     </div>`;
                 };
                 let html = `<div class="people-card"><h3><i class="fas fa-user-check"></i> ${title} <span class="order-count">${pending.length} open</span></h3>
-                <p style="color:#64748b; margin-bottom:16px;">Dashboard/operator access requests only. Customer registrations are shown under Klanten and do not require approval.</p>
+                <p style="color:#64748b; margin-bottom:16px;">Partner PWA en dashboard-toegangsaanvragen worden hier beoordeeld. Goedkeuring maakt of koppelt het juiste partner-/chauffeursprofiel; privé ritgegevens blijven geblokkeerd tot goedkeuring.</p>
                 <div class="filter-bar">
                     <div class="filter-group">
                         <label>Zoeken</label>
@@ -1092,16 +1101,19 @@
                 const renderRequest = (r) => {
                     const created = fmtDate(r.created_at);
                     const isRecent = r.created_at && (Date.now() - new Date(r.created_at).getTime()) < 86400000;
+                    const metadata = r.metadata || {};
+                    const statusClass = r.status === 'approved' ? 'status-completed' : (r.status === 'rejected' ? 'status-cancelled' : 'status-pending');
                     return `<div style="border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-bottom:12px; ${isRecent ? 'border-left:4px solid var(--accent-gold);' : ''}">
                         <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
                             <div style="flex:1; min-width:280px;">
                                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:4px;">
                                     <strong>${this.escapeHtml(r.name)}</strong>
-                                    <span class="status-badge status-pending">${this.getAccountRequestStatusText(r.status)}</span>
-                                    <span class="status-badge" style="background:#dbeafe; color:#1e40af;">${this.escapeHtml(r.account_type)}</span>
+                                    <span class="status-badge ${statusClass}">${this.getAccountRequestStatusText(r.status)}</span>
+                                    <span class="status-badge" style="background:#dbeafe; color:#1e40af;">${this.getAccountRequestKindLabel(r)}</span>
                                     <small style="color:#94a3b8; font-weight:600;">📅 ${created}</small>
                                 </div>
                                 <div style="color:#475569; font-size:0.9rem;">${this.escapeHtml(r.email)} · ${this.escapeHtml(r.phone || '-')}${r.company ? ' · ' + this.escapeHtml(r.company) : ''}</div>
+                                <div style="color:#64748b; font-size:0.85rem; margin-top:6px;">Voertuig: ${this.escapeHtml(metadata.vehicle_type || '-')} · Regio: ${this.escapeHtml(metadata.operating_area || '-')}</div>
                             </div>
                             <div style="display:flex; gap:6px; align-items:flex-start;">
                                 <button class="action-btn" onclick="app.editAccountRequest('${r.id}')"><i class="fas fa-edit"></i></button>
@@ -1151,14 +1163,19 @@
                         <div class="fiche-row"><span class="fiche-label">Telefoon:</span><span class="fiche-value">${this.escapeHtml(r.phone || '-')}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Bedrijf:</span><span class="fiche-value">${this.escapeHtml(r.company || '-')}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Type:</span><span class="fiche-value">${this.escapeHtml(r.account_type)}</span></div>
+                        <div class="fiche-row"><span class="fiche-label">PWA:</span><span class="fiche-value">${this.getAccountRequestKindLabel(r)}</span></div>
+                        <div class="fiche-row"><span class="fiche-label">Voertuig:</span><span class="fiche-value">${this.escapeHtml(r.metadata?.vehicle_type || '-')}</span></div>
+                        <div class="fiche-row"><span class="fiche-label">Regio:</span><span class="fiche-value">${this.escapeHtml(r.metadata?.operating_area || '-')}</span></div>
+                        <div class="fiche-row"><span class="fiche-label">Voorkeurstaal:</span><span class="fiche-value">${this.escapeHtml(r.metadata?.preferred_language || '-')}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Status:</span><span class="fiche-value">${this.getAccountRequestStatusText(r.status)}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Aangevraagd op:</span><span class="fiche-value">${r.created_at ? new Date(r.created_at).toLocaleString('nl-BE') : '—'}</span></div>
                         ${r.notes ? `<div class="fiche-row"><span class="fiche-label">Notities:</span><span class="fiche-value">${this.escapeHtml(r.notes)}</span></div>` : ''}
                     </div>
                     <div class="fiche-section"><h4>Systeem</h4>
                         <div class="fiche-row"><span class="fiche-label">ID:</span><span class="fiche-value"><code>${r.id}</code></span></div>
-                        <div class="fiche-row"><span class="fiche-label">Klantprofiel:</span><span class="fiche-value">${this.escapeHtml(r.customer_id || '-')}</span></div>
+                        <div class="fiche-row"><span class="fiche-label">Profiel:</span><span class="fiche-value">${this.escapeHtml(r.metadata?.partner_id || r.metadata?.driver_id || r.customer_id || '-')}</span></div>
                         <div class="fiche-row"><span class="fiche-label">Auth login:</span><span class="fiche-value">${r.user_id ? 'Gekoppeld' : 'Niet gekoppeld'}</span></div>
+                        <div class="fiche-row"><span class="fiche-label">Login na goedkeuring:</span><span class="fiche-value">${this.getAccountRequestPortalUrl(r)}</span></div>
                     </div>
                     <div class="fiche-actions">
                         <button class="fiche-btn confirm" onclick="app.closeModal(); app.editAccountRequest('${r.id}');">Bewerken</button>
@@ -1301,20 +1318,20 @@
                 const isClient = accountType === 'client' || accountType === 'other';
                 let portalUrl, ctaText, approvalText;
                 if (isOperator) {
-                    portalUrl = `${window.location.origin}/Paneel/partner-login.html?email=${encodeURIComponent(request.email)}`;
+                    portalUrl = this.getAccountRequestPortalUrl(request);
                     ctaText = 'Partnerportaal openen';
                     approvalText = approvalResult.auth_user_linked
                         ? (inviteEmailSent
-                            ? 'Uw partnerprofiel is aangemaakt. We hebben u een aparte e-mail gestuurd met een link om uw wachtwoord in te stellen. Klik op de link in die e-mail, stel uw wachtwoord in, en log daarna in op het partnerportaal.'
-                            : 'Uw partnerprofiel is aangemaakt. Klik op "Wachtwoord vergeten?" op de partnerportaal-inlogpagina om een wachtwoord-instellink per e-mail te ontvangen, en log daarna in op het partnerportaal.')
+                            ? 'Uw partnerprofiel is aangemaakt. We hebben u een aparte e-mail gestuurd met een link om uw wachtwoord in te stellen. Klik op de link in die e-mail, stel uw wachtwoord in, en log daarna in op FleetConnect Partner.'
+                            : 'Uw partnerprofiel is aangemaakt. Gebruik indien nodig "wachtwoord vergeten" om een wachtwoord-instellink per e-mail te ontvangen, en log daarna in op FleetConnect Partner.')
                         : 'Uw partnerprofiel is aangemaakt. Activeer of verifieer uw login via de beveiligde FleetConnect registratie/verificatie voordat u inlogt op het partnerportaal.';
                 } else if (isDriver) {
-                    portalUrl = `${window.location.origin}/Paneel/driver-login.html?email=${encodeURIComponent(request.email)}`;
+                    portalUrl = this.getAccountRequestPortalUrl(request);
                     ctaText = 'Chauffeurportaal openen';
                     approvalText = approvalResult.auth_user_linked
                         ? (inviteEmailSent
-                            ? 'Uw chauffeurprofiel is aangemaakt. We hebben u een aparte e-mail gestuurd met een link om uw wachtwoord in te stellen. Klik op de link in die e-mail, stel uw wachtwoord in, en log daarna in op het chauffeurportaal.'
-                            : 'Uw chauffeurprofiel is aangemaakt. Klik op "Wachtwoord vergeten?" op de chauffeurportaal-inlogpagina om een wachtwoord-instellink per e-mail te ontvangen, en log daarna in op het chauffeurportaal.')
+                            ? 'Uw chauffeurprofiel is aangemaakt. We hebben u een aparte e-mail gestuurd met een link om uw wachtwoord in te stellen. Klik op de link in die e-mail, stel uw wachtwoord in, en log daarna in op FleetConnect Partner.'
+                            : 'Uw chauffeurprofiel is aangemaakt. Gebruik indien nodig "wachtwoord vergeten" om een wachtwoord-instellink per e-mail te ontvangen, en log daarna in op FleetConnect Partner.')
                         : 'Uw chauffeurprofiel is aangemaakt. Activeer of verifieer uw login via de beveiligde FleetConnect registratie/verificatie voordat u inlogt op het chauffeurportaal.';
                 } else {
                     // Client or Other — keep the original (correct) customer-portal behavior
