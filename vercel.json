@@ -15,6 +15,11 @@
       "has": [{ "type": "host", "value": "partners.fleetconnect.be" }],
       "destination": "/partner-app/index.html"
     },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "partner.fleetconnect.be" }],
+      "destination": "/partner-app/index.html"
+    },
     { "source": "/", "destination": "/PV/PV.html" },
     { "source": "/nl", "destination": "/PV/PV.html" },
     { "source": "/fr", "destination": "/PV/PV_fr.html" },
