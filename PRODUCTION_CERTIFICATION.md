@@ -2243,3 +2243,47 @@ Live validation required:
 4. Switch Account Requests tab across NL/FR/EN and confirm no mixed-language strings remain.
 
 Certification status remains NOT CERTIFIED.
+
+---
+
+## Final Certification Sprint - 2026-06-19
+
+Timestamp: 2026-06-19 22:21:01 +02:00
+Branch: final-certification-sprint-2026-06-19
+Deployment commit baseline: 2dced348cfbf1ae503ac8918d134ec63da90ceab
+
+### Fixes Applied
+
+- Fixed invalid JavaScript in PV/register.html: wwwOrigin was declared inside the supabase.auth.signUp options object, blocking registration execution.
+- Changed dashboard partner/driver approval CTA to use canonical https://partners.fleetconnect.be/ instead of broken https://partner.fleetconnect.be/.
+- Created and applied live Supabase migration 20260619190000_fix_dashboard_update_rpc_returns.sql to fix JSON-return update RPC failures for account requests, customers, drivers, and bookings.
+- Applied live Supabase partner/dashboard migrations already present in repository:
+  - 20260619060000_partner_delete_dedup_backend.sql
+  - 20260619070000_fix_partner_update_delete_rpc.sql
+  - 20260619080000_operator_bulk_assign_bookings.sql
+
+### Validation Evidence
+
+- Static HTML script parsing passed for PV booking pages, customer login/register, verification, dashboard, partner PWA, driver accept/decline, and review page.
+- ercel.json parses successfully.
+- Live routes on https://www.fleetconnect.be return 200 for /, /nl, /fr, /en, /dashboard, /review, /partner-app, /partner-login, /driver-login, /PV/register.html, and /PV/index.html.
+- Live https://partners.fleetconnect.be/ reaches Vercel and opens the Partner PWA.
+- Deprecated live https://partner.fleetconnect.be/ does not reach Vercel; it redirects to Apache and returns 404.
+- Live Supabase RLS inventory confirms critical tables have RLS enabled.
+- Anonymous REST reads for customers, drivers, partners, and account requests return no data while privileged counts show rows exist.
+- Live public booking RPC test through anon REST succeeded and generated a pending booking with EUR 15 amount; test row was deleted afterward.
+- Live customer profile registration RPC succeeded using manual default pickup address fallback; test row was deleted afterward.
+- Live send-email Edge Function CORS check passed for https://www.fleetconnect.be.
+- Live send-email certification ping to support@fleetconnect.be returned success with provider id f40053c-73e2-45cb-bcd5-3627e76cd9a3.
+
+### Remaining Blockers
+
+- Deprecated partner.fleetconnect.be DNS/hosting is not connected to Vercel and returns Apache 404. Canonical partners.fleetconnect.be is live and should be used for the Partner PWA.
+- Stripe Edge Functions are now deployed and reachable. Stripe sandbox checkout session creation passed with a temporary routed booking. Unsigned webhook requests are rejected, unauthenticated refund requests are rejected, and a signed webhook smoke test updated a temporary booking to paid, inserted one payment record, inserted one ledger record, and was fully cleaned up.
+- Full browser inbox verification is still required for customer registration verification email and lifecycle email receipt, although send-email returned live success.
+
+### Current Certification Verdict
+
+CERTIFIED WITH CONDITIONS
+
+Go/No-Go: GO for founder live validation after this branch is deployed to the Vercel-connected repository. Conditions: complete one final deployed browser/inbox pass and replace Stripe sandbox keys with live Stripe keys before accepting real payments. Use https://partners.fleetconnect.be/ as the canonical Partner PWA domain.

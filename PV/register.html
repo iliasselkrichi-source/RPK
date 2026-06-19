@@ -263,6 +263,9 @@
                 regBtn.disabled = true;
                 regBtn.textContent = 'Registratie wordt verwerkt...';
                 // 1. Sign up user
+                const wwwOrigin = window.location.hostname.startsWith('www.')
+                    ? window.location.origin
+                    : window.location.protocol + '//www.' + window.location.hostname.replace(/^www\./, '');
                 const { data, error: signUpError } = await supabase.auth.signUp({
                     email,
                     password,
@@ -280,9 +283,6 @@
                         // clicking the email link would land on www.fleetconnect.be WITHOUT
                         // the hash, and the verification would silently fail.
                         // We force the www subdomain to avoid the redirect entirely.
-                        const wwwOrigin = window.location.hostname.startsWith('www.')
-                            ? window.location.origin
-                            : window.location.protocol + '//www.' + window.location.hostname.replace(/^www\./, '');
                         emailRedirectTo: requestedBookingId
                             ? `${wwwOrigin}/PV/verificatiepv.html?booking=${encodeURIComponent(requestedBookingId)}&email=${encodeURIComponent(email)}`
                             : `${wwwOrigin}/PV/verificatiepv.html?email=${encodeURIComponent(email)}`
