@@ -7,18 +7,82 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
   httpClient: Stripe.createFetchHttpClient(),
 })
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+const ALLOWED_ORIGINS = [
+  "https://fleetconnect.be",
+  "https://www.fleetconnect.be",
+  "https://portal.fleetconnect.be",
+  "https://client.fleetconnect.be",
+  "https://partners.fleetconnect.be",
+  "https://fleetconnectfork.vercel.app",
+  "https://fleet-connect-fork.vercel.app",
+  "http://localhost:3000",
+  "http://127.0.0.1:5500",
+]
+
+function isAllowedFleetConnectOrigin(origin: string | null) {
+  if (!origin) return false
+  if (ALLOWED_ORIGINS.includes(origin)) return true
+  try {
+    const url = new URL(origin)
+    if (url.protocol !== "https:") return false
+    return url.hostname === "fleetconnect.be" || url.hostname.endsWith(".fleetconnect.be")
+  } catch (_) {
+    return false
+  }
+}
+
+function jsonResponse(body: Record<string, unknown>, status: number, headers: HeadersInit) {
+  return new Response(JSON.stringify(body), {
+    headers: { ...headers, "Content-Type": "application/json" },
+    status,
+  })
 }
 
 serve(async (req) => {
+  const origin = req.headers.get("origin")
+  const isAllowedOrigin = isAllowedFleetConnectOrigin(origin)
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": isAllowedOrigin ? origin! : ALLOWED_ORIGINS[0],
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  }
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
 
   try {
+    if (origin && !isAllowedOrigin) {
+      return jsonResponse({ error: "Unauthorized origin" }, 403, corsHeaders)
+    }
+    if (req.method !== "POST") {
+      return jsonResponse({ error: "Method not allowed" }, 405, corsHeaders)
+    }
+    if (!Deno.env.get("STRIPE_SECRET_KEY")) {
+      throw new Error("Stripe secret is not configured")
+    }
+    const authHeader = req.headers.get("authorization")
+    if (!authHeader) {
+      return jsonResponse({ error: "Authentication required" }, 401, corsHeaders)
+    }
+    if (!Deno.env.get("SUPABASE_URL") || !Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || !Deno.env.get("SUPABASE_ANON_KEY")) {
+      throw new Error("Supabase configuration is missing")
+    }
+
     const { bookingId } = await req.json()
+    if (!bookingId) {
+      throw new Error("Missing bookingId")
+    }
+
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } },
+    )
+    const { data: isOperator, error: operatorError } = await authClient.rpc("is_operator")
+    if (operatorError || isOperator !== true) {
+      return jsonResponse({ error: "Operator authorization required" }, 403, corsHeaders)
+    }
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -47,14 +111,9 @@ serve(async (req) => {
     // 3. Update database is handled by the webhook (charge.refunded)
     // but we can return success here
 
-    return new Response(
-      JSON.stringify({ success: true, refundId: refund.id }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-    )
+    return jsonResponse({ success: true, refundId: refund.id }, 200, corsHeaders)
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-    )
+    console.error(`[Stripe Refund] ${error.message}`)
+    return jsonResponse({ error: error.message }, 400, corsHeaders)
   }
 })

@@ -10,6 +10,25 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
 const endpointSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")
 
 serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "stripe-signature, content-type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+      },
+    })
+  }
+
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", { status: 405 })
+  }
+
+  if (!endpointSecret) {
+    console.error("Stripe webhook secret is not configured")
+    return new Response("Webhook not configured", { status: 500 })
+  }
+
   const signature = req.headers.get("stripe-signature")
 
   if (!signature) {
