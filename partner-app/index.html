@@ -10,7 +10,7 @@
   <title>FleetConnect Partner</title>
   <link rel="manifest" href="/partner-app/manifest.webmanifest">
   <link rel="icon" href="/partner-app/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/partner-app/icon.svg">
+  <link rel="apple-touch-icon" href="/partner-app/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -96,7 +96,18 @@
       background: #f8fafc;
       color: var(--ink);
     }
+    .field select, .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      min-height: 50px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      color: var(--ink);
+      resize: vertical;
+    }
     .field input:focus { outline: 3px solid rgba(45, 212, 191, .25); border-color: #14b8a6; }
+    .field select:focus, .field textarea:focus { outline: 3px solid rgba(45, 212, 191, .25); border-color: #14b8a6; }
     .primary-btn, .secondary-btn, .danger-btn, .ghost-btn {
       border: 0;
       border-radius: 14px;
@@ -130,6 +141,11 @@
     .identity-main h2 { margin: 0 0 6px; font-size: 1.35rem; }
     .identity-main p { margin: 0; color: #cbd5e1; }
     .install-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .auth-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+    .auth-switch button { min-height: 44px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font-weight: 800; cursor: pointer; }
+    .auth-switch button.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .install-help { border: 1px solid var(--line); background: #f8fafc; border-radius: 16px; padding: 12px; margin-top: 16px; display: grid; gap: 8px; }
+    .form-grid { display: grid; gap: 0; }
     .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
     .stat { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
     .stat strong { display: block; font-size: 1.25rem; }
@@ -246,6 +262,7 @@
       .info-grid { grid-template-columns: 1fr; }
       .actions, .link-actions { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
+      .auth-switch { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -275,8 +292,12 @@
 
     <main id="authView" class="auth-wrap">
       <section class="auth-card">
+        <div class="auth-switch">
+          <button id="showLoginBtn" class="active" type="button" data-i18n="loginTab"></button>
+          <button id="showRegisterBtn" type="button" data-i18n="registerTab"></button>
+        </div>
         <h2 data-i18n="loginTitle"></h2>
-        <p data-i18n="loginText"></p>
+        <p id="authIntro" data-i18n="loginText"></p>
         <form id="loginForm">
           <div class="field">
             <label for="email" data-i18n="email"></label>
@@ -288,7 +309,60 @@
           </div>
           <button id="loginBtn" class="primary-btn full" type="submit"><i class="fas fa-lock"></i><span data-i18n="loginButton"></span></button>
         </form>
+        <form id="registerForm" class="hidden">
+          <div class="field">
+            <label for="requestType" data-i18n="accountType"></label>
+            <select id="requestType" required></select>
+          </div>
+          <div class="field">
+            <label for="requestName" data-i18n="fullName"></label>
+            <input id="requestName" type="text" autocomplete="name" required>
+          </div>
+          <div class="field" id="companyField">
+            <label for="requestCompany" data-i18n="companyName"></label>
+            <input id="requestCompany" type="text" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="requestEmail" data-i18n="email"></label>
+            <input id="requestEmail" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="requestPhone" data-i18n="phone"></label>
+            <input id="requestPhone" type="tel" autocomplete="tel" required>
+          </div>
+          <div class="field">
+            <label for="requestVehicle" data-i18n="vehicleType"></label>
+            <input id="requestVehicle" type="text" required>
+          </div>
+          <div class="field">
+            <label for="requestRegion" data-i18n="operatingArea"></label>
+            <input id="requestRegion" type="text" required>
+          </div>
+          <div class="field">
+            <label for="requestPreferredLanguage" data-i18n="preferredLanguage"></label>
+            <select id="requestPreferredLanguage" required></select>
+          </div>
+          <div class="field">
+            <label for="requestPassword" data-i18n="password"></label>
+            <input id="requestPassword" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+          <div class="field">
+            <label for="requestPasswordConfirm" data-i18n="confirmPassword"></label>
+            <input id="requestPasswordConfirm" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+          <div class="field">
+            <label for="requestNotes" data-i18n="notesOptional"></label>
+            <textarea id="requestNotes" rows="3"></textarea>
+          </div>
+          <button id="registerBtn" class="primary-btn full" type="submit"><i class="fas fa-paper-plane"></i><span data-i18n="submitRequest"></span></button>
+        </form>
         <div id="authError" class="error hidden"></div>
+        <div id="authNotice" class="notice hidden"></div>
+        <div class="install-help">
+          <button id="installBtnAuth" class="secondary-btn hidden" type="button"><i class="fas fa-mobile-screen-button"></i><span data-i18n="install"></span></button>
+          <span id="installHelpText" class="muted" data-i18n="installHelp"></span>
+          <span id="iosInstallHintAuth" class="notice hidden" data-i18n="iosInstall"></span>
+        </div>
       </section>
     </main>
 
@@ -347,8 +421,9 @@
 
     const translations = {
       fr: {
-        appName: 'FleetConnect Partner', appSubtitle: 'Gestion mobile des courses', loginTitle: 'Connexion partenaire', loginText: 'Connectez-vous avec votre compte chauffeur ou partenaire FleetConnect.', email: 'Adresse e-mail', password: 'Mot de passe', loginButton: 'Se connecter',
-        install: 'Installer', iosInstall: 'Sur iPhone: utilisez Partager puis Ajouter à l’écran d’accueil.', loading: 'Chargement des courses', assigned: 'Assignées', pending: 'En attente', active: 'Actives', completed: 'Terminées', total: 'Total',
+        appName: 'FleetConnect Partner', appSubtitle: 'Gestion mobile des courses', loginTab: 'Connexion', registerTab: 'Créer un compte', loginTitle: 'Connexion partenaire', loginText: 'Connectez-vous avec votre compte chauffeur ou partenaire FleetConnect.', registerTitle: 'Créer un compte partenaire / chauffeur', registerText: 'Envoyez votre demande. FleetConnect validera votre profil avant tout accès aux courses.', email: 'Adresse e-mail', password: 'Mot de passe', loginButton: 'Se connecter',
+        accountType: 'Type de compte', partnerCompany: 'Société partenaire', driverAccount: 'Chauffeur individuel', fullName: 'Nom complet', companyName: 'Nom de la société', phone: 'Téléphone', vehicleType: 'Type de véhicule', operatingArea: 'Zone / région', preferredLanguage: 'Langue préférée', confirmPassword: 'Confirmer le mot de passe', notesOptional: 'Message optionnel', submitRequest: 'Envoyer la demande', requestSent: 'Votre demande a été envoyée. FleetConnect vous contactera après validation.', passwordMismatch: 'Les mots de passe ne correspondent pas.', companyRequired: 'Le nom de la société est requis pour un compte partenaire.', requestFailed: 'La demande n’a pas pu être envoyée.',
+        install: 'Installer l’application', installHelp: 'Installez FleetConnect Partner sur votre smartphone pour un accès rapide.', iosInstall: 'Sur iPhone: ouvrez Safari → Partager → Ajouter à l’écran d’accueil.', loading: 'Chargement des courses', assigned: 'Assignées', pending: 'En attente', active: 'Actives', completed: 'Terminées', total: 'Total',
         all: 'Toutes', pendingTab: 'À accepter', activeTab: 'Actives', completedTab: 'Historique', searchPlaceholder: 'Rechercher une course, adresse ou client', noRides: 'Aucune course disponible', noRidesHint: 'Les nouvelles courses assignées apparaîtront ici.',
         pickup: 'Départ', destination: 'Destination', date: 'Date', time: 'Heure', passenger: 'Passager', phone: 'Téléphone', notes: 'Notes', driver: 'Chauffeur', partner: 'Partenaire', vehicle: 'Véhicule', plate: 'Plaque', amount: 'Prix',
         call: 'Appeler', whatsapp: 'WhatsApp', navPickup: 'Itinéraire départ', navDropoff: 'Itinéraire destination', accept: 'Accepter', decline: 'Refuser', onWay: 'En route', arrived: 'Arrivé', finish: 'Terminer', close: 'Fermer',
@@ -357,8 +432,9 @@
         role_driver: 'Chauffeur', role_partner: 'Partenaire', role_driver_partner: 'Chauffeur / Partenaire', logout: 'Déconnexion'
       },
       en: {
-        appName: 'FleetConnect Partner', appSubtitle: 'Mobile ride management', loginTitle: 'Partner sign in', loginText: 'Sign in with your FleetConnect driver or partner account.', email: 'Email address', password: 'Password', loginButton: 'Sign in',
-        install: 'Install', iosInstall: 'On iPhone: use Share, then Add to Home Screen.', loading: 'Loading rides', assigned: 'Assigned', pending: 'Pending', active: 'Active', completed: 'Completed', total: 'Total',
+        appName: 'FleetConnect Partner', appSubtitle: 'Mobile ride management', loginTab: 'Sign in', registerTab: 'Create account', loginTitle: 'Partner sign in', loginText: 'Sign in with your FleetConnect driver or partner account.', registerTitle: 'Create partner / driver account', registerText: 'Send your request. FleetConnect will validate your profile before any ride access.', email: 'Email address', password: 'Password', loginButton: 'Sign in',
+        accountType: 'Account type', partnerCompany: 'Partner company', driverAccount: 'Individual driver', fullName: 'Full name', companyName: 'Company name', phone: 'Phone', vehicleType: 'Vehicle type', operatingArea: 'Operating area / region', preferredLanguage: 'Preferred language', confirmPassword: 'Confirm password', notesOptional: 'Optional message', submitRequest: 'Send request', requestSent: 'Your request has been sent. FleetConnect will contact you after validation.', passwordMismatch: 'Passwords do not match.', companyRequired: 'Company name is required for a partner company account.', requestFailed: 'The request could not be sent.',
+        install: 'Install app', installHelp: 'Install FleetConnect Partner on your smartphone for quick access.', iosInstall: 'On iPhone: open Safari → Share → Add to Home Screen.', loading: 'Loading rides', assigned: 'Assigned', pending: 'Pending', active: 'Active', completed: 'Completed', total: 'Total',
         all: 'All', pendingTab: 'To accept', activeTab: 'Active', completedTab: 'History', searchPlaceholder: 'Search ride, address or passenger', noRides: 'No rides available', noRidesHint: 'New assigned rides will appear here.',
         pickup: 'Pickup', destination: 'Destination', date: 'Date', time: 'Time', passenger: 'Passenger', phone: 'Phone', notes: 'Notes', driver: 'Driver', partner: 'Partner', vehicle: 'Vehicle', plate: 'Plate', amount: 'Price',
         call: 'Call', whatsapp: 'WhatsApp', navPickup: 'Navigate pickup', navDropoff: 'Navigate destination', accept: 'Accept', decline: 'Decline', onWay: 'On the way', arrived: 'Arrived', finish: 'Complete', close: 'Close',
@@ -367,8 +443,9 @@
         role_driver: 'Driver', role_partner: 'Partner', role_driver_partner: 'Driver / Partner', logout: 'Sign out'
       },
       es: {
-        appName: 'FleetConnect Partner', appSubtitle: 'Gestión móvil de viajes', loginTitle: 'Acceso de socio', loginText: 'Inicie sesión con su cuenta de conductor o socio FleetConnect.', email: 'Correo electrónico', password: 'Contraseña', loginButton: 'Iniciar sesión',
-        install: 'Instalar', iosInstall: 'En iPhone: use Compartir y Añadir a pantalla de inicio.', loading: 'Cargando viajes', assigned: 'Asignados', pending: 'Pendientes', active: 'Activos', completed: 'Completados', total: 'Total',
+        appName: 'FleetConnect Partner', appSubtitle: 'Gestión móvil de viajes', loginTab: 'Acceso', registerTab: 'Crear cuenta', loginTitle: 'Acceso de socio', loginText: 'Inicie sesión con su cuenta de conductor o socio FleetConnect.', registerTitle: 'Crear cuenta de socio / conductor', registerText: 'Envíe su solicitud. FleetConnect validará su perfil antes de dar acceso a viajes.', email: 'Correo electrónico', password: 'Contraseña', loginButton: 'Iniciar sesión',
+        accountType: 'Tipo de cuenta', partnerCompany: 'Empresa asociada', driverAccount: 'Conductor individual', fullName: 'Nombre completo', companyName: 'Nombre de empresa', phone: 'Teléfono', vehicleType: 'Tipo de vehículo', operatingArea: 'Zona / región', preferredLanguage: 'Idioma preferido', confirmPassword: 'Confirmar contraseña', notesOptional: 'Mensaje opcional', submitRequest: 'Enviar solicitud', requestSent: 'Su solicitud ha sido enviada. FleetConnect se pondrá en contacto después de la validación.', passwordMismatch: 'Las contraseñas no coinciden.', companyRequired: 'El nombre de empresa es obligatorio para una cuenta de socio.', requestFailed: 'No se pudo enviar la solicitud.',
+        install: 'Instalar aplicación', installHelp: 'Instale FleetConnect Partner en su smartphone para acceso rápido.', iosInstall: 'En iPhone: abra Safari → Compartir → Añadir a pantalla de inicio.', loading: 'Cargando viajes', assigned: 'Asignados', pending: 'Pendientes', active: 'Activos', completed: 'Completados', total: 'Total',
         all: 'Todos', pendingTab: 'Por aceptar', activeTab: 'Activos', completedTab: 'Historial', searchPlaceholder: 'Buscar viaje, dirección o pasajero', noRides: 'No hay viajes disponibles', noRidesHint: 'Los nuevos viajes asignados aparecerán aquí.',
         pickup: 'Recogida', destination: 'Destino', date: 'Fecha', time: 'Hora', passenger: 'Pasajero', phone: 'Teléfono', notes: 'Notas', driver: 'Conductor', partner: 'Socio', vehicle: 'Vehículo', plate: 'Matrícula', amount: 'Precio',
         call: 'Llamar', whatsapp: 'WhatsApp', navPickup: 'Ruta a recogida', navDropoff: 'Ruta a destino', accept: 'Aceptar', decline: 'Rechazar', onWay: 'En camino', arrived: 'Llegué', finish: 'Completar', close: 'Cerrar',
@@ -377,8 +454,9 @@
         role_driver: 'Conductor', role_partner: 'Socio', role_driver_partner: 'Conductor / Socio', logout: 'Cerrar sesión'
       },
       ar: {
-        appName: 'FleetConnect Partner', appSubtitle: 'إدارة الرحلات عبر الهاتف', loginTitle: 'تسجيل دخول الشريك', loginText: 'سجّل الدخول بحساب سائق أو شريك FleetConnect.', email: 'البريد الإلكتروني', password: 'كلمة المرور', loginButton: 'تسجيل الدخول',
-        install: 'تثبيت', iosInstall: 'على iPhone: استخدم مشاركة ثم إضافة إلى الشاشة الرئيسية.', loading: 'جار تحميل الرحلات', assigned: 'مخصصة', pending: 'قيد الانتظار', active: 'نشطة', completed: 'مكتملة', total: 'الإجمالي',
+        appName: 'FleetConnect Partner', appSubtitle: 'إدارة الرحلات عبر الهاتف', loginTab: 'تسجيل الدخول', registerTab: 'إنشاء حساب', loginTitle: 'تسجيل دخول الشريك', loginText: 'سجّل الدخول بحساب سائق أو شريك FleetConnect.', registerTitle: 'إنشاء حساب شريك / سائق', registerText: 'أرسل طلبك. ستقوم FleetConnect بالتحقق من الملف قبل إتاحة الوصول إلى الرحلات.', email: 'البريد الإلكتروني', password: 'كلمة المرور', loginButton: 'تسجيل الدخول',
+        accountType: 'نوع الحساب', partnerCompany: 'شركة شريكة', driverAccount: 'سائق فردي', fullName: 'الاسم الكامل', companyName: 'اسم الشركة', phone: 'الهاتف', vehicleType: 'نوع المركبة', operatingArea: 'منطقة العمل', preferredLanguage: 'اللغة المفضلة', confirmPassword: 'تأكيد كلمة المرور', notesOptional: 'رسالة اختيارية', submitRequest: 'إرسال الطلب', requestSent: 'تم إرسال طلبك. ستتواصل معك FleetConnect بعد التحقق.', passwordMismatch: 'كلمتا المرور غير متطابقتين.', companyRequired: 'اسم الشركة مطلوب لحساب الشركة الشريكة.', requestFailed: 'تعذر إرسال الطلب.',
+        install: 'تثبيت التطبيق', installHelp: 'ثبّت FleetConnect Partner على هاتفك للوصول السريع.', iosInstall: 'على iPhone: افتح Safari ← مشاركة ← إضافة إلى الشاشة الرئيسية.', loading: 'جار تحميل الرحلات', assigned: 'مخصصة', pending: 'قيد الانتظار', active: 'نشطة', completed: 'مكتملة', total: 'الإجمالي',
         all: 'الكل', pendingTab: 'للقبول', activeTab: 'نشطة', completedTab: 'السجل', searchPlaceholder: 'ابحث عن رحلة أو عنوان أو راكب', noRides: 'لا توجد رحلات متاحة', noRidesHint: 'ستظهر الرحلات الجديدة المخصصة هنا.',
         pickup: 'نقطة الانطلاق', destination: 'الوجهة', date: 'التاريخ', time: 'الوقت', passenger: 'الراكب', phone: 'الهاتف', notes: 'ملاحظات', driver: 'السائق', partner: 'الشريك', vehicle: 'المركبة', plate: 'اللوحة', amount: 'السعر',
         call: 'اتصال', whatsapp: 'واتساب', navPickup: 'الملاحة إلى الانطلاق', navDropoff: 'الملاحة إلى الوجهة', accept: 'قبول', decline: 'رفض', onWay: 'في الطريق', arrived: 'وصلت', finish: 'إنهاء', close: 'إغلاق',
@@ -394,7 +472,8 @@
       rides: [],
       activeTab: 'all',
       selectedRide: null,
-      deferredInstallPrompt: null
+      deferredInstallPrompt: null,
+      authMode: 'login'
     };
 
     const $ = (id) => document.getElementById(id);
@@ -411,6 +490,8 @@
       document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
       $('searchInput').placeholder = t('searchPlaceholder');
       $('logoutBtn').title = t('logout');
+      renderRegistrationOptions();
+      setAuthMode(state.authMode);
       renderTabs();
       renderBottomNav();
       renderRides();
@@ -433,6 +514,57 @@
     function showAuthError(message) {
       $('authError').textContent = message;
       $('authError').classList.remove('hidden');
+      $('authNotice').classList.add('hidden');
+    }
+
+    function showAuthNotice(message) {
+      $('authNotice').textContent = message;
+      $('authNotice').classList.remove('hidden');
+      $('authError').classList.add('hidden');
+    }
+
+    function setAuthMode(mode) {
+      state.authMode = mode;
+      const loginMode = mode === 'login';
+      $('loginForm').classList.toggle('hidden', !loginMode);
+      $('registerForm').classList.toggle('hidden', loginMode);
+      $('showLoginBtn').classList.toggle('active', loginMode);
+      $('showRegisterBtn').classList.toggle('active', !loginMode);
+      document.querySelector('[data-i18n="loginTitle"]').textContent = loginMode ? t('loginTitle') : t('registerTitle');
+      $('authIntro').textContent = loginMode ? t('loginText') : t('registerText');
+      $('authError').classList.add('hidden');
+      $('authNotice').classList.add('hidden');
+      renderRegistrationOptions();
+    }
+
+    function renderRegistrationOptions() {
+      const typeSelect = $('requestType');
+      if (typeSelect) {
+        const current = typeSelect.value || 'Partner';
+        typeSelect.innerHTML = `
+          <option value="Partner">${escapeHtml(t('partnerCompany'))}</option>
+          <option value="Driver">${escapeHtml(t('driverAccount'))}</option>
+        `;
+        typeSelect.value = current === 'Driver' ? 'Driver' : 'Partner';
+      }
+      const langSelect = $('requestPreferredLanguage');
+      if (langSelect) {
+        const currentLang = langSelect.value || state.lang;
+        langSelect.innerHTML = `
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="ar">العربية</option>
+        `;
+        langSelect.value = ['fr', 'en', 'es', 'ar'].includes(currentLang) ? currentLang : state.lang;
+      }
+      updateCompanyRequirement();
+    }
+
+    function updateCompanyRequirement() {
+      const isPartner = $('requestType')?.value !== 'Driver';
+      if ($('requestCompany')) $('requestCompany').required = isPartner;
+      if ($('companyField')) $('companyField').classList.toggle('hidden', !isPartner);
     }
 
     async function login(email, password) {
@@ -447,6 +579,83 @@
         showAuthError(t('authError'));
       } finally {
         $('loginBtn').disabled = false;
+      }
+    }
+
+    async function submitRegistrationRequest() {
+      $('authError').classList.add('hidden');
+      $('authNotice').classList.add('hidden');
+      const accountType = $('requestType').value;
+      const name = $('requestName').value.trim();
+      const company = $('requestCompany').value.trim();
+      const email = $('requestEmail').value.trim().toLowerCase();
+      const phone = $('requestPhone').value.trim();
+      const vehicleType = $('requestVehicle').value.trim();
+      const operatingArea = $('requestRegion').value.trim();
+      const preferredLanguage = $('requestPreferredLanguage').value;
+      const password = $('requestPassword').value;
+      const confirmPassword = $('requestPasswordConfirm').value;
+      const notes = $('requestNotes').value.trim();
+
+      if (accountType === 'Partner' && !company) {
+        showAuthError(t('companyRequired'));
+        return;
+      }
+      if (password !== confirmPassword) {
+        showAuthError(t('passwordMismatch'));
+        return;
+      }
+
+      $('registerBtn').disabled = true;
+      try {
+        const redirectTo = `${window.location.origin}/partner-app/`;
+        const signUpResult = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectTo,
+            data: {
+              full_name: name,
+              company,
+              phone,
+              account_type: accountType,
+              preferred_language: preferredLanguage,
+              request_scope: 'operator'
+            }
+          }
+        });
+        const signUpMessage = String(signUpResult.error?.message || '').toLowerCase();
+        if (signUpResult.error && !signUpMessage.includes('already') && !signUpMessage.includes('registered')) {
+          throw signUpResult.error;
+        }
+
+        const { error } = await supabase.rpc('submit_account_request', {
+          payload: {
+            name,
+            email,
+            phone,
+            company: accountType === 'Partner' ? company : '',
+            account_type: accountType,
+            request_scope: 'operator',
+            notes,
+            source: 'partner-pwa-registration',
+            user_agent: navigator.userAgent,
+            vehicle_type: vehicleType,
+            operating_area: operatingArea,
+            preferred_language: preferredLanguage,
+            requested_portal: 'partner-app'
+          }
+        });
+        if (error) throw error;
+
+        await supabase.auth.signOut();
+        $('registerForm').reset();
+        renderRegistrationOptions();
+        showAuthNotice(t('requestSent'));
+      } catch (err) {
+        showAuthError(`${t('requestFailed')} ${err.message || ''}`.trim());
+      } finally {
+        $('registerBtn').disabled = false;
       }
     }
 
@@ -684,6 +893,7 @@
       event.preventDefault();
       state.deferredInstallPrompt = event;
       $('installBtn').classList.remove('hidden');
+      $('installBtnAuth').classList.remove('hidden');
     });
 
     async function installApp() {
@@ -692,12 +902,14 @@
       await state.deferredInstallPrompt.userChoice;
       state.deferredInstallPrompt = null;
       $('installBtn').classList.add('hidden');
+      $('installBtnAuth').classList.add('hidden');
     }
 
     function setupIosHint() {
       const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
       const standalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
       $('iosInstallHint').classList.toggle('hidden', !(isIos && !standalone));
+      $('iosInstallHintAuth').classList.toggle('hidden', !(isIos && !standalone));
     }
 
     $('languageSelect').addEventListener('change', () => {
@@ -709,6 +921,13 @@
       event.preventDefault();
       login($('email').value.trim(), $('password').value);
     });
+    $('registerForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      submitRegistrationRequest();
+    });
+    $('showLoginBtn').addEventListener('click', () => setAuthMode('login'));
+    $('showRegisterBtn').addEventListener('click', () => setAuthMode('register'));
+    $('requestType').addEventListener('change', updateCompanyRequirement);
     $('logoutBtn').addEventListener('click', async () => {
       await supabase.auth.signOut();
       state.context = null;
@@ -721,6 +940,7 @@
     $('closeDetailBtn').addEventListener('click', closeDetail);
     $('detailBackdrop').addEventListener('click', (event) => { if (event.target === $('detailBackdrop')) closeDetail(); });
     $('installBtn').addEventListener('click', installApp);
+    $('installBtnAuth').addEventListener('click', installApp);
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/partner-app/service-worker.js').catch(() => {});

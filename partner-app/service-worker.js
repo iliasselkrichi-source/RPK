@@ -3,7 +3,10 @@ const SHELL = [
   '/partner-app/',
   '/partner-app/index.html',
   '/partner-app/manifest.webmanifest',
-  '/partner-app/icon.svg'
+  '/partner-app/icon.svg',
+  '/partner-app/icon-192.png',
+  '/partner-app/icon-512.png',
+  '/partner-app/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', event => {
