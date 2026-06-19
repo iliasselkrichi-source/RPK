@@ -33,6 +33,9 @@
 
         <div id="errorBox" class="error-msg"></div>
         <div id="successBox" class="success-msg"></div>
+        <div id="addressHint" class="address-hint" style="display:none; background:#fef3c7; color:#92400e; padding:10px 14px; border-radius:10px; font-size:0.8rem; margin-bottom:18px; text-align:left; border:1px solid #fde68a;">
+            <i class="fas fa-info-circle"></i> <strong>Adres automatisch aanvullen niet beschikbaar.</strong> Geen probleem — typ uw adres handmatig in (straat + nummer + stad). Minimaal 3 tekens.
+        </div>
 
         <form id="registerForm" novalidate>
             <div class="field">
@@ -67,7 +70,20 @@
 
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-        import { comms } from '../src/modules/communication/index.js';
+
+        // comms is optional — wrap import in try/catch so registration still works
+        // even if the communication module fails to load
+        let comms = null;
+        try {
+            const mod = await import('../src/modules/communication/index.js');
+            comms = mod.comms || mod.default || null;
+        } catch (commsErr) {
+            console.warn('[register] comms module unavailable, registration emails disabled:', commsErr?.message || commsErr);
+            comms = {
+                activeProvider: { send: async () => ({ success: false, error: 'comms module unavailable' }) },
+                sendAccountWelcome: async () => ({ success: false, error: 'comms module unavailable' })
+            };
+        }
      
         const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
@@ -93,6 +109,14 @@
 
         function markRegistrationPlacesUnavailable(reason) {
             registrationPlacesAvailable = false;
+            // FIX Issue 2 (2026-06-16 cert cycle 5): make the fallback VISIBLE to the user,
+            // not just a console warning. The pickup field still works for manual entry.
+            const hint = document.getElementById('addressHint');
+            if (hint) hint.style.display = 'block';
+            const pickupInput = document.getElementById('pickupInput');
+            if (pickupInput) {
+                pickupInput.placeholder = 'Bijv.: Stationsstraat 1, 1000 Brussel';
+            }
             console.warn('Registration address autocomplete unavailable; manual address entry remains enabled.', reason || 'unknown');
         }
 
@@ -122,17 +146,37 @@
         function initAddressAutocomplete() {
             const input = document.getElementById('pickupInput');
             if (!input) return;
+            const hint = document.getElementById('addressHint');
+            // Always check if Google Maps will actually work, not just if it's loaded
+            // Set a watchdog: if no Pac container appears after 1.5s, the API is broken
+            setTimeout(() => {
+                if (document.querySelectorAll('.pac-container').length === 0) {
+                    // No autocomplete dropdown appeared — Places isn't working
+                    if (hint) hint.style.display = 'block';
+                }
+            }, 1500);
             if (!window.google?.maps?.places?.Autocomplete) {
-                markRegistrationPlacesUnavailable('Places library missing');
+                if (hint) hint.style.display = 'block';
                 return;
             }
             try {
-                new google.maps.places.Autocomplete(input, {
+                const ac = new google.maps.places.Autocomplete(input, {
                     fields: ['formatted_address', 'geometry', 'name'],
                     componentRestrictions: { country: ['be'] }
                 });
+                // Listen for the API error event
+                if (google.maps.event) {
+                    google.maps.event.addDomListener(input, 'keydown', () => {
+                        // If the API errors out, the pac-container won't appear
+                        setTimeout(() => {
+                            if (document.querySelectorAll('.pac-container').length === 0 && input.value.length > 3) {
+                                if (hint) hint.style.display = 'block';
+                            }
+                        }, 800);
+                    });
+                }
             } catch (err) {
-                markRegistrationPlacesUnavailable(err.message);
+                if (hint) hint.style.display = 'block';
             }
         }
 
@@ -202,6 +246,19 @@
                 return;
             }
 
+            // DEDUP CHECK: same email cannot register twice
+            try {
+                const dedup = await supabase.rpc('check_duplicate_registration', { p_email: email });
+                if (dedup?.data && dedup.data.exists) {
+                    const reason = dedup.data.reason || 'Dit e-mailadres is al geregistreerd.';
+                    showError(reason + ' Ga naar de inlogpagina of gebruik een ander e-mailadres.');
+                    return;
+                }
+            } catch (dedupErr) {
+                // If the RPC doesn't exist yet, continue (don't block registration)
+                console.warn('Dedup check skipped:', dedupErr.message);
+            }
+
             try {
                 regBtn.disabled = true;
                 regBtn.textContent = 'Registratie wordt verwerkt...';
@@ -211,9 +268,24 @@
                     password,
                     options: {
                         data: { full_name: fullName, phone: phone },
+                        // FIX Issue 3 (2026-06-16 cert cycle 5): send the user to the
+                        // verification page (which shows the success message and then
+                        // redirects to the login page with reason=verified). Previously
+                        // this pointed to /PV/index.html, which made the user land
+                        // immediately on the login form with no confirmation.
+                        // FIX Issue 2026-06-17 cert cycle 6: the apex domain fleetconnect.be
+                        // 308-redirects to www.fleetconnect.be, which STRIPS the URL hash
+                        // fragment (HTTP spec). Supabase's default verification flow uses
+                        // implicit flow with #access_token=... in the hash, so a user
+                        // clicking the email link would land on www.fleetconnect.be WITHOUT
+                        // the hash, and the verification would silently fail.
+                        // We force the www subdomain to avoid the redirect entirely.
+                        const wwwOrigin = window.location.hostname.startsWith('www.')
+                            ? window.location.origin
+                            : window.location.protocol + '//www.' + window.location.hostname.replace(/^www\./, '');
                         emailRedirectTo: requestedBookingId
-                            ? `${window.location.origin}/PV/index.html?booking=${encodeURIComponent(requestedBookingId)}&email=${encodeURIComponent(email)}`
-                            : `${window.location.origin}/PV/index.html?email=${encodeURIComponent(email)}`
+                            ? `${wwwOrigin}/PV/verificatiepv.html?booking=${encodeURIComponent(requestedBookingId)}&email=${encodeURIComponent(email)}`
+                            : `${wwwOrigin}/PV/verificatiepv.html?email=${encodeURIComponent(email)}`
                     }
                 });
 
@@ -246,25 +318,29 @@
                         const reviewUrl = `${window.location.origin}/Paneel/admin-index.html`;
                         const subject = 'Nieuwe FleetConnect klantregistratie';
                         const html = `<div style="font-family: Inter, Arial, sans-serif; color:#0f172a;"><h2>Nieuwe klantregistratie</h2><p>Deze klantregistratie vereist geen operator-goedkeuring.</p><p><strong>Naam:</strong> ${fullName}</p><p><strong>Email:</strong> ${email}</p><p><strong>Telefoon:</strong> ${phone}</p><p><strong>Standaard ophaaladres:</strong> ${pickup}</p>${requestedBookingId ? `<p><strong>Boeking:</strong> ${requestedBookingId}</p>` : ''}<p><a href="${reviewUrl}" style="display:inline-block; background:#0f172a; color:#ffffff; padding:12px 18px; border-radius:8px; text-decoration:none; font-weight:700;">Dashboard openen</a></p></div>`;
-                        const notifyResult = await comms.activeProvider.send('support@fleetconnect.be', subject, html, {
+                        const notifyResult = await (comms?.activeProvider?.send ? comms.activeProvider.send('support@fleetconnect.be', subject, html, {
                             trigger: 'CUSTOMER_REGISTRATION_NOTICE',
                             bookingId: customerId,
                             supabaseUrl: SUPABASE_URL,
                             supabaseKey: SUPABASE_ANON_KEY
-                        });
+                        }) : Promise.resolve({ success: false, error: 'no comms' }));
                         if (!notifyResult.success) console.warn('Customer registration notification failed:', notifyResult.error);
                     } catch (notifyError) {
                         console.warn('Customer registration notification unavailable:', notifyError.message);
                     }
 
-                    await comms.sendAccountWelcome({
-                        id: customerId,
-                        name: fullName,
-                        email,
-                        phone
-                    }, supabase);
+                    try {
+                        await (coms?.sendAccountWelcome ? comms.sendAccountWelcome({
+                            id: customerId,
+                            name: fullName,
+                            email,
+                            phone
+                        }, supabase) : Promise.resolve({ success: false, error: 'no comms' }));
+                    } catch (welcomeErr) {
+                        console.warn('Welcome email skipped:', welcomeErr.message);
+                    }
 
-                    showSuccess('Account successfully created. Please verify your email address. After verification you can log in to the customer portal.');
+                    showSuccess('✓ Account aangemaakt. We hebben u een verificatiemail gestuurd. Klik op de link in die email om uw account te bevestigen — daarna kunt u inloggen.');
                     setTimeout(() => {
                         window.location.href = loginUrl(email);
                     }, 1800);
