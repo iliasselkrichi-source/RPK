@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>FleetConnect | Taxi naar Düsseldorf Airport (DUS) – Vaste prijs</title>
+    <meta name="description" content="Professioneel luchthavenvervoer naar Düsseldorf Airport. Vaste prijs, vluchtmonitoring, 24/7 beschikbaar. Boek nu uw taxi naar DUS.">
+    <link rel="canonical" href="https://www.fleetconnect.be/luchthavens/dusseldorf.html">
+    <meta property="og:title" content="FleetConnect – Taxi naar Düsseldorf (DUS) – Vaste prijs">
+    <meta property="og:description" content="Betrouwbaar vervoer naar Düsseldorf Airport. Vluchtmonitoring inbegrepen. Reserveer eenvoudig online.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== EXACT DEZELFDE STIJL ALS COLOGNE (met verbeterde responsive) ===== */
+        *{margin:0;padding:0;box-sizing:border-box}
+        #background-map{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background-image:url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;filter:brightness(1.05);opacity:0.9}
+        :root{--primary:#2c6e9e;--primary-dark:#1e4a6e;--accent-gold:#c9a03d;--text-dark:#1a2a3a;--text-light:#4a627a;--white:#ffffff;--card-bg:rgba(255,255,255,0.92);--border-light:#e2edf7}
+        body{font-family:'Inter',sans-serif;background:#f4f7fc;color:var(--text-dark);overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+        .content-overlay{position:relative;z-index:10;background:rgba(255,255,255,0.85);min-height:100vh;display:flex;flex-direction:column}
+        .container{width:100%;max-width:1300px;margin:0 auto;padding:0 24px}
+        .hamburger-btn{position:fixed;top:20px;left:20px;background:var(--primary);color:white;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;border:none;font-size:1.6rem;box-shadow:0 4px 12px rgba(0,0,0,0.2);transition:background 0.2s}
+        .hamburger-btn:hover{background:var(--primary-dark)}
+        .hamburger-btn:active{transform:scale(0.95)}
+        .sidebar-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);z-index:1001;visibility:hidden;opacity:0;transition:all 0.3s ease}
+        .sidebar-overlay.active{visibility:visible;opacity:1}
+        .sidebar{position:fixed;top:0;right:-320px;width:320px;height:100%;background:white;box-shadow:-4px 0 25px rgba(0,0,0,0.15);transition:right 0.3s ease;z-index:1002;display:flex;flex-direction:column;border-radius:24px 0 0 24px;overflow:hidden}
+        .sidebar-overlay.active .sidebar{right:0}
+        .sidebar-header{display:flex;justify-content:space-between;align-items:center;padding:24px 20px;border-bottom:1px solid var(--border-light);background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:24px 0 0 0;flex-shrink:0}
+        .sidebar-header h3{color:white;display:flex;align-items:center;gap:8px;font-size:1.4rem}
+        .close-menu{background:rgba(255,255,255,0.2);border:none;font-size:1.8rem;cursor:pointer;color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+        .close-menu:active{transform:scale(0.9)}
+        .sidebar-nav{display:flex;flex-direction:column;padding:20px 16px;gap:8px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+        .sidebar-nav a{color:var(--text-dark);text-decoration:none;padding:16px 18px;border-radius:16px;font-weight:500;display:flex;align-items:center;gap:14px;background:white;border:1px solid var(--border-light);transition:all 0.2s;font-size:1rem}
+        .sidebar-nav a i{width:28px;color:var(--primary);font-size:1.2rem}
+        .sidebar-nav a:hover{background:#eef2fa;border-color:var(--primary)}
+        .sidebar-nav a:active{transform:scale(0.97)}
+        .login-section{padding:16px;border-top:1px solid var(--border-light);margin-top:auto;flex-shrink:0}
+        .login-btn{background:linear-gradient(135deg,var(--accent-gold),#b8860b);color:white;text-decoration:none;padding:16px 18px;border-radius:16px;font-weight:600;display:flex;align-items:center;gap:12px;font-size:1rem}
+        .login-btn:active{transform:scale(0.97)}
+        .hero{padding:80px 0 40px;text-align:center}
+        .hero-card{background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);max-width:900px;margin:0 auto;padding:40px 30px;border-radius:48px;border:1px solid var(--border-light)}
+        .hero-card h1{font-size:2.8rem;font-weight:800;color:var(--primary);line-height:1.2}
+        .hero-card p{font-size:1.2rem;color:var(--text-light);margin-bottom:20px}
+        .btn-primary{background:var(--primary);color:white;border:none;padding:14px 32px;border-radius:40px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:1rem;transition:background 0.2s;min-height:54px}
+        .btn-primary:hover{background:var(--primary-dark)}
+        .btn-primary:active{transform:scale(0.96)}
+        .section-title{font-size:2rem;color:var(--primary);margin-bottom:40px;text-align:center}
+        .route-grid,.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;margin-bottom:40px}
+        .route-card,.feature-card{background:white;border-radius:24px;padding:24px;box-shadow:0 4px 15px rgba(0,0,0,0.08);border:1px solid var(--border-light);transition:transform 0.2s}
+        .route-card:hover,.feature-card:hover{transform:translateY(-4px)}
+        .route-price{font-size:1.6rem;font-weight:800;color:var(--primary);margin:12px 0}
+        .feature-card{text-align:center}
+        .feature-icon{font-size:2.5rem;color:var(--primary);margin-bottom:16px}
+        .feature-card p{font-size:0.95rem;line-height:1.5;margin-top:12px;color:var(--text-light)}
+        .international-box{background:#e8f0f8;border-left:5px solid var(--accent-gold);padding:24px;margin:30px 0;border-radius:20px}
+        .service-points{display:flex;flex-wrap:wrap;gap:20px;margin:20px 0}
+        .service-point{flex:1;background:white;padding:16px;border-radius:16px;text-align:center;min-width:140px}
+        .contact-wrapper{width:100%;display:flex;justify-content:center;padding:0 16px}
+        .contact-row{background:white;border-radius:44px;padding:30px;margin:40px 0;border:1px solid var(--border-light);width:100%;max-width:600px}
+        .contact-form h3{margin-bottom:20px;color:var(--primary);text-align:center}
+        .compact-form{display:flex;flex-direction:column;gap:16px}
+        .compact-form input,.compact-form textarea{width:100%;padding:14px 18px;border-radius:28px;border:1px solid var(--border-light);font-size:1rem;background:white;min-height:54px}
+        .compact-form textarea{min-height:80px;resize:vertical}
+        .button-row{display:flex;justify-content:space-between;gap:15px;margin-top:20px;flex-wrap:wrap}
+        .btn-whatsapp{background:#25D366;color:white;border:none;padding:14px 28px;border-radius:40px;font-weight:600;display:inline-flex;align-items:center;gap:8px;text-decoration:none;min-height:54px}
+        .btn-whatsapp:hover{background:#128C7E}
+        .btn-whatsapp:active{transform:scale(0.96)}
+        .footer-dark{background:#0d1f2c;color:#e0edf5;padding:48px 0 24px;margin-top:40px}
+        .footer-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:40px;margin-bottom:30px}
+        .footer-grid a{color:#b0cbd9;text-decoration:none;line-height:2;font-size:0.95rem}
+        .footer-grid a:hover{color:white;text-decoration:underline}
+        .footer-bottom{text-align:center;border-top:1px solid rgba(224,237,245,0.2);padding-top:24px;font-size:0.9rem}
+        .lang-switcher{display:flex;gap:8px;align-items:center}
+        .lang-btn{background:transparent;border:1px solid var(--border-light);padding:8px 16px;border-radius:30px;cursor:pointer;font-weight:500;transition:all 0.2s;font-size:0.95rem;min-height:44px}
+        .lang-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
+        .lang-btn:active{transform:scale(0.95)}
+        /* Responsive */
+        @media (max-width:1024px){.hero-card h1{font-size:2.4rem}.section-title{font-size:1.8rem}}
+        @media (max-width:800px){.hero-card h1{font-size:2rem}.section-title{font-size:1.5rem}.hero-card{padding:30px 20px}.container{padding:0 16px}.footer-grid{flex-direction:column;gap:30px}}
+        @media (max-width:480px){.hero-card h1{font-size:1.6rem}.hero-card p{font-size:1rem}.btn-primary,.btn-whatsapp{padding:12px 20px;font-size:0.95rem;width:100%;justify-content:center}.button-row{flex-direction:column}.route-grid,.features-grid{grid-template-columns:1fr}.sidebar{width:100%;border-radius:0;right:-100%}.sidebar-overlay.active .sidebar{right:0}.hamburger-btn{width:48px;height:48px;font-size:1.4rem;top:12px;left:12px}}
+        @supports(padding:max(0px)){.sidebar,.sidebar-header,.sidebar-nav,.login-section{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}.sidebar-header{border-radius:max(24px,env(safe-area-inset-top)) 0 0 0}}
+    </style>
+</head>
+<body>
+
+<div id="background-map"></div>
+
+<!-- HAMBURGER -->
+<button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay">
+    <div class="sidebar">
+        <div class="sidebar-header"><h3><i class="fas fa-car"></i> FleetConnect</h3><button class="close-menu" id="closeMenuBtn">&times;</button></div>
+        <div class="sidebar-nav">
+            <div style="padding: 10px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-light);" data-i18n="language_label">Taal / Language</div>
+            <div style="display: flex; gap: 8px; padding: 0 16px 16px;">
+                <button class="lang-btn active" data-lang="nl">NL</button>
+                <button class="lang-btn" data-lang="fr">FR</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <div style="height:1px; background:#e2edf7; margin:8px 0;"></div>
+            <a href="../PV/PV.html"><i class="fas fa-home"></i> <span data-i18n="nav_home">Home</span></a>
+            <a href="../PV/PV_Exclusieve_Service.html"><i class="fas fa-gem"></i> <span data-i18n="nav_exclusive">Exclusieve service</span></a>
+            <a href="../PV/PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i> <span data-i18n="nav_fixed_prices">Vaste prijzen</span></a>
+            <a href="../PV/PV-premium-vloot.html"><i class="fas fa-car-side"></i> <span data-i18n="nav_premium_fleet">Premium vloot</span></a>
+            <a href="../PV/PV_Luchthavenvervoer.html"><i class="fas fa-plane-departure"></i> <span data-i18n="nav_airport">Luchthavenvervoer</span></a>
+            <a href="../PV/PV_Zakelijk_Vervoer.html"><i class="fas fa-briefcase"></i> <span data-i18n="nav_business">Zakelijk vervoer</span></a>
+            <a href="../PV/PV_Events_Gala.html"><i class="fas fa-glass-cheers"></i> <span data-i18n="nav_events">Events & Gala</span></a>
+            <a href="../PV/PV_Koeriersdienst.html"><i class="fas fa-file-signature"></i> <span data-i18n="nav_courier">Koeriersdienst</span></a>
+            <a href="#contact"><i class="fas fa-envelope"></i> <span data-i18n="nav_contact">Contact</span></a>
+            <a href="../PV/PV.html#booking"><i class="fas fa-calendar-alt"></i> <span data-i18n="nav_book">Reserveer nu</span></a>
+        </div>
+        <div class="login-section"><a href="../PV/index.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> <span data-i18n="login">LOGIN</span> <i class="fas fa-arrow-right"></i></a></div>
+    </div>
+</div>
+
+<div class="content-overlay">
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-card">
+                <h1 data-i18n="hero_title"><i class="fas fa-plane-departure"></i> Taxi naar Düsseldorf Airport (DUS)</h1>
+                <p data-i18n="hero_subtitle">Vaste prijs | Vluchtmonitoring | 24/7 beschikbaar | Chauffeurs NL/FR/EN/DE</p>
+                <a href="../PV/PV.html" class="btn-primary" data-i18n="hero_btn"><i class="fas fa-calendar-check"></i> Boek nu uw rit</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- INTRODUCTIE -->
+        <div style="background:white; border-radius:28px; padding:32px; margin:30px 0; border:1px solid var(--border-light);">
+            <h2 class="section-title" style="text-align:left;" data-i18n="intro_title">Düsseldorf Airport – de grootste luchthaven van Noordrijn-Westfalen</h2>
+            <p data-i18n="intro_p1" style="font-size:1.05rem; line-height:1.6; margin-bottom:16px;">Düsseldorf Airport (IATA: DUS) is de grootste luchthaven van Noordrijn-Westfalen en de op drie na grootste van Duitsland, met jaarlijks meer dan 25 miljoen passagiers. De luchthaven ligt op ongeveer 8 kilometer ten noorden van Düsseldorf en is een belangrijke hub voor Eurowings, Lufthansa en vele andere luchtvaartmaatschappijen. DUS biedt een uitgebreid netwerk van bestemmingen in Europa, Azië, het Midden-Oosten en Noord-Amerika.</p>
+            <p data-i18n="intro_p2" style="font-size:1.05rem; line-height:1.6; margin-bottom:16px;">De terminal is modern en voorzien van luxe winkels, restaurants, meerdere lounges en een businesscentrum. Parkeerfaciliteiten zijn ruim aanwezig, met P1 (kortparkeren) en P2 (langparkeren), en de luchthaven is uitstekend bereikbaar via de A44 en A52 autosnelwegen. Het treinstation "Düsseldorf Flughafen" biedt directe verbindingen naar Düsseldorf, Keulen, Dortmund en het internationale ICE-netwerk.</p>
+            <p data-i18n="intro_p3" style="font-size:1.05rem; line-height:1.6;">FleetConnect biedt een luxe en betrouwbare transfer naar DUS. De rit van Brussel naar Düsseldorf duurt ongeveer 2 uur en 20 minuten, afhankelijk van het verkeer. Wij garanderen vaste prijzen, vluchtmonitoring en een professionele service die aan al uw wensen voldoet.</p>
+        </div>
+
+        <!-- ROUTES -->
+        <h2 class="section-title" data-i18n="routes_title">Vaste prijzen naar Düsseldorf</h2>
+        <div class="route-grid">
+            <div class="route-card"><i class="fas fa-building"></i><h3 data-i18n="route1_title">Brussel-Centrum → DUS</h3><div class="route-price">€295</div><p data-i18n="route1_desc">220 km · ±140 min · vaste prijs</p></div>
+            <div class="route-card"><i class="fas fa-city"></i><h3 data-i18n="route2_title">Europese Wijk → DUS</h3><div class="route-price">€290</div><p data-i18n="route2_desc">218 km · ±135 min · vaste prijs</p></div>
+            <div class="route-card"><i class="fas fa-hotel"></i><h3 data-i18n="route3_title">Louizalaan → DUS</h3><div class="route-price">€293</div><p data-i18n="route3_desc">219 km · ±138 min</p></div>
+            <div class="route-card"><i class="fas fa-train"></i><h3 data-i18n="route4_title">Brussel-Zuid (Midi) → DUS</h3><div class="route-price">€298</div><p data-i18n="route4_desc">222 km · ±145 min</p></div>
+            <div class="route-card"><i class="fas fa-subway"></i><h3 data-i18n="route5_title">Leuven → DUS</h3><div class="route-price">€270</div><p data-i18n="route5_desc">205 km · ±130 min</p></div>
+            <div class="route-card"><i class="fas fa-plane"></i><h3 data-i18n="route6_title">DUS → Andere bestemming</h3><div class="route-price">Op aanvraag</div><p data-i18n="route6_desc">Vaste prijs per km, inclusief tol</p></div>
+        </div>
+
+        <!-- EXTRA -->
+        <div class="international-box">
+            <h3 data-i18n="extra_title"><i class="fas fa-concierge-bell"></i> Extra service rond Düsseldorf</h3>
+            <ul style="margin: 16px 0 16px 20px; line-height:1.6;">
+                <li><strong data-i18n="extra1">Meet & Greet:</strong> <span data-i18n="extra1_desc">Onze chauffeur wacht u op met een bordje, ook bij vertraging.</span></li>
+                <li><strong data-i18n="extra2">Bagagehulp:</strong> <span data-i18n="extra2_desc">Wij tillen uw koffers – u reist ontspannen.</span></li>
+                <li><strong data-i18n="extra3">Zakenreis:</strong> <span data-i18n="extra3_desc">Werk onderweg met gratis WiFi en een stille cabine.</span></li>
+                <li><strong data-i18n="extra4">Groepsvervoer:</strong> <span data-i18n="extra4_desc">Minivans tot 8 personen.</span></li>
+            </ul>
+            <div class="service-points">
+                <div class="service-point"><i class="fas fa-plane" style="font-size:2rem; color:var(--primary);"></i><h4 data-i18n="service1_title">Vluchtmonitoring</h4><p data-i18n="service1_desc">Wij volgen uw vlucht tot op de minuut.</p></div>
+                <div class="service-point"><i class="fas fa-user-tie"></i><h4 data-i18n="service2_title">Zakelijk</h4><p data-i18n="service2_desc">Facturatie achteraf, VIP-behandeling.</p></div>
+                <div class="service-point"><i class="fas fa-child"></i><h4 data-i18n="service3_title">Gezinnen</h4><p data-i18n="service3_desc">Kinderzitjes op aanvraag.</p></div>
+            </div>
+        </div>
+
+        <!-- WAAROM -->
+        <h2 class="section-title" data-i18n="why_title">Waarom FleetConnect voor uw transfer naar DUS?</h2>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-clock"></i></div><h3 data-i18n="why1_title">Vluchtmonitoring</h3><p data-i18n="why1_desc">Wij ontvangen uw vluchtnummer en volgen de status in realtime. Bij vertraging wachten wij gratis – u hoeft zich geen zorgen te maken.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-euro-sign"></i></div><h3 data-i18n="why2_title">Vaste prijs, geen verrassingen</h3><p data-i18n="why2_desc">U betaalt nooit meer dan de afgesproken prijs. Geen meter, geen toeslagen voor bagage, nachtritten of weekends.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-gem"></i></div><h3 data-i18n="why3_title">Premium wagens</h3><p data-i18n="why3_desc">Onze vloot bestaat uit Mercedes E-Klasse, BMW 5-serie en luxe minivans. Alle voertuigen zijn maximaal 3 jaar oud, lederen bekleding, airco, WiFi en flessenwater.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-headset"></i></div><h3 data-i18n="why4_title">24/7 beschikbaar</h3><p data-i18n="why4_desc">Of u nu om 4 uur 's ochtends naar de luchthaven moet of midden in de nacht terugkeert – wij staan 24/7 voor u klaar.</p></div>
+        </div>
+
+        <!-- PARKEREN -->
+        <div style="background:#f8fafc; border-radius:28px; padding:32px; margin:30px 0; border:1px solid var(--border-light);">
+            <h2 class="section-title" style="text-align:left;" data-i18n="parking_title">Parkeren en openbaar vervoer op Düsseldorf</h2>
+            <p data-i18n="parking_p1" style="font-size:1.05rem; line-height:1.6; margin-bottom:16px;">DUS biedt uitgebreide parkeerfaciliteiten, waaronder P1 (kortparkeren) en P2 (langparkeren). De tarieven beginnen bij € 4,50 per uur en € 18 per dag. De luchthaven is uitstekend verbonden met het openbaar vervoer: met de trein (S-Bahn en IC) vanaf station "Düsseldorf Flughafen" naar Düsseldorf Hbf, of met buslijnen naar de stad en omliggende regio's.</p>
+            <p data-i18n="parking_p2" style="font-size:1.05rem; line-height:1.6;">Met FleetConnect kiest u voor het gemak van een privétransfer. Wij wachten op u, helpen met bagage en zorgen dat u zorgeloos op tijd bent. Geen gedoe met parkeren of overstappen – eenvoudig en betrouwbaar.</p>
+        </div>
+
+        <!-- HOTELS -->
+        <div style="background:white; border-radius:28px; padding:32px; margin:30px 0; border:1px solid var(--border-light);">
+            <h2 class="section-title" style="text-align:left;" data-i18n="hotel_title">Hotels en zakencentra rond Düsseldorf</h2>
+            <p data-i18n="hotel_p1" style="font-size:1.05rem; line-height:1.6; margin-bottom:16px;">In de buurt van DUS vindt u hotels zoals het Sheraton Düsseldorf Airport, het Hilton Düsseldorf, en het Radisson Blu in de stad. Deze hotels bieden vaak pendeldiensten, maar met FleetConnect bent u verzekerd van een luxe en stipte service.</p>
+            <p data-i18n="hotel_p2" style="font-size:1.05rem; line-height:1.6;">Düsseldorf is een belangrijk economisch centrum met tal van internationale bedrijven, beurzen en de mode-industrie. FleetConnect is de ideale partner voor bedrijven die betrouwbaar vervoer nodig hebben. Wij bieden vaste prijzen voor zakelijke ritten en kunnen factureren op bedrijfsnaam. Neem contact op voor een offerte.</p>
+        </div>
+
+        <!-- CTA -->
+        <div style="background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; padding:50px; border-radius:32px; text-align:center; margin:40px 0;">
+            <h2 style="color:white;" data-i18n="cta_title">Klaar voor een zorgeloze rit naar Düsseldorf?</h2>
+            <p style="margin:20px 0;" data-i18n="cta_sub">Boek nu uw taxi in minder dan 2 minuten. Vaste prijs, gegarandeerd.</p>
+            <a href="../PV/PV.html" class="btn-primary" style="background:white; color:var(--primary-dark);" data-i18n="cta_btn"><i class="fas fa-calendar-alt"></i> Boek nu →</a>
+        </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="contact-wrapper" id="contact">
+        <div class="contact-row">
+            <div class="contact-form">
+                <h3 data-i18n="contact_title"><i class="fas fa-paper-plane"></i> Stuur een bericht</h3>
+                <div class="compact-form">
+                    <div class="form-group"><label data-i18n="contact_name_label"><i class="fas fa-user"></i> Uw naam *</label><input type="text" id="contactNaam"></div>
+                    <div class="form-group"><label data-i18n="contact_email_label"><i class="fas fa-envelope"></i> E-mail *</label><input type="email" id="contactEmail"></div>
+                    <div class="form-group"><label data-i18n="contact_msg_label"><i class="fas fa-comment"></i> Bericht *</label><textarea id="contactBericht" rows="2"></textarea></div>
+                    <div class="button-row"><button class="btn-primary" id="verstuurBerichtBtn" data-i18n="contact_send_btn"><i class="fas fa-paper-plane"></i> Verstuur</button><a href="https://wa.me/32470123456" target="_blank" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer-dark">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand"><h4><i class="fas fa-car"></i> FleetConnect</h4><p data-i18n="footer_tagline">Professioneel taxivervoer in België – Stijl, stiptheid en service.</p></div>
+                <div class="footer-ryz3n"><h4 data-i18n="footer_digital">FleetConnect | Digital</h4><a href="../customer">Customer portal</a><br><a href="../booking#booking">Book a ride</a><br><a href="../PV/PVprivacy.html">Privacy</a></div>
+                <div class="footer-legal"><h4 data-i18n="footer_legal">Juridisch</h4><a href="../PV/PVfaq.html">❓ FAQ</a><br><a href="../PV/PVprivacy.html">🔒 Privacy</a><br><a href="../PV/PVcookiebeleid.html">🍪 Cookiebeleid</a><br><a href="../PV/PValgemene-voorwaarden.html">📜 Algemene voorwaarden</a></div>
+                <div class="footer-partners"><h4 data-i18n="footer_partners">Partners</h4><a href="#">Support</a></div>
+            </div>
+            <div class="footer-bottom">© 2026 FleetConnect – <a href="#">FleetConnect</a></div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // ===== VERTALINGEN VOOR DÜSSELDORF (DUS) =====
+    const translations = {
+        nl: {
+            hero_title: "<i class='fas fa-plane-departure'></i> Taxi naar Düsseldorf Airport (DUS)",
+            hero_subtitle: "Vaste prijs | Vluchtmonitoring | 24/7 beschikbaar | Chauffeurs NL/FR/EN/DE",
+            hero_btn: "<i class='fas fa-calendar-check'></i> Boek nu uw rit",
+            intro_title: "Düsseldorf Airport – de grootste luchthaven van Noordrijn-Westfalen",
+            intro_p1: "Düsseldorf Airport (IATA: DUS) is de grootste luchthaven van Noordrijn-Westfalen en de op drie na grootste van Duitsland, met jaarlijks meer dan 25 miljoen passagiers. De luchthaven ligt op ongeveer 8 kilometer ten noorden van Düsseldorf en is een belangrijke hub voor Eurowings, Lufthansa en vele andere luchtvaartmaatschappijen. DUS biedt een uitgebreid netwerk van bestemmingen in Europa, Azië, het Midden-Oosten en Noord-Amerika.",
+            intro_p2: "De terminal is modern en voorzien van luxe winkels, restaurants, meerdere lounges en een businesscentrum. Parkeerfaciliteiten zijn ruim aanwezig, met P1 (kortparkeren) en P2 (langparkeren), en de luchthaven is uitstekend bereikbaar via de A44 en A52 autosnelwegen. Het treinstation 'Düsseldorf Flughafen' biedt directe verbindingen naar Düsseldorf, Keulen, Dortmund en het internationale ICE-netwerk.",
+            intro_p3: "FleetConnect biedt een luxe en betrouwbare transfer naar DUS. De rit van Brussel naar Düsseldorf duurt ongeveer 2 uur en 20 minuten, afhankelijk van het verkeer. Wij garanderen vaste prijzen, vluchtmonitoring en een professionele service die aan al uw wensen voldoet.",
+            routes_title: "Vaste prijzen naar Düsseldorf",
+            route1_title: "Brussel-Centrum → DUS",
+            route1_desc: "220 km · ±140 min · vaste prijs",
+            route2_title: "Europese Wijk → DUS",
+            route2_desc: "218 km · ±135 min · vaste prijs",
+            route3_title: "Louizalaan → DUS",
+            route3_desc: "219 km · ±138 min",
+            route4_title: "Brussel-Zuid (Midi) → DUS",
+            route4_desc: "222 km · ±145 min",
+            route5_title: "Leuven → DUS",
+            route5_desc: "205 km · ±130 min",
+            route6_title: "DUS → Andere bestemming",
+            route6_desc: "Op aanvraag · vaste prijs per km",
+            extra_title: "<i class='fas fa-concierge-bell'></i> Extra service rond Düsseldorf",
+            extra1: "Meet & Greet",
+            extra1_desc: "Onze chauffeur wacht u op met een bordje, ook bij vertraging.",
+            extra2: "Bagagehulp",
+            extra2_desc: "Wij tillen uw koffers – u reist ontspannen.",
+            extra3: "Zakenreis",
+            extra3_desc: "Werk onderweg met gratis WiFi en een stille cabine.",
+            extra4: "Groepsvervoer",
+            extra4_desc: "Minivans tot 8 personen.",
+            service1_title: "Vluchtmonitoring",
+            service1_desc: "Wij volgen uw vlucht tot op de minuut.",
+            service2_title: "Zakelijk",
+            service2_desc: "Facturatie achteraf, VIP-behandeling.",
+            service3_title: "Gezinnen",
+            service3_desc: "Kinderzitjes op aanvraag.",
+            why_title: "Waarom FleetConnect voor uw transfer naar DUS?",
+            why1_title: "Vluchtmonitoring",
+            why1_desc: "Wij ontvangen uw vluchtnummer en volgen de status in realtime. Bij vertraging wachten wij gratis – u hoeft zich geen zorgen te maken.",
+            why2_title: "Vaste prijs, geen verrassingen",
+            why2_desc: "U betaalt nooit meer dan de afgesproken prijs. Geen meter, geen toeslagen voor bagage, nachtritten of weekends.",
+            why3_title: "Premium wagens",
+            why3_desc: "Onze vloot bestaat uit Mercedes E-Klasse, BMW 5-serie en luxe minivans. Alle voertuigen zijn maximaal 3 jaar oud, lederen bekleding, airco, WiFi en flessenwater.",
+            why4_title: "24/7 beschikbaar",
+            why4_desc: "Of u nu om 4 uur 's ochtends naar de luchthaven moet of midden in de nacht terugkeert – wij staan 24/7 voor u klaar.",
+            parking_title: "Parkeren en openbaar vervoer op Düsseldorf",
+            parking_p1: "DUS biedt uitgebreide parkeerfaciliteiten, waaronder P1 (kortparkeren) en P2 (langparkeren). De tarieven beginnen bij € 4,50 per uur en € 18 per dag. De luchthaven is uitstekend verbonden met het openbaar vervoer: met de trein (S-Bahn en IC) vanaf station 'Düsseldorf Flughafen' naar Düsseldorf Hbf, of met buslijnen naar de stad en omliggende regio's.",
+            parking_p2: "Met FleetConnect kiest u voor het gemak van een privétransfer. Wij wachten op u, helpen met bagage en zorgen dat u zorgeloos op tijd bent. Geen gedoe met parkeren of overstappen – eenvoudig en betrouwbaar.",
+            hotel_title: "Hotels en zakencentra rond Düsseldorf",
+            hotel_p1: "In de buurt van DUS vindt u hotels zoals het Sheraton Düsseldorf Airport, het Hilton Düsseldorf, en het Radisson Blu in de stad. Deze hotels bieden vaak pendeldiensten, maar met FleetConnect bent u verzekerd van een luxe en stipte service.",
+            hotel_p2: "Düsseldorf is een belangrijk economisch centrum met tal van internationale bedrijven, beurzen en de mode-industrie. FleetConnect is de ideale partner voor bedrijven die betrouwbaar vervoer nodig hebben. Wij bieden vaste prijzen voor zakelijke ritten en kunnen factureren op bedrijfsnaam. Neem contact op voor een offerte.",
+            cta_title: "Klaar voor een zorgeloze rit naar Düsseldorf?",
+            cta_sub: "Boek nu uw taxi in minder dan 2 minuten. Vaste prijs, gegarandeerd.",
+            cta_btn: "<i class='fas fa-calendar-alt'></i> Boek nu →",
+            contact_title: "<i class='fas fa-paper-plane'></i> Stuur een bericht",
+            contact_name_label: "<i class='fas fa-user'></i> Uw naam *",
+            contact_email_label: "<i class='fas fa-envelope'></i> E-mail *",
+            contact_msg_label: "<i class='fas fa-comment'></i> Bericht *",
+            contact_send_btn: "<i class='fas fa-paper-plane'></i> Verstuur",
+            footer_tagline: "Professioneel taxivervoer in België – Stijl, stiptheid en service.",
+            footer_digital: "FleetConnect | Digital",
+            footer_legal: "Juridisch",
+            footer_partners: "Partners",
+            language_label: "Taal",
+            nav_home: "Home",
+            nav_exclusive: "Exclusieve service",
+            nav_fixed_prices: "Vaste prijzen",
+            nav_premium_fleet: "Premium vloot",
+            nav_airport: "Luchthavenvervoer",
+            nav_business: "Zakelijk vervoer",
+            nav_events: "Events & Gala",
+            nav_courier: "Koeriersdienst",
+            nav_contact: "Contact",
+            nav_book: "Reserveer nu",
+            login: "LOGIN"
+        },
+        fr: {
+            hero_title: "<i class='fas fa-plane-departure'></i> Taxi vers Düsseldorf Airport (DUS)",
+            hero_subtitle: "Prix fixe | Suivi de vol | Disponible 24/7 | Chauffeurs NL/FR/EN/DE",
+            hero_btn: "<i class='fas fa-calendar-check'></i> Réservez votre trajet",
+            intro_title: "Düsseldorf Airport – le plus grand aéroport de Rhénanie-du-Nord-Westphalie",
+            intro_p1: "Düsseldorf Airport (IATA: DUS) est le plus grand aéroport de Rhénanie-du-Nord-Westphalie et le troisième plus grand d'Allemagne, avec plus de 25 millions de passagers par an. L'aéroport est situé à environ 8 kilomètres au nord de Düsseldorf et est une plaque tournante importante pour Eurowings, Lufthansa et de nombreuses autres compagnies. DUS offre un vaste réseau de destinations en Europe, en Asie, au Moyen-Orient et en Amérique du Nord.",
+            intro_p2: "Le terminal est moderne et dispose de boutiques de luxe, de restaurants, de plusieurs salons et d'un centre d'affaires. Les installations de stationnement sont vastes, avec P1 (courte durée) et P2 (longue durée), et l'aéroport est facilement accessible via les autoroutes A44 et A52. La gare 'Düsseldorf Flughafen' offre des liaisons directes vers Düsseldorf, Cologne, Dortmund et le réseau ICE international.",
+            intro_p3: "FleetConnect propose un transfert luxueux et fiable vers DUS. Le trajet de Bruxelles à Düsseldorf dure environ 2 heures et 20 minutes, selon le trafic. Nous garantissons des prix fixes, un suivi de vol et un service professionnel qui répond à tous vos besoins.",
+            routes_title: "Prix fixes vers Düsseldorf",
+            route1_title: "Bruxelles-Centre → DUS",
+            route1_desc: "220 km · ±140 min · prix fixe",
+            route2_title: "Quartier Européen → DUS",
+            route2_desc: "218 km · ±135 min · prix fixe",
+            route3_title: "Avenue Louise → DUS",
+            route3_desc: "219 km · ±138 min",
+            route4_title: "Bruxelles-Midi → DUS",
+            route4_desc: "222 km · ±145 min",
+            route5_title: "Louvain → DUS",
+            route5_desc: "205 km · ±130 min",
+            route6_title: "DUS → Autre destination",
+            route6_desc: "Sur demande · prix fixe au km",
+            extra_title: "<i class='fas fa-concierge-bell'></i> Services supplémentaires autour de Düsseldorf",
+            extra1: "Meet & Greet",
+            extra1_desc: "Notre chauffeur vous attend avec une pancarte, même en cas de retard.",
+            extra2: "Aide aux bagages",
+            extra2_desc: "Nous portons vos bagages – vous voyagez détendu.",
+            extra3: "Voyage d'affaires",
+            extra3_desc: "Travaillez en route avec WiFi gratuit et une cabine calme.",
+            extra4: "Transport de groupe",
+            extra4_desc: "Minibus jusqu'à 8 personnes.",
+            service1_title: "Suivi de vol",
+            service1_desc: "Nous suivons votre vol à la minute près.",
+            service2_title: "Affaires",
+            service2_desc: "Facturation différée, traitement VIP.",
+            service3_title: "Familles",
+            service3_desc: "Sièges enfants sur demande.",
+            why_title: "Pourquoi FleetConnect pour votre transfert vers DUS?",
+            why1_title: "Suivi de vol",
+            why1_desc: "Nous recevons votre numéro de vol et suivons son statut en temps réel. En cas de retard, nous attendons gratuitement.",
+            why2_title: "Prix fixe, pas de surprises",
+            why2_desc: "Vous ne payez jamais plus que le prix convenu. Pas de compteur, pas de supplément pour bagages, trajets de nuit ou week-ends.",
+            why3_title: "Véhicules premium",
+            why3_desc: "Notre flotte se compose de Mercedes Classe E, BMW Série 5 et minibus de luxe. Tous les véhicules ont moins de 3 ans, sièges en cuir, climatisation, WiFi et eau minérale.",
+            why4_title: "Disponible 24/7",
+            why4_desc: "Que vous ayez besoin d'aller à l'aéroport à 4 heures du matin ou de revenir au milieu de la nuit – nous sommes là 24/7.",
+            parking_title: "Stationnement et transports en commun à Düsseldorf",
+            parking_p1: "DUS propose des installations de stationnement étendues, y compris P1 (courte durée) et P2 (longue durée). Les tarifs commencent à € 4,50 de l'heure et € 18 par jour. L'aéroport est bien desservi par les transports en commun : avec le train (S-Bahn et IC) depuis la gare 'Düsseldorf Flughafen' jusqu'à Düsseldorf Hbf, ou avec des bus vers la ville et les régions environnantes.",
+            parking_p2: "Avec FleetConnect, vous choisissez le confort d'un transfert privé. Nous vous attendons, aidons avec les bagages et veillons à ce que vous soyez à l'heure sans stress.",
+            hotel_title: "Hôtels et centres d'affaires autour de Düsseldorf",
+            hotel_p1: "Près de DUS, vous trouverez des hôtels comme le Sheraton Düsseldorf Airport, le Hilton Düsseldorf et le Radisson Blu en ville. Ces hôtels proposent souvent des navettes, mais avec FleetConnect, vous bénéficiez d'un service luxueux et ponctuel.",
+            hotel_p2: "Düsseldorf est un important centre économique avec de nombreuses entreprises internationales, des salons et l'industrie de la mode. FleetConnect est le partenaire idéal pour les entreprises. Nous proposons des prix fixes pour les trajets professionnels et pouvons facturer au nom de l'entreprise. Contactez-nous pour un devis.",
+            cta_title: "Prêt pour un trajet sans souci vers Düsseldorf?",
+            cta_sub: "Réservez votre taxi en moins de 2 minutes. Prix fixe garanti.",
+            cta_btn: "<i class='fas fa-calendar-alt'></i> Réservez maintenant →",
+            contact_title: "<i class='fas fa-paper-plane'></i> Envoyez un message",
+            contact_name_label: "<i class='fas fa-user'></i> Votre nom *",
+            contact_email_label: "<i class='fas fa-envelope'></i> E-mail *",
+            contact_msg_label: "<i class='fas fa-comment'></i> Message *",
+            contact_send_btn: "<i class='fas fa-paper-plane'></i> Envoyer",
+            footer_tagline: "Transport professionnel en Belgique – Style, ponctualité et service.",
+            footer_digital: "FleetConnect | Digital",
+            footer_legal: "Juridique",
+            footer_partners: "Partenaires",
+            language_label: "Langue",
+            nav_home: "Accueil",
+            nav_exclusive: "Service exclusif",
+            nav_fixed_prices: "Prix fixes",
+            nav_premium_fleet: "Flotte premium",
+            nav_airport: "Transfert aéroport",
+            nav_business: "Transport d'affaires",
+            nav_events: "Événements & Gala",
+            nav_courier: "Service de messagerie",
+            nav_contact: "Contact",
+            nav_book: "Réservez maintenant",
+            login: "CONNEXION"
+        },
+        en: {
+            hero_title: "<i class='fas fa-plane-departure'></i> Taxi to Düsseldorf Airport (DUS)",
+            hero_subtitle: "Fixed price | Flight monitoring | 24/7 available | Drivers NL/FR/EN/DE",
+            hero_btn: "<i class='fas fa-calendar-check'></i> Book your ride now",
+            intro_title: "Düsseldorf Airport – the largest airport in North Rhine-Westphalia",
+            intro_p1: "Düsseldorf Airport (IATA: DUS) is the largest airport in North Rhine-Westphalia and the third largest in Germany, with over 25 million passengers annually. The airport is located about 8 kilometres north of Düsseldorf and is a major hub for Eurowings, Lufthansa and many other airlines. DUS offers an extensive network of destinations in Europe, Asia, the Middle East and North America.",
+            intro_p2: "The terminal is modern and features luxury shops, restaurants, multiple lounges and a business centre. Parking facilities are extensive, with P1 (short-stay) and P2 (long-stay), and the airport is easily accessible via the A44 and A52 motorways. 'Düsseldorf Flughafen' train station offers direct connections to Düsseldorf, Cologne, Dortmund and the international ICE network.",
+            intro_p3: "FleetConnect offers a luxurious and reliable transfer to DUS. The journey from Brussels to Düsseldorf takes about 2 hours and 20 minutes, depending on traffic. We guarantee fixed prices, flight monitoring and a professional service that meets all your needs.",
+            routes_title: "Fixed prices to Düsseldorf",
+            route1_title: "Brussels-Centre → DUS",
+            route1_desc: "220 km · ±140 min · fixed price",
+            route2_title: "European Quarter → DUS",
+            route2_desc: "218 km · ±135 min · fixed price",
+            route3_title: "Avenue Louise → DUS",
+            route3_desc: "219 km · ±138 min",
+            route4_title: "Brussels-South (Midi) → DUS",
+            route4_desc: "222 km · ±145 min",
+            route5_title: "Leuven → DUS",
+            route5_desc: "205 km · ±130 min",
+            route6_title: "DUS → Other destination",
+            route6_desc: "On request · fixed price per km",
+            extra_title: "<i class='fas fa-concierge-bell'></i> Extra services around Düsseldorf",
+            extra1: "Meet & Greet",
+            extra1_desc: "Our driver will meet you with a sign, even if your flight is delayed.",
+            extra2: "Luggage assistance",
+            extra2_desc: "We carry your luggage – you travel relaxed.",
+            extra3: "Business travel",
+            extra3_desc: "Work on the go with free WiFi and a quiet cabin.",
+            extra4: "Group transport",
+            extra4_desc: "Minivans up to 8 persons.",
+            service1_title: "Flight monitoring",
+            service1_desc: "We track your flight to the minute.",
+            service2_title: "Business",
+            service2_desc: "Invoicing after the fact, VIP treatment.",
+            service3_title: "Families",
+            service3_desc: "Child seats on request.",
+            why_title: "Why FleetConnect for your transfer to DUS?",
+            why1_title: "Flight monitoring",
+            why1_desc: "We receive your flight number and track its status in real time. In case of delay, we wait for free.",
+            why2_title: "Fixed price, no surprises",
+            why2_desc: "You never pay more than the agreed price. No meter, no surcharges for luggage, night rides or weekends.",
+            why3_title: "Premium vehicles",
+            why3_desc: "Our fleet consists of Mercedes E-Class, BMW 5 Series and luxury minivans. All vehicles are less than 3 years old, with leather seats, air conditioning, WiFi and bottled water.",
+            why4_title: "24/7 available",
+            why4_desc: "Whether you need to go to the airport at 4 a.m. or return in the middle of the night – we are available 24/7.",
+            parking_title: "Parking and public transport at Düsseldorf",
+            parking_p1: "DUS offers extensive parking facilities, including P1 (short-stay) and P2 (long-stay). Rates start at € 4.50 per hour and € 18 per day. The airport is well connected to public transport: by train (S-Bahn and IC) from 'Düsseldorf Flughafen' station to Düsseldorf Hbf, or by bus to the city and surrounding regions.",
+            parking_p2: "With FleetConnect, you choose the convenience of a private transfer. We wait for you, help with luggage and ensure you arrive stress-free on time.",
+            hotel_title: "Hotels and business centres around Düsseldorf",
+            hotel_p1: "Near DUS you will find hotels such as the Sheraton Düsseldorf Airport, Hilton Düsseldorf, and Radisson Blu in the city. These hotels often offer shuttles, but with FleetConnect you are assured of a luxurious and punctual service.",
+            hotel_p2: "Düsseldorf is an important economic centre with many international companies, trade fairs and the fashion industry. FleetConnect is the ideal partner for companies. We offer fixed prices for business trips and can invoice on company name. Contact us for a quote.",
+            cta_title: "Ready for a worry-free ride to Düsseldorf?",
+            cta_sub: "Book your taxi in less than 2 minutes. Fixed price guaranteed.",
+            cta_btn: "<i class='fas fa-calendar-alt'></i> Book now →",
+            contact_title: "<i class='fas fa-paper-plane'></i> Send a message",
+            contact_name_label: "<i class='fas fa-user'></i> Your name *",
+            contact_email_label: "<i class='fas fa-envelope'></i> Email *",
+            contact_msg_label: "<i class='fas fa-comment'></i> Message *",
+            contact_send_btn: "<i class='fas fa-paper-plane'></i> Send",
+            footer_tagline: "Professional transport in Belgium – Style, punctuality and service.",
+            footer_digital: "FleetConnect | Digital",
+            footer_legal: "Legal",
+            footer_partners: "Partners",
+            language_label: "Language",
+            nav_home: "Home",
+            nav_exclusive: "Exclusive service",
+            nav_fixed_prices: "Fixed prices",
+            nav_premium_fleet: "Premium fleet",
+            nav_airport: "Airport transfer",
+            nav_business: "Business transport",
+            nav_events: "Events & Gala",
+            nav_courier: "Courier service",
+            nav_contact: "Contact",
+            nav_book: "Book now",
+            login: "LOGIN"
+        }
+    };
+
+    // ===== TAAL & MENU (IDENTIEK) =====
+    let currentLang = 'nl';
+    function translatePage() {
+        const t = translations[currentLang];
+        if (!t) return;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key] !== undefined) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = t[key];
+                } else {
+                    el.innerHTML = t[key];
+                }
+            }
+        });
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+        });
+        document.documentElement.lang = currentLang;
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const lang = btn.getAttribute('data-lang');
+            if (lang && translations[lang]) {
+                currentLang = lang;
+                translatePage();
+            }
+        });
+    });
+    translatePage();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+        if (closeMenuBtn) {
+            closeMenuBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function(e) {
+                if (e.target === sidebarOverlay) {
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebarOverlay.classList.contains('active')) {
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        const verstuurBtn = document.getElementById('verstuurBerichtBtn');
+        if (verstuurBtn) {
+            verstuurBtn.addEventListener('click', function() {
+                alert(currentLang === 'nl' ? 'Bericht verzonden! Wij nemen zo snel mogelijk contact op.' : (currentLang === 'fr' ? 'Message envoyé ! Nous vous contacterons dès que possible.' : 'Message sent! We will contact you as soon as possible.'));
+            });
+        }
+    });
+</script>
+</body>
+</html>

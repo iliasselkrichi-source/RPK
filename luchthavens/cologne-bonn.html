@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>FleetConnect | Taxi naar Cologne Bonn Airport (CGN) – Vaste prijs</title>
+    <meta name="description" content="Professioneel luchthavenvervoer naar Cologne Bonn Airport. Vaste prijs, vluchtmonitoring, 24/7 beschikbaar. Boek nu uw taxi naar CGN.">
+    <link rel="canonical" href="https://www.fleetconnect.be/luchthavens/cologne-bonn.html">
+    <meta property="og:title" content="FleetConnect – Taxi naar Cologne Bonn (CGN) – Vaste prijs">
+    <meta property="og:description" content="Betrouwbaar vervoer naar Cologne Bonn Airport. Vluchtmonitoring inbegrepen. Reserveer eenvoudig online.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== BASIS + RESPONSIVE VERBETERINGEN ===== */
+        *{margin:0;padding:0;box-sizing:border-box}
+        #background-map{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background-image:url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;filter:brightness(1.05);opacity:0.9}
+        :root{--primary:#2c6e9e;--primary-dark:#1e4a6e;--accent-gold:#c9a03d;--text-dark:#1a2a3a;--text-light:#4a627a;--white:#ffffff;--card-bg:rgba(255,255,255,0.92);--border-light:#e2edf7}
+        body{font-family:'Inter',sans-serif;background:#f4f7fc;color:var(--text-dark);overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+        .content-overlay{position:relative;z-index:10;background:rgba(255,255,255,0.85);min-height:100vh;display:flex;flex-direction:column}
+        .container{width:100%;max-width:1300px;margin:0 auto;padding:0 24px}
+        /* Hamburger */
+        .hamburger-btn{position:fixed;top:20px;left:20px;background:var(--primary);color:white;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;border:none;font-size:1.6rem;box-shadow:0 4px 12px rgba(0,0,0,0.2);transition:background 0.2s}
+        .hamburger-btn:hover{background:var(--primary-dark)}
+        .hamburger-btn:active{transform:scale(0.95)}
+        /* Sidebar */
+        .sidebar-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);z-index:1001;visibility:hidden;opacity:0;transition:all 0.3s ease}
+        .sidebar-overlay.active{visibility:visible;opacity:1}
+        .sidebar{position:fixed;top:0;right:-320px;width:320px;height:100%;background:white;box-shadow:-4px 0 25px rgba(0,0,0,0.15);transition:right 0.3s ease;z-index:1002;display:flex;flex-direction:column;border-radius:24px 0 0 24px;overflow:hidden}
+        .sidebar-overlay.active .sidebar{right:0}
+        .sidebar-header{display:flex;justify-content:space-between;align-items:center;padding:24px 20px;border-bottom:1px solid var(--border-light);background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:24px 0 0 0;flex-shrink:0}
+        .sidebar-header h3{color:white;display:flex;align-items:center;gap:8px;font-size:1.4rem}
+        .close-menu{background:rgba(255,255,255,0.2);border:none;font-size:1.8rem;cursor:pointer;color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+        .close-menu:active{transform:scale(0.9)}
+        .sidebar-nav{display:flex;flex-direction:column;padding:20px 16px;gap:8px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+        .sidebar-nav a{color:var(--text-dark);text-decoration:none;padding:16px 18px;border-radius:16px;font-weight:500;display:flex;align-items:center;gap:14px;background:white;border:1px solid var(--border-light);transition:all 0.2s;font-size:1rem}
+        .sidebar-nav a i{width:28px;color:var(--primary);font-size:1.2rem}
+        .sidebar-nav a:hover{background:#eef2fa;border-color:var(--primary)}
+        .sidebar-nav a:active{transform:scale(0.97)}
+        .login-section{padding:16px;border-top:1px solid var(--border-light);margin-top:auto;flex-shrink:0}
+        .login-btn{background:linear-gradient(135deg,var(--accent-gold),#b8860b);color:white;text-decoration:none;padding:16px 18px;border-radius:16px;font-weight:600;display:flex;align-items:center;gap:12px;font-size:1rem}
+        .login-btn:active{transform:scale(0.97)}
+        /* Hero */
+        .hero{padding:80px 0 40px;text-align:center}
+        .hero-card{background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);max-width:900px;margin:0 auto;padding:40px 30px;border-radius:48px;border:1px solid var(--border-light)}
+        .hero-card h1{font-size:2.8rem;font-weight:800;color:var(--primary);line-height:1.2}
+        .hero-card p{font-size:1.2rem;color:var(--text-light);margin-bottom:20px}
+        .btn-primary{background:var(--primary);color:white;border:none;padding:14px 32px;border-radius:40px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:1rem;transition:background 0.2s;min-height:54px}
+        .btn-primary:hover{background:var(--primary-dark)}
+        .btn-primary:active{transform:scale(0.96)}
+        .section-title{font-size:2rem;color:var(--primary);margin-bottom:40px;text-align:center}
+        .route-grid,.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;margin-bottom:40px}
+        .route-card,.feature-card{background:white;border-radius:24px;padding:24px;box-shadow:0 4px 15px rgba(0,0,0,0.08);border:1px solid var(--border-light);transition:transform 0.2s}
+        .route-card:hover,.feature-card:hover{transform:translateY(-4px)}
+        .route-price{font-size:1.6rem;font-weight:800;color:var(--primary);margin:12px 0}
+        .feature-card{text-align:center}
+        .feature-icon{font-size:2.5rem;color:var(--primary);margin-bottom:16px}
+        .feature-card p{font-size:0.95rem;line-height:1.5;margin-top:12px;color:var(--text-light)}
+        .international-box{background:#e8f0f8;border-left:5px solid var(--accent-gold);padding:24px;margin:30px 0;border-radius:20px}
+        .service-points{display:flex;flex-wrap:wrap;gap:20px;margin:20px 0}
+        .service-point{flex:1;background:white;padding:16px;border-radius:16px;text-align:center;min-width:140px}
+        .contact-wrapper{width:100%;display:flex;justify-content:center;padding:0 16px}
+        .contact-row{background:white;border-radius:44px;padding:30px;margin:40px 0;border:1px solid var(--border-light);width:100%;max-width:600px}
+        .contact-form h3{margin-bottom:20px;color:var(--primary);text-align:center}
+        .compact-form{display:flex;flex-direction:column;gap:16px}
+        .compact-form input,.compact-form textarea{width:100%;padding:14px 18px;border-radius:28px;border:1px solid var(--border-light);font-size:1rem;background:white;min-height:54px}
+        .compact-form textarea{min-height:80px;resize:vertical}
+        .button-row{display:flex;justify-content:space-between;gap:15px;margin-top:20px;flex-wrap:wrap}
+        .btn-whatsapp{background:#25D366;color:white;border:none;padding:14px 28px;border-radius:40px;font-weight:600;display:inline-flex;align-items:center;gap:8px;text-decoration:none;min-height:54px}
+        .btn-whatsapp:hover{background:#128C7E}
+        .btn-whatsapp:active{transform:scale(0.96)}
+        /* Footer */
+        .footer-dark{background:#0d1f2c;color:#e0edf5;padding:48px 0 24px;margin-top:40px}
+        .footer-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:40px;margin-bottom:30px}
+        .footer-grid a{color:#b0cbd9;text-decoration:none;line-height:2;font-size:0.95rem}
+        .footer-grid a:hover{color:white;text-decoration:underline}
+        .footer-bottom{text-align:center;border-top:1px solid rgba(224,237,245,0.2);padding-top:24px;font-size:0.9rem}
+        .lang-switcher{display:flex;gap:8px;align-items:center}
+        .lang-btn{background:transparent;border:1px solid var(--border-light);padding:8px 16px;border-radius:30px;cursor:pointer;font-weight:500;transition:all 0.2s;font-size:0.95rem;min-height:44px}
+        .lang-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
+        .lang-btn:active{transform:scale(0.95)}
+        /* ===== RESPONSIVE TABLETS & IOS ===== */
+        @media (max-width:1024px) {
+            .hero-card h1{font-size:2.4rem}
+            .section-title{font-size:1.8rem}
+        }
+        @media (max-width:800px) {
+            .hero-card h1{font-size:2rem}
+            .section-title{font-size:1.5rem}
+            .hero-card{padding:30px 20px}
+            .container{padding:0 16px}
+            .footer-grid{flex-direction:column;gap:30px}
+        }
+        @media (max-width:480px) {
+            .hero-card h1{font-size:1.6rem}
+            .hero-card p{font-size:1rem}
+            .btn-primary,.btn-whatsapp{padding:12px 20px;font-size:0.95rem;width:100%;justify-content:center}
+            .button-row{flex-direction:column}
+            .route-grid,.features-grid{grid-template-columns:1fr}
+            .sidebar{width:100%;border-radius:0;right:-100%}
+            .sidebar-overlay.active .sidebar{right:0}
+            .hamburger-btn{width:48px;height:48px;font-size:1.4rem;top:12px;left:12px}
+        }
+        /* iOS safe area */
+        @supports(padding:max(0px)) {
+            .sidebar,.sidebar-header,.sidebar-nav,.login-section{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+            .sidebar-header{border-radius:max(24px,env(safe-area-inset-top)) 0 0 0}
+        }
+    </style>
+</head>
+<body>
+
+<div id="background-map"></div>
+
+<!-- HAMBURGER -->
+<button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay">
+    <div class="sidebar">
+        <div class="sidebar-header"><h3><i class="fas fa-car"></i> FleetConnect</h3><button class="close-menu" id="closeMenuBtn">&times;</button></div>
+        <div class="sidebar-nav">
+            <div style="padding: 10px 16px; font-size: 0.75rem; font-weight: 700; color: var(--text-light);" data-i18n="language_label">Taal / Language</div>
+            <div style="display: flex; gap: 8px; padding: 0 16px 16px;">
+                <button class="lang-btn active" data-lang="nl">NL</button>
+                <button class="lang-btn" data-lang="fr">FR</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <div style="height:1px; background:#e2edf7; margin:8px 0;"></div>
+            <a href="../PV/PV.html"><i class="fas fa-home"></i> <span data-i18n="nav_home">Home</span></a>
+            <a href="../PV/PV_Exclusieve_Service.html"><i class="fas fa-gem"></i> <span data-i18n="nav_exclusive">Exclusieve service</span></a>
+            <a href="../PV/PV-vaste-prijzen.html"><i class="fas fa-euro-sign"></i> <span data-i18n="nav_fixed_prices">Vaste prijzen</span></a>
+            <a href="../PV/PV-premium-vloot.html"><i class="fas fa-car-side"></i> <span data-i18n="nav_premium_fleet">Premium vloot</span></a>
+            <a href="../PV/PV_Luchthavenvervoer.html"><i class="fas fa-plane-departure"></i> <span data-i18n="nav_airport">Luchthavenvervoer</span></a>
+            <a href="../PV/PV_Zakelijk_Vervoer.html"><i class="fas fa-briefcase"></i> <span data-i18n="nav_business">Zakelijk vervoer</span></a>
+            <a href="../PV/PV_Events_Gala.html"><i class="fas fa-glass-cheers"></i> <span data-i18n="nav_events">Events & Gala</span></a>
+            <a href="../PV/PV_Koeriersdienst.html"><i class="fas fa-file-signature"></i> <span data-i18n="nav_courier">Koeriersdienst</span></a>
+            <a href="#contact"><i class="fas fa-envelope"></i> <span data-i18n="nav_contact">Contact</span></a>
+            <a href="../PV/PV.html#booking"><i class="fas fa-calendar-alt"></i> <span data-i18n="nav_book">Reserveer nu</span></a>
+        </div>
+        <div class="login-section"><a href="../PV/index.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> <span data-i18n="login">LOGIN</span> <i class="fas fa-arrow-right"></i></a></div>
+    </div>
+</div>
+
+<div class="content-overlay">
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-card">
+                <h1 data-i18n="hero_title"><i class="fas fa-plane-departure"></i> Taxi naar Cologne Bonn Airport (CGN)</h1>
+                <p data-i18n="hero_subtitle">Vaste prijs | Vluchtmonitoring | 24/7 beschikbaar | Chauffeurs NL/FR/EN/DE</p>
+                <a href="../PV/PV.html" class="btn-primary" data-i18n="hero_btn"><i class="fas fa-calendar-check"></i> Boek nu uw rit</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- INTRODUCTIE -->
+        <div style="background:white; border-radius:28px; padding:32px; margin:30px 0; border:1px solid var(--border-light);">
+            <h2 class="section-title" style="text-align:left;" data-i18n="intro_title">Cologne Bonn Airport – de toegangspoort tot Noordrijn-Westfalen</h2>
+            <p data-i18n="intro_p1" style="font-size:1.05rem; line-height:1.6; margin-bottom:16px;">Cologne Bonn Airport (IATA: CGN) is de op vijf na grootste luchthaven van Duitsland, gelegen in de regio Noordrijn-Westfalen, ongeveer 15 kilometer ten zuidoosten van Keulen en 20 kilometer ten noordoosten van Bonn. De luchthaven verwerkt jaarlijks meer dan 12 miljoen passagiers en is een belangrijke hub voor Eurowings, Ryanair en andere maatschappijen. CGN biedt een breed netwerk van bestemmingen in Europa, het Midden-Oosten en Noord-Afrika.</p>
+            <p data-i18n="intro_p2" style="font-size:1.05rem; line-height:1.6; margin-bottom:16px;">De terminal is modern en beschikt over ruime winkels, restaurants, lounges en een volledig uitgerust businesscentrum. Parkeren is beschikbaar in P1 (kortparkeren) en P2 (langparkeren), met eenvoudige toegang tot de A59 / A3 autosnelwegen. De luchthaven is ook verbonden met het spoorwegnet via station "Köln/Bonn Flughafen", met directe treinen naar Keulen, Bonn en verder.</p>
+            <p data-i18n="intro_p3" style="font-size:1.05rem; line-height:1.6;">FleetConnect biedt een comfortabele en betrouwbare transfer van en naar CGN. De rit van Brussel naar Keulen/Bonn duurt ongeveer 2 uur en 15 minuten, afhankelijk van het verkeer. Wij bieden vaste prijzen en zorgen voor een zorgeloze reis, met vluchtmonitoring en professionele chauffeurs.</p>
+        </div>
+
+        <!-- ROUTES EN PRIJZEN -->
+        <h2 class="section-title" data-i18n="routes_title">Vaste prijzen naar Cologne Bonn</h2>
+        <div class="route-grid">
+            <div class="route-card"><i class="fas fa-building" style="font-size:2rem; color:var(--primary);"></i><h3 data-i18n="route1_title">Brussel-Centrum → CGN</h3><div class="route-price">€285</div><p data-i18n="route1_desc">210 km · ±135 min · vaste prijs</p></div>
+            <div class="route-card"><i class="fas fa-city"></i><h3 data-i18n="route2_title">Europese Wijk → CGN</h3><div class="route-price">€280</div><p data-i18n="route2_desc">208 km · ±130 min · vaste prijs</p></div>
+            <div class="route-card"><i class="fas fa-hotel"></i><h3 data-i18n="route3_title">Louizalaan → CGN</h3><div class="route-price">€282</div><p data-i18n="route3_desc">209 km · ±132 min</p></div>
+            <div class="route-card"><i class="fas fa-train"></i><h3 data-i18n="route4_title">Brussel-Zuid (Midi) → CGN</h3><div class="route-price">€288</div><p data-i18n="route4_desc">212 km · ±140 min</p></div>
+            <div class="route-card"><i class="fas fa-subway"></i><h3 data-i18n="route5_title">Leuven → CGN</h3><div class="route-price">€260</div><p data-i18n="route5_desc">195 km · ±125 min</p></div>
+            <div class="route-card"><i class="fas fa-plane"></i><h3 data-i18n="route6_title">CGN → Andere bestemming</h3><div class="route-price">Op aanvraag</div><p data-i18n="route6_desc">Vaste prijs per km, inclusief tol</p></div>
+        </div>
+
+        <!-- EXTRA DIENSTEN -->
+        <div class="international-box">
+            <h3 data-i18n="extra_title"><i class="fas fa-concierge-bell"></i> Extra service rond Cologne Bonn</h3>
+            <ul style="margin: 16px 0 16px 20px; line-height:1.6;">
+                <li><strong data-i18n="extra1">Meet & Greet:</strong> <span data-i18n="extra1_desc">Onze chauffeur wacht u op met een bordje met uw naam, ook bij vertraging.</span></li>
+                <li><strong data-i18n="extra2">Bagagehulp:</strong> <span data-i18n="extra2_desc">Wij tillen uw koffers – u reist zorgeloos.</span></li>
+                <li><strong data-i18n="extra3">Zakenreis:</strong> <span data-i18n="extra3_desc">Werk onderweg met gratis WiFi en een stille, luxe cabine.</span></li>
+                <li><strong data-i18n="extra4">Groepsvervoer:</strong> <span data-i18n="extra4_desc">Minivans tot 8 personen voor families of zakenreizigers.</span></li>
+            </ul>
+            <div class="service-points">
+                <div class="service-point"><i class="fas fa-plane" style="font-size:2rem; color:var(--primary);"></i><h4 data-i18n="service1_title">Vluchtmonitoring</h4><p data-i18n="service1_desc">Wij volgen uw vlucht tot op de minuut.</p></div>
+                <div class="service-point"><i class="fas fa-user-tie"></i><h4 data-i18n="service2_title">Zakelijk</h4><p data-i18n="service2_desc">Facturatie achteraf, VIP-behandeling.</p></div>
+                <div class="service-point"><i class="fas fa-child"></i><h4 data-i18n="service3_title">Gezinnen</h4><p data-i18n="service3_desc">Kinderzitjes op aanvraag.</p></div>
+            </div>
+        </div>
+
+        <!-- WAAROM FLEETCONNECT -->
+        <h2 class="section-title" data-i18n="why_title">Waarom FleetConnect voor uw transfer naar CGN?</h2>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-clock"></i></div><h3 data-i18n="why1_title">Vluchtmonitoring</h3><p data-i18n="why1_desc">Wij ontvangen uw vluchtnummer en volgen de status in realtime. Bij vertraging wachten wij gratis – u hoeft zich geen zorgen te maken.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-euro-sign"></i></div><h3 data-i18n="why2_title">Vaste prijs, geen verrassingen</h3><p data-i18n="why2_desc">U betaalt nooit meer dan de afgesproken prijs. Geen meter, geen toeslagen voor bagage, nachtritten of weekends.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-gem"></i></div><h3 data-i18n="why3_title">Premium wagens</h3><p data-i18n="why3_desc">Onze vloot bestaat uit Mercedes E-Klasse, BMW 5-serie en luxe minivans. Alle voertuigen zijn maximaal 3 jaar oud, lederen bekleding, airco, WiFi en flessenwater.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-headset"></i></div><h3 data-i18n="why4_title">24/7 beschikbaar</h3><p data-i18n="why4_desc">Of u nu om 4 uur 's ochtends naar de luchthaven moet of midden in de nacht terugkeert – wij staan 24/7 voor u klaar.</p></div>
+        </div>
+
+        <!-- PARKEREN EN OV -->
+        <div style="background:#f8fafc; border-radius:28px; padding:32px; margin:30px 0; border:1px solid var(--border-light);">
+            <h2 class="section-title" style="text-align:left;" data-i18n="parking_title">Parkeren en openbaar vervoer op Cologne Bonn</h2>
+            <p data-i18n="parking_p1" style="font-size:1.05rem; line-height:1.6; margin-bottom:16px;">CGN biedt diverse parkeeropties: P1 (kortparkeren, tot 24 uur) en P2 (langparkeren). Tarieven beginnen bij € 4,00 per uur en € 16 per dag. De luchthaven is uitstekend bereikbaar met de trein via station "Köln/Bonn Flughafen", met verbindingen naar Keulen, Bonn en Frankfurt. Buslijnen verbinden de luchthaven met de omliggende steden.</p>
+            <p data-i18n="parking_p2" style="font-size:1.05rem; line-height:1.6;">Met FleetConnect kiest u voor het gemak van een privétransfer. Wij wachten op u, helpen met bagage en zorgen dat u zorgeloos op tijd bent. Geen gedoe met parkeren of overstappen – eenvoudig en betrouwbaar.</p>
+        </div>
+
+        <!-- HOTELS EN ZAKEN -->
+        <div style="background:white; border-radius:28px; padding:32px; margin:30px 0; border:1px solid var(--border-light);">
+            <h2 class="section-title" style="text-align:left;" data-i18n="hotel_title">Hotels en zakencentra rond Cologne Bonn</h2>
+            <p data-i18n="hotel_p1" style="font-size:1.05rem; line-height:1.6; margin-bottom:16px;">In de buurt van CGN vindt u hotels zoals het Maritim Hotel Köln, het Hilton Cologne, en het Hotel Bonn City. Deze hotels bieden vaak pendeldiensten, maar met FleetConnect bent u verzekerd van een luxe en stipte service.</p>
+            <p data-i18n="hotel_p2" style="font-size:1.05rem; line-height:1.6;">De regio Keulen/Bonn is een belangrijk economisch centrum met tal van internationale bedrijven, de Universiteit van Keulen en de Deutsche Telekom. FleetConnect is de ideale partner voor bedrijven die betrouwbaar vervoer nodig hebben. Wij bieden vaste prijzen voor zakelijke ritten en kunnen factureren op bedrijfsnaam. Neem contact op voor een offerte.</p>
+        </div>
+
+        <!-- CTA -->
+        <div style="background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; padding:50px; border-radius:32px; text-align:center; margin:40px 0;">
+            <h2 style="color:white;" data-i18n="cta_title">Klaar voor een zorgeloze rit naar Cologne Bonn?</h2>
+            <p style="margin:20px 0;" data-i18n="cta_sub">Boek nu uw taxi in minder dan 2 minuten. Vaste prijs, gegarandeerd.</p>
+            <a href="../PV/PV.html" class="btn-primary" style="background:white; color:var(--primary-dark);" data-i18n="cta_btn"><i class="fas fa-calendar-alt"></i> Boek nu →</a>
+        </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="contact-wrapper" id="contact">
+        <div class="contact-row">
+            <div class="contact-form">
+                <h3 data-i18n="contact_title"><i class="fas fa-paper-plane"></i> Stuur een bericht</h3>
+                <div class="compact-form">
+                    <div class="form-group"><label data-i18n="contact_name_label"><i class="fas fa-user"></i> Uw naam *</label><input type="text" id="contactNaam"></div>
+                    <div class="form-group"><label data-i18n="contact_email_label"><i class="fas fa-envelope"></i> E-mail *</label><input type="email" id="contactEmail"></div>
+                    <div class="form-group"><label data-i18n="contact_msg_label"><i class="fas fa-comment"></i> Bericht *</label><textarea id="contactBericht" rows="2"></textarea></div>
+                    <div class="button-row"><button class="btn-primary" id="verstuurBerichtBtn" data-i18n="contact_send_btn"><i class="fas fa-paper-plane"></i> Verstuur</button><a href="https://wa.me/32470123456" target="_blank" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer-dark">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand"><h4><i class="fas fa-car"></i> FleetConnect</h4><p data-i18n="footer_tagline">Professioneel taxivervoer in België – Stijl, stiptheid en service.</p></div>
+                <div class="footer-ryz3n"><h4 data-i18n="footer_digital">FleetConnect | Digital</h4><a href="../customer">Customer portal</a><br><a href="../booking#booking">Book a ride</a><br><a href="../PV/PVprivacy.html">Privacy</a></div>
+                <div class="footer-legal"><h4 data-i18n="footer_legal">Juridisch</h4><a href="../PV/PVfaq.html">❓ FAQ</a><br><a href="../PV/PVprivacy.html">🔒 Privacy</a><br><a href="../PV/PVcookiebeleid.html">🍪 Cookiebeleid</a><br><a href="../PV/PValgemene-voorwaarden.html">📜 Algemene voorwaarden</a></div>
+                <div class="footer-partners"><h4 data-i18n="footer_partners">Partners</h4><a href="#">Support</a></div>
+            </div>
+            <div class="footer-bottom">© 2026 FleetConnect – <a href="#">FleetConnect</a></div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // ===== VERTALINGEN VOOR COLOGNE BONN (CGN) =====
+    const translations = {
+        nl: {
+            hero_title: "<i class='fas fa-plane-departure'></i> Taxi naar Cologne Bonn Airport (CGN)",
+            hero_subtitle: "Vaste prijs | Vluchtmonitoring | 24/7 beschikbaar | Chauffeurs NL/FR/EN/DE",
+            hero_btn: "<i class='fas fa-calendar-check'></i> Boek nu uw rit",
+            intro_title: "Cologne Bonn Airport – de toegangspoort tot Noordrijn-Westfalen",
+            intro_p1: "Cologne Bonn Airport (IATA: CGN) is de op vijf na grootste luchthaven van Duitsland, gelegen in de regio Noordrijn-Westfalen, ongeveer 15 kilometer ten zuidoosten van Keulen en 20 kilometer ten noordoosten van Bonn. De luchthaven verwerkt jaarlijks meer dan 12 miljoen passagiers en is een belangrijke hub voor Eurowings, Ryanair en andere maatschappijen. CGN biedt een breed netwerk van bestemmingen in Europa, het Midden-Oosten en Noord-Afrika.",
+            intro_p2: "De terminal is modern en beschikt over ruime winkels, restaurants, lounges en een volledig uitgerust businesscentrum. Parkeren is beschikbaar in P1 (kortparkeren) en P2 (langparkeren), met eenvoudige toegang tot de A59 / A3 autosnelwegen. De luchthaven is ook verbonden met het spoorwegnet via station 'Köln/Bonn Flughafen', met directe treinen naar Keulen, Bonn en verder.",
+            intro_p3: "FleetConnect biedt een comfortabele en betrouwbare transfer van en naar CGN. De rit van Brussel naar Keulen/Bonn duurt ongeveer 2 uur en 15 minuten, afhankelijk van het verkeer. Wij bieden vaste prijzen en zorgen voor een zorgeloze reis, met vluchtmonitoring en professionele chauffeurs.",
+            routes_title: "Vaste prijzen naar Cologne Bonn",
+            route1_title: "Brussel-Centrum → CGN",
+            route1_desc: "210 km · ±135 min · vaste prijs",
+            route2_title: "Europese Wijk → CGN",
+            route2_desc: "208 km · ±130 min · vaste prijs",
+            route3_title: "Louizalaan → CGN",
+            route3_desc: "209 km · ±132 min",
+            route4_title: "Brussel-Zuid (Midi) → CGN",
+            route4_desc: "212 km · ±140 min",
+            route5_title: "Leuven → CGN",
+            route5_desc: "195 km · ±125 min",
+            route6_title: "CGN → Andere bestemming",
+            route6_desc: "Op aanvraag · vaste prijs per km",
+            extra_title: "<i class='fas fa-concierge-bell'></i> Extra service rond Cologne Bonn",
+            extra1: "Meet & Greet",
+            extra1_desc: "Onze chauffeur wacht u op met een bordje met uw naam, ook bij vertraging.",
+            extra2: "Bagagehulp",
+            extra2_desc: "Wij tillen uw koffers – u reist zorgeloos.",
+            extra3: "Zakenreis",
+            extra3_desc: "Werk onderweg met gratis WiFi en een stille, luxe cabine.",
+            extra4: "Groepsvervoer",
+            extra4_desc: "Minivans tot 8 personen voor families of zakenreizigers.",
+            service1_title: "Vluchtmonitoring",
+            service1_desc: "Wij volgen uw vlucht tot op de minuut.",
+            service2_title: "Zakelijk",
+            service2_desc: "Facturatie achteraf, VIP-behandeling.",
+            service3_title: "Gezinnen",
+            service3_desc: "Kinderzitjes op aanvraag.",
+            why_title: "Waarom FleetConnect voor uw transfer naar CGN?",
+            why1_title: "Vluchtmonitoring",
+            why1_desc: "Wij ontvangen uw vluchtnummer en volgen de status in realtime. Bij vertraging wachten wij gratis – u hoeft zich geen zorgen te maken.",
+            why2_title: "Vaste prijs, geen verrassingen",
+            why2_desc: "U betaalt nooit meer dan de afgesproken prijs. Geen meter, geen toeslagen voor bagage, nachtritten of weekends.",
+            why3_title: "Premium wagens",
+            why3_desc: "Onze vloot bestaat uit Mercedes E-Klasse, BMW 5-serie en luxe minivans. Alle voertuigen zijn maximaal 3 jaar oud, lederen bekleding, airco, WiFi en flessenwater.",
+            why4_title: "24/7 beschikbaar",
+            why4_desc: "Of u nu om 4 uur 's ochtends naar de luchthaven moet of midden in de nacht terugkeert – wij staan 24/7 voor u klaar.",
+            parking_title: "Parkeren en openbaar vervoer op Cologne Bonn",
+            parking_p1: "CGN biedt diverse parkeeropties: P1 (kortparkeren, tot 24 uur) en P2 (langparkeren). Tarieven beginnen bij € 4,00 per uur en € 16 per dag. De luchthaven is uitstekend bereikbaar met de trein via station 'Köln/Bonn Flughafen', met verbindingen naar Keulen, Bonn en Frankfurt. Buslijnen verbinden de luchthaven met de omliggende steden.",
+            parking_p2: "Met FleetConnect kiest u voor het gemak van een privétransfer. Wij wachten op u, helpen met bagage en zorgen dat u zorgeloos op tijd bent. Geen gedoe met parkeren of overstappen – eenvoudig en betrouwbaar.",
+            hotel_title: "Hotels en zakencentra rond Cologne Bonn",
+            hotel_p1: "In de buurt van CGN vindt u hotels zoals het Maritim Hotel Köln, het Hilton Cologne, en het Hotel Bonn City. Deze hotels bieden vaak pendeldiensten, maar met FleetConnect bent u verzekerd van een luxe en stipte service.",
+            hotel_p2: "De regio Keulen/Bonn is een belangrijk economisch centrum met tal van internationale bedrijven, de Universiteit van Keulen en de Deutsche Telekom. FleetConnect is de ideale partner voor bedrijven die betrouwbaar vervoer nodig hebben. Wij bieden vaste prijzen voor zakelijke ritten en kunnen factureren op bedrijfsnaam. Neem contact op voor een offerte.",
+            cta_title: "Klaar voor een zorgeloze rit naar Cologne Bonn?",
+            cta_sub: "Boek nu uw taxi in minder dan 2 minuten. Vaste prijs, gegarandeerd.",
+            cta_btn: "<i class='fas fa-calendar-alt'></i> Boek nu →",
+            contact_title: "<i class='fas fa-paper-plane'></i> Stuur een bericht",
+            contact_name_label: "<i class='fas fa-user'></i> Uw naam *",
+            contact_email_label: "<i class='fas fa-envelope'></i> E-mail *",
+            contact_msg_label: "<i class='fas fa-comment'></i> Bericht *",
+            contact_send_btn: "<i class='fas fa-paper-plane'></i> Verstuur",
+            footer_tagline: "Professioneel taxivervoer in België – Stijl, stiptheid en service.",
+            footer_digital: "FleetConnect | Digital",
+            footer_legal: "Juridisch",
+            footer_partners: "Partners",
+            language_label: "Taal",
+            nav_home: "Home",
+            nav_exclusive: "Exclusieve service",
+            nav_fixed_prices: "Vaste prijzen",
+            nav_premium_fleet: "Premium vloot",
+            nav_airport: "Luchthavenvervoer",
+            nav_business: "Zakelijk vervoer",
+            nav_events: "Events & Gala",
+            nav_courier: "Koeriersdienst",
+            nav_contact: "Contact",
+            nav_book: "Reserveer nu",
+            login: "LOGIN"
+        },
+        fr: {
+            hero_title: "<i class='fas fa-plane-departure'></i> Taxi vers Cologne Bonn Airport (CGN)",
+            hero_subtitle: "Prix fixe | Suivi de vol | Disponible 24/7 | Chauffeurs NL/FR/EN/DE",
+            hero_btn: "<i class='fas fa-calendar-check'></i> Réservez votre trajet",
+            intro_title: "Cologne Bonn Airport – la porte d'entrée de la Rhénanie-du-Nord-Westphalie",
+            intro_p1: "Cologne Bonn Airport (IATA: CGN) est le cinquième plus grand aéroport d'Allemagne, situé en Rhénanie-du-Nord-Westphalie, à environ 15 kilomètres au sud-est de Cologne et 20 kilomètres au nord-est de Bonn. L'aéroport accueille plus de 12 millions de passagers par an et est une plaque tournante importante pour Eurowings, Ryanair et d'autres compagnies. CGN offre un large réseau de destinations en Europe, au Moyen-Orient et en Afrique du Nord.",
+            intro_p2: "Le terminal est moderne et dispose de boutiques spacieuses, de restaurants, de salons et d'un centre d'affaires entièrement équipé. Le stationnement est disponible en P1 (courte durée) et P2 (longue durée), avec un accès facile aux autoroutes A59 / A3. L'aéroport est également relié au réseau ferroviaire via la gare 'Köln/Bonn Flughafen', avec des trains directs vers Cologne, Bonn et au-delà.",
+            intro_p3: "FleetConnect offre un transfert confortable et fiable vers et depuis CGN. Le trajet de Bruxelles à Cologne/Bonn dure environ 2 heures et 15 minutes, selon le trafic. Nous proposons des prix fixes et garantissons un voyage sans souci, avec suivi de vol et chauffeurs professionnels.",
+            routes_title: "Prix fixes vers Cologne Bonn",
+            route1_title: "Bruxelles-Centre → CGN",
+            route1_desc: "210 km · ±135 min · prix fixe",
+            route2_title: "Quartier Européen → CGN",
+            route2_desc: "208 km · ±130 min · prix fixe",
+            route3_title: "Avenue Louise → CGN",
+            route3_desc: "209 km · ±132 min",
+            route4_title: "Bruxelles-Midi → CGN",
+            route4_desc: "212 km · ±140 min",
+            route5_title: "Louvain → CGN",
+            route5_desc: "195 km · ±125 min",
+            route6_title: "CGN → Autre destination",
+            route6_desc: "Sur demande · prix fixe au km",
+            extra_title: "<i class='fas fa-concierge-bell'></i> Services supplémentaires autour de Cologne Bonn",
+            extra1: "Meet & Greet",
+            extra1_desc: "Notre chauffeur vous attend avec une pancarte à votre nom, même en cas de retard.",
+            extra2: "Aide aux bagages",
+            extra2_desc: "Nous portons vos bagages – vous voyagez l'esprit tranquille.",
+            extra3: "Voyage d'affaires",
+            extra3_desc: "Travaillez en route avec WiFi gratuit et une cabine calme et luxueuse.",
+            extra4: "Transport de groupe",
+            extra4_desc: "Minibus jusqu'à 8 personnes pour les familles ou les voyageurs d'affaires.",
+            service1_title: "Suivi de vol",
+            service1_desc: "Nous suivons votre vol à la minute près.",
+            service2_title: "Affaires",
+            service2_desc: "Facturation différée, traitement VIP.",
+            service3_title: "Familles",
+            service3_desc: "Sièges enfants sur demande.",
+            why_title: "Pourquoi FleetConnect pour votre transfert vers CGN?",
+            why1_title: "Suivi de vol",
+            why1_desc: "Nous recevons votre numéro de vol et suivons son statut en temps réel. En cas de retard, nous attendons gratuitement.",
+            why2_title: "Prix fixe, pas de surprises",
+            why2_desc: "Vous ne payez jamais plus que le prix convenu. Pas de compteur, pas de supplément pour bagages, trajets de nuit ou week-ends.",
+            why3_title: "Véhicules premium",
+            why3_desc: "Notre flotte se compose de Mercedes Classe E, BMW Série 5 et minibus de luxe. Tous les véhicules ont moins de 3 ans, sièges en cuir, climatisation, WiFi et eau minérale.",
+            why4_title: "Disponible 24/7",
+            why4_desc: "Que vous ayez besoin d'aller à l'aéroport à 4 heures du matin ou de revenir au milieu de la nuit – nous sommes là 24/7.",
+            parking_title: "Stationnement et transports en commun à Cologne Bonn",
+            parking_p1: "CGN propose diverses options de stationnement : P1 (courte durée, jusqu'à 24h) et P2 (longue durée). Les tarifs commencent à € 4,00 de l'heure et € 16 par jour. L'aéroport est bien desservi par le train via la gare 'Köln/Bonn Flughafen', avec des liaisons vers Cologne, Bonn et Francfort. Des lignes de bus relient l'aéroport aux villes environnantes.",
+            parking_p2: "Avec FleetConnect, vous choisissez le confort d'un transfert privé. Nous vous attendons, aidons avec les bagages et veillons à ce que vous soyez à l'heure sans stress.",
+            hotel_title: "Hôtels et centres d'affaires autour de Cologne Bonn",
+            hotel_p1: "Près de CGN, vous trouverez des hôtels tels que le Maritim Hotel Köln, le Hilton Cologne et l'Hôtel Bonn City. Ces hôtels proposent souvent des navettes, mais avec FleetConnect, vous bénéficiez d'un service luxueux et ponctuel.",
+            hotel_p2: "La région de Cologne/Bonn est un important centre économique avec de nombreuses entreprises internationales, l'Université de Cologne et Deutsche Telekom. FleetConnect est le partenaire idéal pour les entreprises. Nous proposons des prix fixes pour les trajets professionnels et pouvons facturer au nom de l'entreprise. Contactez-nous pour un devis.",
+            cta_title: "Prêt pour un trajet sans souci vers Cologne Bonn?",
+            cta_sub: "Réservez votre taxi en moins de 2 minutes. Prix fixe garanti.",
+            cta_btn: "<i class='fas fa-calendar-alt'></i> Réservez maintenant →",
+            contact_title: "<i class='fas fa-paper-plane'></i> Envoyez un message",
+            contact_name_label: "<i class='fas fa-user'></i> Votre nom *",
+            contact_email_label: "<i class='fas fa-envelope'></i> E-mail *",
+            contact_msg_label: "<i class='fas fa-comment'></i> Message *",
+            contact_send_btn: "<i class='fas fa-paper-plane'></i> Envoyer",
+            footer_tagline: "Transport professionnel en Belgique – Style, ponctualité et service.",
+            footer_digital: "FleetConnect | Digital",
+            footer_legal: "Juridique",
+            footer_partners: "Partenaires",
+            language_label: "Langue",
+            nav_home: "Accueil",
+            nav_exclusive: "Service exclusif",
+            nav_fixed_prices: "Prix fixes",
+            nav_premium_fleet: "Flotte premium",
+            nav_airport: "Transfert aéroport",
+            nav_business: "Transport d'affaires",
+            nav_events: "Événements & Gala",
+            nav_courier: "Service de messagerie",
+            nav_contact: "Contact",
+            nav_book: "Réservez maintenant",
+            login: "CONNEXION"
+        },
+        en: {
+            hero_title: "<i class='fas fa-plane-departure'></i> Taxi to Cologne Bonn Airport (CGN)",
+            hero_subtitle: "Fixed price | Flight monitoring | 24/7 available | Drivers NL/FR/EN/DE",
+            hero_btn: "<i class='fas fa-calendar-check'></i> Book your ride now",
+            intro_title: "Cologne Bonn Airport – the gateway to North Rhine-Westphalia",
+            intro_p1: "Cologne Bonn Airport (IATA: CGN) is the fifth largest airport in Germany, located in North Rhine-Westphalia, about 15 kilometres southeast of Cologne and 20 kilometres northeast of Bonn. The airport handles over 12 million passengers annually and is a major hub for Eurowings, Ryanair and other airlines. CGN offers a wide network of destinations in Europe, the Middle East and North Africa.",
+            intro_p2: "The terminal is modern and features spacious shops, restaurants, lounges and a fully equipped business centre. Parking is available in P1 (short-stay) and P2 (long-stay), with easy access to the A59 / A3 motorways. The airport is also connected to the rail network via 'Köln/Bonn Flughafen' station, with direct trains to Cologne, Bonn and beyond.",
+            intro_p3: "FleetConnect offers a comfortable and reliable transfer to and from CGN. The journey from Brussels to Cologne/Bonn takes about 2 hours and 15 minutes, depending on traffic. We offer fixed prices and ensure a stress-free ride, with flight monitoring and professional drivers.",
+            routes_title: "Fixed prices to Cologne Bonn",
+            route1_title: "Brussels-Centre → CGN",
+            route1_desc: "210 km · ±135 min · fixed price",
+            route2_title: "European Quarter → CGN",
+            route2_desc: "208 km · ±130 min · fixed price",
+            route3_title: "Avenue Louise → CGN",
+            route3_desc: "209 km · ±132 min",
+            route4_title: "Brussels-South (Midi) → CGN",
+            route4_desc: "212 km · ±140 min",
+            route5_title: "Leuven → CGN",
+            route5_desc: "195 km · ±125 min",
+            route6_title: "CGN → Other destination",
+            route6_desc: "On request · fixed price per km",
+            extra_title: "<i class='fas fa-concierge-bell'></i> Extra services around Cologne Bonn",
+            extra1: "Meet & Greet",
+            extra1_desc: "Our driver will meet you with a sign with your name, even if your flight is delayed.",
+            extra2: "Luggage assistance",
+            extra2_desc: "We carry your luggage – you travel stress-free.",
+            extra3: "Business travel",
+            extra3_desc: "Work on the go with free WiFi and a quiet, luxurious cabin.",
+            extra4: "Group transport",
+            extra4_desc: "Minivans up to 8 persons for families or business travellers.",
+            service1_title: "Flight monitoring",
+            service1_desc: "We track your flight to the minute.",
+            service2_title: "Business",
+            service2_desc: "Invoicing after the fact, VIP treatment.",
+            service3_title: "Families",
+            service3_desc: "Child seats on request.",
+            why_title: "Why FleetConnect for your transfer to CGN?",
+            why1_title: "Flight monitoring",
+            why1_desc: "We receive your flight number and track its status in real time. In case of delay, we wait for free.",
+            why2_title: "Fixed price, no surprises",
+            why2_desc: "You never pay more than the agreed price. No meter, no surcharges for luggage, night rides or weekends.",
+            why3_title: "Premium vehicles",
+            why3_desc: "Our fleet consists of Mercedes E-Class, BMW 5 Series and luxury minivans. All vehicles are less than 3 years old, with leather seats, air conditioning, WiFi and bottled water.",
+            why4_title: "24/7 available",
+            why4_desc: "Whether you need to go to the airport at 4 a.m. or return in the middle of the night – we are available 24/7.",
+            parking_title: "Parking and public transport at Cologne Bonn",
+            parking_p1: "CGN offers various parking options: P1 (short-stay, up to 24h) and P2 (long-stay). Rates start at € 4.00 per hour and € 16 per day. The airport is well connected by train via 'Köln/Bonn Flughafen' station, with connections to Cologne, Bonn and Frankfurt. Bus lines connect the airport to the surrounding cities.",
+            parking_p2: "With FleetConnect, you choose the convenience of a private transfer. We wait for you, help with luggage and ensure you arrive stress-free on time.",
+            hotel_title: "Hotels and business centres around Cologne Bonn",
+            hotel_p1: "Near CGN you will find hotels such as the Maritim Hotel Köln, Hilton Cologne, and Hotel Bonn City. These hotels often offer shuttles, but with FleetConnect you are assured of a luxurious and punctual service.",
+            hotel_p2: "The Cologne/Bonn region is an important economic centre with many international companies, the University of Cologne and Deutsche Telekom. FleetConnect is the ideal partner for companies. We offer fixed prices for business trips and can invoice on company name. Contact us for a quote.",
+            cta_title: "Ready for a worry-free ride to Cologne Bonn?",
+            cta_sub: "Book your taxi in less than 2 minutes. Fixed price guaranteed.",
+            cta_btn: "<i class='fas fa-calendar-alt'></i> Book now →",
+            contact_title: "<i class='fas fa-paper-plane'></i> Send a message",
+            contact_name_label: "<i class='fas fa-user'></i> Your name *",
+            contact_email_label: "<i class='fas fa-envelope'></i> Email *",
+            contact_msg_label: "<i class='fas fa-comment'></i> Message *",
+            contact_send_btn: "<i class='fas fa-paper-plane'></i> Send",
+            footer_tagline: "Professional transport in Belgium – Style, punctuality and service.",
+            footer_digital: "FleetConnect | Digital",
+            footer_legal: "Legal",
+            footer_partners: "Partners",
+            language_label: "Language",
+            nav_home: "Home",
+            nav_exclusive: "Exclusive service",
+            nav_fixed_prices: "Fixed prices",
+            nav_premium_fleet: "Premium fleet",
+            nav_airport: "Airport transfer",
+            nav_business: "Business transport",
+            nav_events: "Events & Gala",
+            nav_courier: "Courier service",
+            nav_contact: "Contact",
+            nav_book: "Book now",
+            login: "LOGIN"
+        }
+    };
+
+    // ===== TAAL & MENU (IDENTIEK AAN MASTRICHT) =====
+    let currentLang = 'nl';
+    function translatePage() {
+        const t = translations[currentLang];
+        if (!t) return;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key] !== undefined) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = t[key];
+                } else {
+                    el.innerHTML = t[key];
+                }
+            }
+        });
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+        });
+        document.documentElement.lang = currentLang;
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const lang = btn.getAttribute('data-lang');
+            if (lang && translations[lang]) {
+                currentLang = lang;
+                translatePage();
+            }
+        });
+    });
+    translatePage();
+
+    // Hamburger menu
+    document.addEventListener('DOMContentLoaded', function() {
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+        if (closeMenuBtn) {
+            closeMenuBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function(e) {
+                if (e.target === sidebarOverlay) {
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebarOverlay.classList.contains('active')) {
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        const verstuurBtn = document.getElementById('verstuurBerichtBtn');
+        if (verstuurBtn) {
+            verstuurBtn.addEventListener('click', function() {
+                alert(currentLang === 'nl' ? 'Bericht verzonden! Wij nemen zo snel mogelijk contact op.' : (currentLang === 'fr' ? 'Message envoyé ! Nous vous contacterons dès que possible.' : 'Message sent! We will contact you as soon as possible.'));
+            });
+        }
+    });
+</script>
+</body>
+</html>
