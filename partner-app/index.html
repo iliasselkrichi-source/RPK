@@ -279,6 +279,7 @@
         </div>
         <div class="top-actions">
           <select id="languageSelect" class="lang-select" aria-label="Language">
+            <option value="nl">NL</option>
             <option value="fr">FR</option>
             <option value="en">EN</option>
             <option value="es">ES</option>
@@ -420,6 +421,17 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const translations = {
+      nl: {
+        appName: 'FleetConnect Partner', appSubtitle: 'Mobiel ritbeheer', loginTab: 'Inloggen', registerTab: 'Account aanvragen', loginTitle: 'Partner login', loginText: 'Log in met uw FleetConnect chauffeur- of partneraccount.', registerTitle: 'Partner- / chauffeursaccount aanvragen', registerText: 'Verstuur uw aanvraag. FleetConnect valideert uw profiel voordat u toegang krijgt tot ritten.', email: 'E-mailadres', password: 'Wachtwoord', loginButton: 'Inloggen',
+        accountType: 'Accounttype', partnerCompany: 'Partnerbedrijf', driverAccount: 'Individuele chauffeur', fullName: 'Volledige naam', companyName: 'Bedrijfsnaam', phone: 'Telefoon', vehicleType: 'Voertuigtype', operatingArea: 'Werkgebied / regio', preferredLanguage: 'Voorkeurstaal', confirmPassword: 'Wachtwoord bevestigen', notesOptional: 'Optioneel bericht', submitRequest: 'Aanvraag versturen', requestSent: 'Uw aanvraag is verstuurd. FleetConnect neemt contact met u op na validatie.', passwordMismatch: 'De wachtwoorden komen niet overeen.', companyRequired: 'Bedrijfsnaam is verplicht voor een partneraccount.', requestFailed: 'De aanvraag kon niet worden verstuurd.',
+        install: 'App installeren', installHelp: 'Installeer FleetConnect Partner op uw smartphone voor snelle toegang.', iosInstall: 'Op iPhone: open Safari, tik op Delen en kies Zet op beginscherm.', loading: 'Ritten laden', assigned: 'Toegewezen', pending: 'In behandeling', active: 'Actief', completed: 'Voltooid', total: 'Totaal',
+        all: 'Alle', pendingTab: 'Te accepteren', activeTab: 'Actief', completedTab: 'Historiek', searchPlaceholder: 'Zoek rit, adres of passagier', noRides: 'Geen ritten beschikbaar', noRidesHint: 'Nieuwe toegewezen ritten verschijnen hier.',
+        pickup: 'Ophaaladres', destination: 'Bestemming', date: 'Datum', time: 'Tijd', passenger: 'Passagier', notes: 'Notities', driver: 'Chauffeur', partner: 'Partner', vehicle: 'Voertuig', plate: 'Kenteken', amount: 'Prijs',
+        call: 'Bellen', whatsapp: 'WhatsApp', navPickup: 'Navigatie ophaaladres', navDropoff: 'Navigatie bestemming', accept: 'Accepteren', decline: 'Weigeren', onWay: 'Onderweg', arrived: 'Aangekomen', finish: 'Voltooien', close: 'Sluiten',
+        status_assignment_sent: 'Te accepteren', status_assigned: 'Toegewezen', status_accepted: 'Geaccepteerd', status_completed: 'Voltooid', status_cancelled: 'Geannuleerd', status_reassignment_needed: 'Opnieuw toewijzen', status_pending: 'In behandeling',
+        progress_on_the_way: 'Onderweg', progress_arrived: 'Aangekomen', progress_completed: 'Voltooid', actionSuccess: 'Actie opgeslagen', authError: 'Inloggen geweigerd of geen gekoppeld chauffeur-/partnerprofiel gevonden.', actionError: 'Actie mislukt', confirmDecline: 'Deze rit weigeren?', confirmComplete: 'Deze rit als voltooid markeren?',
+        role_driver: 'Chauffeur', role_partner: 'Partner', role_driver_partner: 'Chauffeur / Partner', logout: 'Uitloggen'
+      },
       fr: {
         appName: 'FleetConnect Partner', appSubtitle: 'Gestion mobile des courses', loginTab: 'Connexion', registerTab: 'Créer un compte', loginTitle: 'Connexion partenaire', loginText: 'Connectez-vous avec votre compte chauffeur ou partenaire FleetConnect.', registerTitle: 'Créer un compte partenaire / chauffeur', registerText: 'Envoyez votre demande. FleetConnect validera votre profil avant tout accès aux courses.', email: 'Adresse e-mail', password: 'Mot de passe', loginButton: 'Se connecter',
         accountType: 'Type de compte', partnerCompany: 'Société partenaire', driverAccount: 'Chauffeur individuel', fullName: 'Nom complet', companyName: 'Nom de la société', phone: 'Téléphone', vehicleType: 'Type de véhicule', operatingArea: 'Zone / région', preferredLanguage: 'Langue préférée', confirmPassword: 'Confirmer le mot de passe', notesOptional: 'Message optionnel', submitRequest: 'Envoyer la demande', requestSent: 'Votre demande a été envoyée. FleetConnect vous contactera après validation.', passwordMismatch: 'Les mots de passe ne correspondent pas.', companyRequired: 'Le nom de la société est requis pour un compte partenaire.', requestFailed: 'La demande n’a pas pu être envoyée.',
@@ -467,7 +479,7 @@
     };
 
     const state = {
-      lang: localStorage.getItem('fc_partner_lang') || 'fr',
+      lang: localStorage.getItem('fc_partner_lang') || 'nl',
       context: null,
       rides: [],
       activeTab: 'all',
@@ -551,12 +563,13 @@
       if (langSelect) {
         const currentLang = langSelect.value || state.lang;
         langSelect.innerHTML = `
+          <option value="nl">Nederlands</option>
           <option value="fr">Français</option>
           <option value="en">English</option>
           <option value="es">Español</option>
           <option value="ar">العربية</option>
         `;
-        langSelect.value = ['fr', 'en', 'es', 'ar'].includes(currentLang) ? currentLang : state.lang;
+        langSelect.value = ['nl', 'fr', 'en', 'es', 'ar'].includes(currentLang) ? currentLang : state.lang;
       }
       updateCompanyRequirement();
     }
