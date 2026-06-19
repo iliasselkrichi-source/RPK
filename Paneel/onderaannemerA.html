@@ -164,7 +164,9 @@
         .orders-table td { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; }
         
         .action-btn { background: #2dd4bf; color: #0f172a; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.75rem; }
+        .approve-btn { background: #10b981 !important; color: #ffffff !important; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; }
         .delete-btn { background: #ef4444; color: white; margin-left: 8px; padding: 4px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.7rem; }
+        .account-request-actions { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; justify-content: flex-end; }
         .add-btn { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.8rem; margin-bottom: 16px; }
         .order-count { background: #2dd4bf20; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; color: #0f172a; }
         
@@ -257,6 +259,10 @@
             .sidebar:not(.collapsed) { width: 280px; }
             .sidebar.collapsed { width: 80px; }
             .content { padding: 16px; }
+            .account-request-actions { width: 100%; justify-content: stretch; }
+            .account-request-actions .approve-btn,
+            .account-request-actions .delete-btn,
+            .account-request-actions .action-btn { flex: 1 1 100%; margin-left: 0; min-height: 44px; }
             .header { padding: 16px; }
             .route-cell { max-width: 150px; }
         }
@@ -1026,11 +1032,11 @@
                                     ${t.accountRequestsProfile || 'Profiel'}: ${this.escapeHtml(metadata.partner_id || metadata.driver_id || r.customer_id || '-')} · ${t.accountRequestsAuthLinked || 'Auth'}: ${r.user_id ? (t.accountRequestsYes || 'ja') : (t.accountRequestsNo || 'nee')}
                                 </div>
                             </div>
-                            <div style="display:flex; gap:6px; align-items:flex-start; flex-wrap:wrap;">
+                            <div class="account-request-actions">
                                 <button class="action-btn" onclick="app.editAccountRequest('${r.id}')" title="Bewerken"><i class="fas fa-edit"></i> Bewerken</button>
                                 <button class="action-btn" onclick="app.showAccountRequestDetails('${r.id}')" title="Details"><i class="fas fa-eye"></i></button>
                                 ${r.status === 'pending' ? `
-                                    <button class="action-btn" onclick="app.approveAccountRequest('${r.id}')" style="background:var(--success); color:white;">${t.accountRequestsApprove}</button>
+                                    <button class="approve-btn" onclick="app.approveAccountRequest('${r.id}')"><i class="fas fa-check"></i> ${t.accountRequestsApprove || 'Goedkeuren'}</button>
                                     <button class="delete-btn" onclick="app.rejectAccountRequest('${r.id}')">${t.accountRequestsReject}</button>
                                 ` : ''}
                             </div>
@@ -1115,10 +1121,10 @@
                                 <div style="color:#475569; font-size:0.9rem;">${this.escapeHtml(r.email)} · ${this.escapeHtml(r.phone || '-')}${r.company ? ' · ' + this.escapeHtml(r.company) : ''}</div>
                                 <div style="color:#64748b; font-size:0.85rem; margin-top:6px;">Voertuig: ${this.escapeHtml(metadata.vehicle_type || '-')} · Regio: ${this.escapeHtml(metadata.operating_area || '-')}</div>
                             </div>
-                            <div style="display:flex; gap:6px; align-items:flex-start;">
+                            <div class="account-request-actions">
                                 <button class="action-btn" onclick="app.editAccountRequest('${r.id}')"><i class="fas fa-edit"></i></button>
                                 <button class="action-btn" onclick="app.showAccountRequestDetails('${r.id}')"><i class="fas fa-eye"></i></button>
-                                ${r.status === 'pending' ? `<button class="action-btn" onclick="app.approveAccountRequest('${r.id}')" style="background:var(--success); color:white;">Goedkeuren</button><button class="delete-btn" onclick="app.rejectAccountRequest('${r.id}')">Afwijzen</button>` : ''}
+                                ${r.status === 'pending' ? `<button class="approve-btn" onclick="app.approveAccountRequest('${r.id}')"><i class="fas fa-check"></i> Goedkeuren</button><button class="delete-btn" onclick="app.rejectAccountRequest('${r.id}')">Afwijzen</button>` : ''}
                             </div>
                         </div>
                     </div>`;
