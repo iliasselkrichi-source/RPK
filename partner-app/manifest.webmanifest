@@ -1,0 +1,19 @@
+{
+  "name": "FleetConnect Partner",
+  "short_name": "FC Partner",
+  "description": "FleetConnect mobile ride management for drivers and partner companies.",
+  "start_url": "/partner-app/",
+  "scope": "/partner-app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/partner-app/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FC Partner">
+  <title>FleetConnect Partner</title>
+  <link rel="manifest" href="/partner-app/manifest.webmanifest">
+  <link rel="icon" href="/partner-app/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/partner-app/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f6fb;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #dbe4f0;
+      --card: #ffffff;
+      --brand: #0f172a;
+      --accent: #2dd4bf;
+      --accent-ink: #042f2e;
+      --danger: #dc2626;
+      --warn: #b45309;
+      --ok: #047857;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+    button, input, textarea, select { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+    .hidden { display: none !important; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.98);
+      color: #fff;
+      padding: 14px 16px;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, .22);
+    }
+    .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 980px; margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: var(--accent); color: var(--brand); flex: 0 0 auto; }
+    .brand h1 { font-size: 1.05rem; line-height: 1.1; margin: 0; }
+    .brand p { margin: 2px 0 0; color: #cbd5e1; font-size: .78rem; }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .lang-select {
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      border-radius: 999px;
+      min-height: 40px;
+      padding: 0 10px;
+    }
+    .lang-select option { color: #0f172a; }
+    .icon-btn {
+      border: 0;
+      border-radius: 999px;
+      min-width: 42px;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: rgba(255,255,255,.10);
+      cursor: pointer;
+    }
+    .content { width: 100%; max-width: 980px; margin: 0 auto; padding: 18px 14px 90px; }
+    .auth-card, .panel, .ride-card, .detail-sheet {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .auth-wrap { min-height: calc(100vh - 72px); display: grid; place-items: center; padding: 22px 14px; }
+    .auth-card { width: 100%; max-width: 440px; padding: 24px; }
+    .auth-card h2 { margin: 0 0 8px; font-size: 1.45rem; }
+    .auth-card p { margin: 0 0 22px; color: var(--muted); line-height: 1.5; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; margin: 0 0 7px; color: #334155; font-weight: 700; font-size: .9rem; }
+    .field input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      min-height: 50px;
+      padding: 0 14px;
+      background: #f8fafc;
+      color: var(--ink);
+    }
+    .field input:focus { outline: 3px solid rgba(45, 212, 191, .25); border-color: #14b8a6; }
+    .primary-btn, .secondary-btn, .danger-btn, .ghost-btn {
+      border: 0;
+      border-radius: 14px;
+      min-height: 50px;
+      padding: 0 16px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .primary-btn { background: var(--accent); color: var(--accent-ink); }
+    .secondary-btn { background: #e0f2fe; color: #075985; }
+    .danger-btn { background: #fee2e2; color: #991b1b; }
+    .ghost-btn { background: #f1f5f9; color: var(--ink); }
+    .full { width: 100%; }
+    .muted { color: var(--muted); }
+    .error, .notice {
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: .9rem;
+      line-height: 1.4;
+      margin-top: 14px;
+    }
+    .error { background: #fee2e2; color: #991b1b; }
+    .notice { background: #ecfeff; color: #155e75; }
+    .identity { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+    .identity-main { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; border-radius: 18px; padding: 18px; }
+    .identity-main h2 { margin: 0 0 6px; font-size: 1.35rem; }
+    .identity-main p { margin: 0; color: #cbd5e1; }
+    .install-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
+    .stat { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+    .stat strong { display: block; font-size: 1.25rem; }
+    .stat span { display: block; font-size: .74rem; color: var(--muted); margin-top: 2px; }
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .tab.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .toolbar input {
+      flex: 1;
+      min-width: 0;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 14px;
+      background: #fff;
+    }
+    .ride-list { display: grid; gap: 12px; }
+    .ride-card { padding: 14px; cursor: pointer; }
+    .ride-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .ride-id { font-weight: 900; letter-spacing: .01em; }
+    .ride-time { color: var(--muted); font-size: .85rem; margin-top: 3px; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-weight: 900;
+      font-size: .72rem;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .status.assignment_sent, .status.pending { background: #fef3c7; color: #92400e; }
+    .status.assigned { background: #dbeafe; color: #1d4ed8; }
+    .status.accepted { background: #ede9fe; color: #6d28d9; }
+    .status.completed { background: #d1fae5; color: #065f46; }
+    .status.cancelled, .status.reassignment_needed { background: #fee2e2; color: #991b1b; }
+    .route { display: grid; gap: 8px; margin: 10px 0; }
+    .route-line { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; color: #1f2937; }
+    .route-line i { color: #0f766e; margin-top: 2px; }
+    .ride-meta { display: flex; gap: 8px; flex-wrap: wrap; color: var(--muted); font-size: .85rem; }
+    .empty { text-align: center; color: var(--muted); background: #fff; border: 1px dashed var(--line); border-radius: 18px; padding: 28px 16px; }
+    .empty i { font-size: 2rem; color: #94a3b8; margin-bottom: 8px; }
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 18;
+      background: rgba(255,255,255,.96);
+      border-top: 1px solid var(--line);
+      padding: 8px max(10px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-right));
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      backdrop-filter: blur(16px);
+    }
+    .bottom-nav button { flex: 1; max-width: 170px; border: 0; background: transparent; border-radius: 14px; min-height: 52px; color: var(--muted); font-weight: 800; }
+    .bottom-nav button.active { background: #e6fffb; color: #0f766e; }
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(15, 23, 42, .55);
+      display: flex;
+      align-items: flex-end;
+    }
+    .detail-sheet {
+      width: 100%;
+      max-width: 980px;
+      max-height: min(92vh, 820px);
+      overflow: auto;
+      margin: 0 auto;
+      border-radius: 24px 24px 0 0;
+      padding: 18px;
+    }
+    .sheet-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .sheet-title h2 { margin: 0; font-size: 1.25rem; }
+    .grid { display: grid; gap: 10px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+    .info-box { border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: #f8fafc; }
+    .info-box span { display: block; color: var(--muted); font-size: .76rem; font-weight: 800; text-transform: uppercase; }
+    .info-box strong { display: block; margin-top: 4px; overflow-wrap: anywhere; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .actions .wide { grid-column: 1 / -1; }
+    .link-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+    .loading { display: grid; place-items: center; min-height: 220px; color: var(--muted); gap: 10px; }
+    .spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    [dir="rtl"] body { text-align: right; }
+    [dir="rtl"] .route-line { grid-template-columns: 1fr 22px; }
+    [dir="rtl"] .route-line i { grid-column: 2; }
+    [dir="rtl"] .route-line span { grid-column: 1; grid-row: 1; }
+    @media (min-width: 760px) {
+      .identity { grid-template-columns: 2fr 1fr; }
+      .stats { grid-template-columns: repeat(5, 1fr); }
+      .ride-list { grid-template-columns: repeat(2, 1fr); }
+      .detail-sheet { border-radius: 24px; margin-bottom: 26px; }
+    }
+    @media (max-width: 420px) {
+      .content { padding-left: 10px; padding-right: 10px; }
+      .topbar { padding-left: 10px; padding-right: 10px; }
+      .brand h1 { font-size: .98rem; }
+      .info-grid { grid-template-columns: 1fr; }
+      .actions, .link-actions { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark"><i class="fas fa-taxi"></i></div>
+          <div>
+            <h1 data-i18n="appName"></h1>
+            <p data-i18n="appSubtitle"></p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <select id="languageSelect" class="lang-select" aria-label="Language">
+            <option value="fr">FR</option>
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+            <option value="ar">AR</option>
+          </select>
+          <button id="refreshBtn" class="icon-btn hidden" type="button" aria-label="Refresh"><i class="fas fa-rotate"></i></button>
+          <button id="logoutBtn" class="icon-btn hidden" type="button" aria-label="Logout"><i class="fas fa-right-from-bracket"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <main id="authView" class="auth-wrap">
+      <section class="auth-card">
+        <h2 data-i18n="loginTitle"></h2>
+        <p data-i18n="loginText"></p>
+        <form id="loginForm">
+          <div class="field">
+            <label for="email" data-i18n="email"></label>
+            <input id="email" type="email" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label for="password" data-i18n="password"></label>
+            <input id="password" type="password" autocomplete="current-password" required>
+          </div>
+          <button id="loginBtn" class="primary-btn full" type="submit"><i class="fas fa-lock"></i><span data-i18n="loginButton"></span></button>
+        </form>
+        <div id="authError" class="error hidden"></div>
+      </section>
+    </main>
+
+    <main id="appView" class="content hidden">
+      <section class="identity">
+        <div class="identity-main">
+          <h2 id="profileName"></h2>
+          <p id="profileDetails"></p>
+          <div class="install-row">
+            <button id="installBtn" class="secondary-btn hidden" type="button"><i class="fas fa-mobile-screen-button"></i><span data-i18n="install"></span></button>
+            <span id="iosInstallHint" class="notice hidden" data-i18n="iosInstall"></span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="stats">
+            <div class="stat"><strong id="statAssigned">0</strong><span data-i18n="assigned"></span></div>
+            <div class="stat"><strong id="statPending">0</strong><span data-i18n="pending"></span></div>
+            <div class="stat"><strong id="statActive">0</strong><span data-i18n="active"></span></div>
+            <div class="stat"><strong id="statCompleted">0</strong><span data-i18n="completed"></span></div>
+            <div class="stat"><strong id="statTotal">0</strong><span data-i18n="total"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="tabs" id="tabs"></nav>
+      <div class="toolbar">
+        <input id="searchInput" type="search" autocomplete="off">
+        <button id="reloadListBtn" class="ghost-btn" type="button"><i class="fas fa-rotate"></i></button>
+      </div>
+      <section id="loadingState" class="loading hidden"><i class="fas fa-circle-notch spinner"></i><span data-i18n="loading"></span></section>
+      <section id="rideList" class="ride-list"></section>
+    </main>
+
+    <nav id="bottomNav" class="bottom-nav hidden"></nav>
+  </div>
+
+  <div id="detailBackdrop" class="sheet-backdrop hidden" role="dialog" aria-modal="true">
+    <section class="detail-sheet">
+      <div class="sheet-title">
+        <div>
+          <h2 id="detailTitle"></h2>
+          <div id="detailStatus"></div>
+        </div>
+        <button id="closeDetailBtn" class="icon-btn" type="button" style="background:#f1f5f9;color:#0f172a;"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div id="detailBody"></div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const translations = {
+      fr: {
+        appName: 'FleetConnect Partner', appSubtitle: 'Gestion mobile des courses', loginTitle: 'Connexion partenaire', loginText: 'Connectez-vous avec votre compte chauffeur ou partenaire FleetConnect.', email: 'Adresse e-mail', password: 'Mot de passe', loginButton: 'Se connecter',
+        install: 'Installer', iosInstall: 'Sur iPhone: utilisez Partager puis Ajouter à l’écran d’accueil.', loading: 'Chargement des courses', assigned: 'Assignées', pending: 'En attente', active: 'Actives', completed: 'Terminées', total: 'Total',
+        all: 'Toutes', pendingTab: 'À accepter', activeTab: 'Actives', completedTab: 'Historique', searchPlaceholder: 'Rechercher une course, adresse ou client', noRides: 'Aucune course disponible', noRidesHint: 'Les nouvelles courses assignées apparaîtront ici.',
+        pickup: 'Départ', destination: 'Destination', date: 'Date', time: 'Heure', passenger: 'Passager', phone: 'Téléphone', notes: 'Notes', driver: 'Chauffeur', partner: 'Partenaire', vehicle: 'Véhicule', plate: 'Plaque', amount: 'Prix',
+        call: 'Appeler', whatsapp: 'WhatsApp', navPickup: 'Itinéraire départ', navDropoff: 'Itinéraire destination', accept: 'Accepter', decline: 'Refuser', onWay: 'En route', arrived: 'Arrivé', finish: 'Terminer', close: 'Fermer',
+        status_assignment_sent: 'À accepter', status_assigned: 'Assignée', status_accepted: 'Acceptée', status_completed: 'Terminée', status_cancelled: 'Annulée', status_reassignment_needed: 'Réaffectation', status_pending: 'En attente',
+        progress_on_the_way: 'En route', progress_arrived: 'Arrivé', progress_completed: 'Terminée', actionSuccess: 'Action enregistrée', authError: 'Connexion refusée ou profil chauffeur/partenaire non lié.', actionError: 'Action impossible', confirmDecline: 'Refuser cette course ?', confirmComplete: 'Marquer cette course comme terminée ?',
+        role_driver: 'Chauffeur', role_partner: 'Partenaire', role_driver_partner: 'Chauffeur / Partenaire', logout: 'Déconnexion'
+      },
+      en: {
+        appName: 'FleetConnect Partner', appSubtitle: 'Mobile ride management', loginTitle: 'Partner sign in', loginText: 'Sign in with your FleetConnect driver or partner account.', email: 'Email address', password: 'Password', loginButton: 'Sign in',
+        install: 'Install', iosInstall: 'On iPhone: use Share, then Add to Home Screen.', loading: 'Loading rides', assigned: 'Assigned', pending: 'Pending', active: 'Active', completed: 'Completed', total: 'Total',
+        all: 'All', pendingTab: 'To accept', activeTab: 'Active', completedTab: 'History', searchPlaceholder: 'Search ride, address or passenger', noRides: 'No rides available', noRidesHint: 'New assigned rides will appear here.',
+        pickup: 'Pickup', destination: 'Destination', date: 'Date', time: 'Time', passenger: 'Passenger', phone: 'Phone', notes: 'Notes', driver: 'Driver', partner: 'Partner', vehicle: 'Vehicle', plate: 'Plate', amount: 'Price',
+        call: 'Call', whatsapp: 'WhatsApp', navPickup: 'Navigate pickup', navDropoff: 'Navigate destination', accept: 'Accept', decline: 'Decline', onWay: 'On the way', arrived: 'Arrived', finish: 'Complete', close: 'Close',
+        status_assignment_sent: 'To accept', status_assigned: 'Assigned', status_accepted: 'Accepted', status_completed: 'Completed', status_cancelled: 'Cancelled', status_reassignment_needed: 'Reassignment', status_pending: 'Pending',
+        progress_on_the_way: 'On the way', progress_arrived: 'Arrived', progress_completed: 'Completed', actionSuccess: 'Action saved', authError: 'Sign in failed or no linked driver/partner profile was found.', actionError: 'Action failed', confirmDecline: 'Decline this ride?', confirmComplete: 'Mark this ride completed?',
+        role_driver: 'Driver', role_partner: 'Partner', role_driver_partner: 'Driver / Partner', logout: 'Sign out'
+      },
+      es: {
+        appName: 'FleetConnect Partner', appSubtitle: 'Gestión móvil de viajes', loginTitle: 'Acceso de socio', loginText: 'Inicie sesión con su cuenta de conductor o socio FleetConnect.', email: 'Correo electrónico', password: 'Contraseña', loginButton: 'Iniciar sesión',
+        install: 'Instalar', iosInstall: 'En iPhone: use Compartir y Añadir a pantalla de inicio.', loading: 'Cargando viajes', assigned: 'Asignados', pending: 'Pendientes', active: 'Activos', completed: 'Completados', total: 'Total',
+        all: 'Todos', pendingTab: 'Por aceptar', activeTab: 'Activos', completedTab: 'Historial', searchPlaceholder: 'Buscar viaje, dirección o pasajero', noRides: 'No hay viajes disponibles', noRidesHint: 'Los nuevos viajes asignados aparecerán aquí.',
+        pickup: 'Recogida', destination: 'Destino', date: 'Fecha', time: 'Hora', passenger: 'Pasajero', phone: 'Teléfono', notes: 'Notas', driver: 'Conductor', partner: 'Socio', vehicle: 'Vehículo', plate: 'Matrícula', amount: 'Precio',
+        call: 'Llamar', whatsapp: 'WhatsApp', navPickup: 'Ruta a recogida', navDropoff: 'Ruta a destino', accept: 'Aceptar', decline: 'Rechazar', onWay: 'En camino', arrived: 'Llegué', finish: 'Completar', close: 'Cerrar',
+        status_assignment_sent: 'Por aceptar', status_assigned: 'Asignado', status_accepted: 'Aceptado', status_completed: 'Completado', status_cancelled: 'Cancelado', status_reassignment_needed: 'Reasignación', status_pending: 'Pendiente',
+        progress_on_the_way: 'En camino', progress_arrived: 'Llegué', progress_completed: 'Completado', actionSuccess: 'Acción guardada', authError: 'Acceso rechazado o perfil de conductor/socio no vinculado.', actionError: 'Acción fallida', confirmDecline: '¿Rechazar este viaje?', confirmComplete: '¿Marcar este viaje como completado?',
+        role_driver: 'Conductor', role_partner: 'Socio', role_driver_partner: 'Conductor / Socio', logout: 'Cerrar sesión'
+      },
+      ar: {
+        appName: 'FleetConnect Partner', appSubtitle: 'إدارة الرحلات عبر الهاتف', loginTitle: 'تسجيل دخول الشريك', loginText: 'سجّل الدخول بحساب سائق أو شريك FleetConnect.', email: 'البريد الإلكتروني', password: 'كلمة المرور', loginButton: 'تسجيل الدخول',
+        install: 'تثبيت', iosInstall: 'على iPhone: استخدم مشاركة ثم إضافة إلى الشاشة الرئيسية.', loading: 'جار تحميل الرحلات', assigned: 'مخصصة', pending: 'قيد الانتظار', active: 'نشطة', completed: 'مكتملة', total: 'الإجمالي',
+        all: 'الكل', pendingTab: 'للقبول', activeTab: 'نشطة', completedTab: 'السجل', searchPlaceholder: 'ابحث عن رحلة أو عنوان أو راكب', noRides: 'لا توجد رحلات متاحة', noRidesHint: 'ستظهر الرحلات الجديدة المخصصة هنا.',
+        pickup: 'نقطة الانطلاق', destination: 'الوجهة', date: 'التاريخ', time: 'الوقت', passenger: 'الراكب', phone: 'الهاتف', notes: 'ملاحظات', driver: 'السائق', partner: 'الشريك', vehicle: 'المركبة', plate: 'اللوحة', amount: 'السعر',
+        call: 'اتصال', whatsapp: 'واتساب', navPickup: 'الملاحة إلى الانطلاق', navDropoff: 'الملاحة إلى الوجهة', accept: 'قبول', decline: 'رفض', onWay: 'في الطريق', arrived: 'وصلت', finish: 'إنهاء', close: 'إغلاق',
+        status_assignment_sent: 'للقبول', status_assigned: 'مخصصة', status_accepted: 'مقبولة', status_completed: 'مكتملة', status_cancelled: 'ملغاة', status_reassignment_needed: 'إعادة تخصيص', status_pending: 'قيد الانتظار',
+        progress_on_the_way: 'في الطريق', progress_arrived: 'وصلت', progress_completed: 'مكتملة', actionSuccess: 'تم حفظ الإجراء', authError: 'فشل الدخول أو لا يوجد ملف سائق/شريك مرتبط.', actionError: 'تعذر تنفيذ الإجراء', confirmDecline: 'رفض هذه الرحلة؟', confirmComplete: 'وضع الرحلة كمكتملة؟',
+        role_driver: 'سائق', role_partner: 'شريك', role_driver_partner: 'سائق / شريك', logout: 'تسجيل الخروج'
+      }
+    };
+
+    const state = {
+      lang: localStorage.getItem('fc_partner_lang') || 'fr',
+      context: null,
+      rides: [],
+      activeTab: 'all',
+      selectedRide: null,
+      deferredInstallPrompt: null
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const t = (key) => translations[state.lang][key] || translations.fr[key] || key;
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const phoneHref = (phone) => phone ? `tel:${String(phone).replace(/[^+\d]/g, '')}` : null;
+    const whatsappHref = (phone) => phone ? `https://wa.me/${String(phone).replace(/[^\d]/g, '')}` : null;
+    const mapsHref = (address) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || '')}`;
+
+    function applyLanguage() {
+      document.documentElement.lang = state.lang;
+      document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr';
+      $('languageSelect').value = state.lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+      $('searchInput').placeholder = t('searchPlaceholder');
+      $('logoutBtn').title = t('logout');
+      renderTabs();
+      renderBottomNav();
+      renderRides();
+      if (state.selectedRide) renderDetail(state.selectedRide);
+    }
+
+    function showAuth(show) {
+      $('authView').classList.toggle('hidden', !show);
+      $('appView').classList.toggle('hidden', show);
+      $('bottomNav').classList.toggle('hidden', show);
+      $('logoutBtn').classList.toggle('hidden', show);
+      $('refreshBtn').classList.toggle('hidden', show);
+    }
+
+    function setBusy(busy) {
+      $('loadingState').classList.toggle('hidden', !busy);
+      $('rideList').classList.toggle('hidden', busy);
+    }
+
+    function showAuthError(message) {
+      $('authError').textContent = message;
+      $('authError').classList.remove('hidden');
+    }
+
+    async function login(email, password) {
+      $('authError').classList.add('hidden');
+      $('loginBtn').disabled = true;
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        await loadApp();
+      } catch (err) {
+        await supabase.auth.signOut();
+        showAuthError(t('authError'));
+      } finally {
+        $('loginBtn').disabled = false;
+      }
+    }
+
+    async function loadApp() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) {
+        showAuth(true);
+        return;
+      }
+      showAuth(false);
+      setBusy(true);
+      try {
+        const { data, error } = await supabase.rpc('partner_pwa_rides');
+        if (error) throw error;
+        state.context = data?.context || null;
+        state.rides = Array.isArray(data?.rides) ? data.rides : [];
+        renderProfile();
+        renderStats();
+        renderTabs();
+        renderBottomNav();
+        renderRides();
+      } catch (err) {
+        showAuth(true);
+        showAuthError(err.message || t('authError'));
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function renderProfile() {
+      const ctx = state.context || {};
+      const driver = ctx.driver;
+      const partner = ctx.partner;
+      $('profileName').textContent = driver?.name || partner?.name || ctx.email || 'FleetConnect';
+      const roleKey = `role_${ctx.role || 'partner'}`;
+      const details = [t(roleKey), driver?.vehicle, driver?.license_plate, partner?.name].filter(Boolean).join(' · ');
+      $('profileDetails').textContent = details || ctx.email || '';
+    }
+
+    function isPendingRide(ride) {
+      return ride.status === 'assignment_sent' || ride.status === 'accepted' || ride.status === 'reassignment_needed';
+    }
+    function isActiveRide(ride) {
+      return ride.status === 'assigned';
+    }
+    function isCompletedRide(ride) {
+      return ride.status === 'completed' || ride.status === 'cancelled';
+    }
+
+    function renderStats() {
+      const assigned = state.rides.filter(r => r.status === 'assigned').length;
+      const pending = state.rides.filter(isPendingRide).length;
+      const completed = state.rides.filter(isCompletedRide).length;
+      $('statAssigned').textContent = assigned;
+      $('statPending').textContent = pending;
+      $('statActive').textContent = assigned;
+      $('statCompleted').textContent = completed;
+      $('statTotal').textContent = state.rides.length;
+    }
+
+    function tabs() {
+      return [
+        { id: 'all', label: t('all'), icon: 'fa-list' },
+        { id: 'pending', label: t('pendingTab'), icon: 'fa-clock' },
+        { id: 'active', label: t('activeTab'), icon: 'fa-route' },
+        { id: 'completed', label: t('completedTab'), icon: 'fa-check' }
+      ];
+    }
+
+    function renderTabs() {
+      $('tabs').innerHTML = tabs().map(tab => `<button class="tab ${state.activeTab === tab.id ? 'active' : ''}" data-tab="${tab.id}" type="button"><i class="fas ${tab.icon}"></i> ${escapeHtml(tab.label)}</button>`).join('');
+      document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
+        state.activeTab = btn.dataset.tab;
+        renderTabs();
+        renderBottomNav();
+        renderRides();
+      }));
+    }
+
+    function renderBottomNav() {
+      $('bottomNav').innerHTML = tabs().slice(0, 4).map(tab => `<button class="${state.activeTab === tab.id ? 'active' : ''}" data-tab="${tab.id}" type="button"><i class="fas ${tab.icon}"></i><br>${escapeHtml(tab.label)}</button>`).join('');
+      $('bottomNav').querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+        state.activeTab = btn.dataset.tab;
+        renderTabs();
+        renderBottomNav();
+        renderRides();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }));
+    }
+
+    function filteredRides() {
+      const q = $('searchInput').value.trim().toLowerCase();
+      return state.rides.filter(ride => {
+        const tabOk =
+          state.activeTab === 'all' ||
+          (state.activeTab === 'pending' && isPendingRide(ride)) ||
+          (state.activeTab === 'active' && isActiveRide(ride)) ||
+          (state.activeTab === 'completed' && isCompletedRide(ride));
+        if (!tabOk) return false;
+        if (!q) return true;
+        return [ride.id, ride.pickup, ride.destination, ride.name, ride.email, ride.phone, ride.status].some(v => String(v || '').toLowerCase().includes(q));
+      });
+    }
+
+    function statusLabel(status) {
+      return t(`status_${status}`) || status;
+    }
+
+    function rideDateTime(ride) {
+      return [ride.datetime || ride.date, ride.time].filter(Boolean).join(' · ') || '-';
+    }
+
+    function renderRides() {
+      if ($('appView').classList.contains('hidden')) return;
+      const rides = filteredRides();
+      renderStats();
+      if (!rides.length) {
+        $('rideList').innerHTML = `<div class="empty"><i class="fas fa-calendar-xmark"></i><h3>${escapeHtml(t('noRides'))}</h3><p>${escapeHtml(t('noRidesHint'))}</p></div>`;
+        return;
+      }
+      $('rideList').innerHTML = rides.map(ride => {
+        const progress = ride.metadata?.driver_progress_state ? `<span>${escapeHtml(t(`progress_${ride.metadata.driver_progress_state}`) || ride.metadata.driver_progress_state)}</span>` : '';
+        return `<article class="ride-card" data-id="${escapeHtml(ride.id)}">
+          <div class="ride-head">
+            <div><div class="ride-id">${escapeHtml(ride.id)}</div><div class="ride-time">${escapeHtml(rideDateTime(ride))}</div></div>
+            <span class="status ${escapeHtml(ride.status || 'pending')}">${escapeHtml(statusLabel(ride.status || 'pending'))}</span>
+          </div>
+          <div class="route">
+            <div class="route-line"><i class="fas fa-location-dot"></i><span>${escapeHtml(ride.pickup || '-')}</span></div>
+            <div class="route-line"><i class="fas fa-flag-checkered"></i><span>${escapeHtml(ride.destination || '-')}</span></div>
+          </div>
+          <div class="ride-meta">
+            <span><i class="fas fa-user"></i> ${escapeHtml(ride.name || '-')}</span>
+            ${progress}
+          </div>
+        </article>`;
+      }).join('');
+      $('rideList').querySelectorAll('.ride-card').forEach(card => card.addEventListener('click', () => {
+        const ride = state.rides.find(r => r.id === card.dataset.id);
+        if (ride) openDetail(ride);
+      }));
+    }
+
+    function openDetail(ride) {
+      state.selectedRide = ride;
+      renderDetail(ride);
+      $('detailBackdrop').classList.remove('hidden');
+    }
+
+    function renderDetail(ride) {
+      $('detailTitle').textContent = ride.id;
+      $('detailStatus').innerHTML = `<span class="status ${escapeHtml(ride.status || 'pending')}">${escapeHtml(statusLabel(ride.status || 'pending'))}</span>`;
+      const passengerPhone = ride.phone || ride.passenger?.phone;
+      const canAct = Boolean(ride.pwa_driver_can_act);
+      const canAcceptDecline = canAct && ride.status === 'assignment_sent';
+      const canProgress = canAct && ride.status === 'assigned';
+      const progressState = ride.metadata?.driver_progress_state;
+      const notes = ride.notes || ride.comment || ride.comments || ride.metadata?.notes || ride.form_data?.notes || '';
+      const call = phoneHref(passengerPhone);
+      const whatsapp = whatsappHref(passengerPhone);
+
+      $('detailBody').innerHTML = `
+        <div class="route">
+          <div class="route-line"><i class="fas fa-location-dot"></i><span>${escapeHtml(ride.pickup || '-')}</span></div>
+          <div class="route-line"><i class="fas fa-flag-checkered"></i><span>${escapeHtml(ride.destination || '-')}</span></div>
+        </div>
+        <div class="info-grid">
+          ${infoBox(t('date'), ride.datetime || ride.date || '-')}
+          ${infoBox(t('time'), ride.time || '-')}
+          ${infoBox(t('passenger'), ride.name || '-')}
+          ${infoBox(t('phone'), passengerPhone || '-')}
+          ${infoBox(t('vehicle'), ride.vehicle || ride.driver?.vehicle || '-')}
+          ${infoBox(t('plate'), ride.driver?.license_plate || ride.assigned_driver?.license_plate || '-')}
+          ${infoBox(t('driver'), ride.driver?.name || ride.assigned_driver?.name || '-')}
+          ${infoBox(t('amount'), ride.amount ? `EUR ${Number(ride.amount).toFixed(2)}` : '-')}
+        </div>
+        ${notes ? `<div class="info-box"><span>${escapeHtml(t('notes'))}</span><strong>${escapeHtml(notes)}</strong></div>` : ''}
+        ${progressState ? `<div class="notice">${escapeHtml(t(`progress_${progressState}`) || progressState)}</div>` : ''}
+        <div class="link-actions">
+          ${call ? `<a class="secondary-btn" href="${call}"><i class="fas fa-phone"></i>${escapeHtml(t('call'))}</a>` : `<button class="secondary-btn" disabled><i class="fas fa-phone"></i>${escapeHtml(t('call'))}</button>`}
+          ${whatsapp ? `<a class="secondary-btn" href="${whatsapp}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i>${escapeHtml(t('whatsapp'))}</a>` : `<button class="secondary-btn" disabled><i class="fab fa-whatsapp"></i>${escapeHtml(t('whatsapp'))}</button>`}
+          <a class="ghost-btn" href="${mapsHref(ride.pickup)}" target="_blank" rel="noopener"><i class="fas fa-map-location-dot"></i>${escapeHtml(t('navPickup'))}</a>
+          <a class="ghost-btn" href="${mapsHref(ride.destination)}" target="_blank" rel="noopener"><i class="fas fa-map-pin"></i>${escapeHtml(t('navDropoff'))}</a>
+        </div>
+        <div class="actions">
+          ${canAcceptDecline ? `<button class="primary-btn" data-action="accept"><i class="fas fa-check"></i>${escapeHtml(t('accept'))}</button><button class="danger-btn" data-action="decline"><i class="fas fa-xmark"></i>${escapeHtml(t('decline'))}</button>` : ''}
+          ${canProgress ? `<button class="secondary-btn" data-action="on_the_way"><i class="fas fa-car-side"></i>${escapeHtml(t('onWay'))}</button><button class="secondary-btn" data-action="arrived"><i class="fas fa-location-check"></i>${escapeHtml(t('arrived'))}</button><button class="primary-btn wide" data-action="completed"><i class="fas fa-circle-check"></i>${escapeHtml(t('finish'))}</button>` : ''}
+          <button class="ghost-btn wide" data-action="close">${escapeHtml(t('close'))}</button>
+        </div>
+      `;
+      $('detailBody').querySelectorAll('[data-action]').forEach(btn => btn.addEventListener('click', () => handleRideAction(btn.dataset.action, ride)));
+    }
+
+    function infoBox(label, value) {
+      return `<div class="info-box"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
+    }
+
+    async function handleRideAction(action, ride) {
+      if (action === 'close') {
+        closeDetail();
+        return;
+      }
+      if (action === 'decline' && !confirm(t('confirmDecline'))) return;
+      if (action === 'completed' && !confirm(t('confirmComplete'))) return;
+
+      try {
+        let rpc;
+        let params;
+        if (action === 'accept') {
+          rpc = 'partner_pwa_accept_ride';
+          params = { p_booking_id: ride.id };
+        } else if (action === 'decline') {
+          rpc = 'partner_pwa_decline_ride';
+          params = { p_booking_id: ride.id };
+        } else {
+          rpc = 'partner_pwa_update_ride_progress';
+          params = { p_booking_id: ride.id, p_action: action };
+        }
+        const { error } = await supabase.rpc(rpc, params);
+        if (error) throw error;
+        await loadApp();
+        const updated = state.rides.find(r => r.id === ride.id);
+        if (updated) openDetail(updated); else closeDetail();
+      } catch (err) {
+        alert(`${t('actionError')}: ${err.message}`);
+      }
+    }
+
+    function closeDetail() {
+      state.selectedRide = null;
+      $('detailBackdrop').classList.add('hidden');
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      state.deferredInstallPrompt = event;
+      $('installBtn').classList.remove('hidden');
+    });
+
+    async function installApp() {
+      if (!state.deferredInstallPrompt) return;
+      state.deferredInstallPrompt.prompt();
+      await state.deferredInstallPrompt.userChoice;
+      state.deferredInstallPrompt = null;
+      $('installBtn').classList.add('hidden');
+    }
+
+    function setupIosHint() {
+      const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      const standalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+      $('iosInstallHint').classList.toggle('hidden', !(isIos && !standalone));
+    }
+
+    $('languageSelect').addEventListener('change', () => {
+      state.lang = $('languageSelect').value;
+      localStorage.setItem('fc_partner_lang', state.lang);
+      applyLanguage();
+    });
+    $('loginForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      login($('email').value.trim(), $('password').value);
+    });
+    $('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      state.context = null;
+      state.rides = [];
+      showAuth(true);
+    });
+    $('refreshBtn').addEventListener('click', loadApp);
+    $('reloadListBtn').addEventListener('click', loadApp);
+    $('searchInput').addEventListener('input', renderRides);
+    $('closeDetailBtn').addEventListener('click', closeDetail);
+    $('detailBackdrop').addEventListener('click', (event) => { if (event.target === $('detailBackdrop')) closeDetail(); });
+    $('installBtn').addEventListener('click', installApp);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/partner-app/service-worker.js').catch(() => {});
+    }
+
+    setupIosHint();
+    applyLanguage();
+    loadApp();
+  </script>
+</body>
+</html>
