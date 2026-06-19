@@ -1370,10 +1370,51 @@
             async deleteDriver(driverId) { let t = translations[currentLang]; const activeRides = this.allBookings.filter(b => String(b.assigned_driver_id) === String(driverId) && !['completed','cancelled','declined'].includes(b.status)); if (activeRides.length) { alert('Deze chauffeur heeft actieve ritten en kan niet worden gearchiveerd voordat ze opnieuw toegewezen zijn:\\n\\n' + activeRides.map(b => `${b.id} - ${b.datetime} ${b.time || ''} - ${this.getFullRoute(b.pickup, b.destination)}`).join('\\n')); return; } if (!confirm(t.btnArchive + '?')) return; const { error } = await supabase.rpc('archive_operator_driver', { p_driver_id: driverId }); if (error) { this.showToast(`${t.toastError} ${t.btnArchive}: ` + error.message, true); return; } this.showToast(`${t.btnArchive}: OK`); await this.loadDrivers(); if (this.currentTab === 'drivers') this.renderDrivers(); if (this.currentTab === 'partners') this.renderPartners(); },
             async reactivateDriver(driverId) { const { error } = await supabase.rpc('reactivate_operator_driver', { p_driver_id: driverId }); if (error) { this.showToast('Heractiveren mislukt: ' + error.message, true); return; } this.showToast('Chauffeur heractief'); await this.loadDrivers(); if (this.currentTab === 'drivers') this.renderDrivers(); },
             async archiveCustomer(customerId) { if (!confirm('Klant archiveren? Boekingen en historiek blijven behouden.')) return; const reason = prompt('Reden voor archivering (optioneel):') || ''; const { error } = await supabase.rpc('archive_operator_customer', { p_customer_id: customerId, p_reason: reason }); if (error) { this.showToast('Klant archiveren mislukt: ' + error.message, true); return; } this.showToast('Klant gearchiveerd'); await this.refreshAllData(true); this.renderCustomers(); },
-            async deletePartner(partnerId) { let t = translations[currentLang]; if (!confirm(t.confirmDelete)) return; const { error } = await supabase.from('partners').delete().eq('id', partnerId); if (error) { this.showToast(`${t.toastError} ${t.btnDelete}: ` + error.message, true); return; } this.showToast(`${t.toastDeleted}`); await this.loadPartners(); if (this.currentTab === 'partners') this.renderPartners(); },
+            async deletePartner(partnerId) { let t = translations[currentLang]; if (!confirm('Partner definitief verwijderen uit Supabase? Archiveer als ritten/historiek bewaard moeten blijven.')) return; const { error } = await supabase.rpc('delete_operator_partner', { p_partner_id: partnerId }); if (error) { this.showToast(`${t.toastError} ${t.btnDelete}: ` + error.message, true); return; } this.showToast(`${t.toastDeleted}`); await this.loadPartners(); if (this.currentTab === 'partners') this.renderPartners(); },
             async showAddDriverForm() { let t = translations[currentLang]; let targetPartner = this.partners.find(p => p.is_hoofd === true); if (!targetPartner && this.partners.length > 0) targetPartner = this.partners[0]; if (!targetPartner) { this.showToast(t.noPartners, true); return; } let name = prompt(`${t.ficheName} ${t.tableDriver}:`); if (!name) return; let email = prompt(`${t.ficheEmail} ${t.tableDriver}:`); if (!email) return; let vehicle = prompt(`${t.ficheVehicle}:`) || 'Standaard'; const { count } = await supabase.from('drivers').select('*', { count: 'exact', head: true }).eq('partner_id', targetPartner.id); const nextNumber = (count || 0) + 1; const driverCode = `${targetPartner.prefix || 'DRV'}-${String(nextNumber).padStart(2, '0')}`; const { error } = await supabase.rpc('create_operator_driver', { payload: { partner_id: targetPartner.id, driver_code: driverCode, name: name, email: email, vehicle: vehicle, color: 'Zwart', license_plate: 'Onbekend' } }); if (error) { this.showToast(`${t.toastError} ${t.btnAddDriver}: ` + error.message, true); return; } this.showToast(`${name} ${t.toastAdded}`); await this.loadDrivers(); if (this.currentTab === 'drivers') this.renderDrivers(); if (this.currentTab === 'partners') this.renderPartners(); },
             async showAddPartnerForm() { document.getElementById('partnerModal').style.display = 'flex'; },
-            async savePartner() { let t = translations[currentLang]; const name = document.getElementById('p_name').value; if (!name) { this.showToast(t.ficheName + ' is verplicht', true); return; } const contact = document.getElementById('p_contact').value; const email = document.getElementById('p_email').value; const phone = document.getElementById('p_phone').value; const prefix = document.getElementById('p_prefix').value || name.slice(0,2).toUpperCase(); const isHoofd = document.getElementById('p_is_hoofd').checked; const { error } = await supabase.rpc('create_operator_partner', { payload: { name: name, is_hoofd: isHoofd, prefix: prefix, contact: contact, email: email, phone: phone } }); if (error) { this.showToast(`${t.toastError} ${t.btnAddPartner}: ` + error.message, true); return; } this.showToast(`${name} ${t.toastAdded}`); this.closePartnerModal(); await this.loadPartners(); if (this.currentTab === 'partners') this.renderPartners(); },
+            async savePartner() {
+                let t = translations[currentLang];
+                const name = document.getElementById('p_name').value.trim();
+                if (!name) { this.showToast(t.ficheName + ' is verplicht', true); return; }
+                const basePayload = {
+                    name,
+                    contact: document.getElementById('p_contact').value.trim(),
+                    email: document.getElementById('p_email').value.trim(),
+                    phone: document.getElementById('p_phone').value.trim(),
+                    prefix: document.getElementById('p_prefix').value.trim() || name.slice(0,2).toUpperCase(),
+                    is_hoofd: document.getElementById('p_is_hoofd').checked
+                };
+                const saveWithAction = async (duplicateAction = null) => {
+                    const payload = duplicateAction ? { ...basePayload, duplicate_action: duplicateAction } : basePayload;
+                    return await supabase.rpc('create_operator_partner', { payload });
+                };
+                let { data, error } = await saveWithAction();
+                if (error) { this.showToast(`${t.toastError} ${t.btnAddPartner}: ` + error.message, true); return; }
+                if (data?.status === 'archived_match') {
+                    const label = data.partner?.name || name;
+                    if (confirm(`Er bestaat al een gearchiveerde partner (${label}) met gelijkaardige gegevens.\n\nOK = heractiveren en bijwerken.\nAnnuleren = nieuwe invoer stoppen.`)) {
+                        ({ data, error } = await saveWithAction('reactivate'));
+                        if (error) { this.showToast('Heractiveren mislukt: ' + error.message, true); return; }
+                    } else {
+                        this.showToast('Partner niet toegevoegd. Gearchiveerde partner kan worden heractiveerd.');
+                        return;
+                    }
+                } else if (data?.status === 'duplicate_active') {
+                    const label = data.partner?.name || name;
+                    if (confirm(`Er bestaat al een actieve partner (${label}) met gelijkaardige gegevens.\n\nOK = bestaande partner bijwerken.\nAnnuleren = gegevens wijzigen.`)) {
+                        ({ data, error } = await saveWithAction('replace'));
+                        if (error) { this.showToast('Bijwerken mislukt: ' + error.message, true); return; }
+                    } else {
+                        this.showToast('Partner niet toegevoegd. Pas de gegevens aan om dubbele invoer te vermijden.');
+                        return;
+                    }
+                }
+                this.showToast(`${data?.partner?.name || name} ${t.toastAdded}`);
+                this.closePartnerModal();
+                await this.loadPartners();
+                if (this.currentTab === 'partners') this.renderPartners();
+            },
             async sendAccountDecisionEmail(request, approved, reason = '', approvalResult = {}, inviteEmailSent = false) { if (!request?.email) return; const subject = approved ? 'Uw FleetConnect accountaanvraag is goedgekeurd' : 'Uw FleetConnect accountaanvraag is beoordeeld';
                 // FIX Blocker B (2026-06-16): the previous version of this email
                 // always sent the partner a CTA pointing to /PV/index.html (the
