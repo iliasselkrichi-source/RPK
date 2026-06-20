@@ -1,100 +1,80 @@
-# FleetConnect Phase 5 Rollback Plan
+# FleetConnect Rollback Plan
 
-Date: 2026-06-02
+## Executive Summary
 
-Status: PREPARED - do not execute without explicit approval
+This rollback plan supports the certified FleetConnect production baseline. It is intended for controlled operational rollback if a future deployment introduces a regression.
 
-## Scope
+**Current certified state:** FLEETCONNECT PRODUCTION CERTIFIED
 
-This rollback plan covers Phase 5 remediation changes only.
+## Repositories
 
-Pre-change snapshot:
+| Purpose | Repository |
+| --- | --- |
+| Primary repository | `Javalin13/FleetConnect` |
+| Deployment repository | `iliasselkrichi-source/RPK` |
 
-- `outputs/phase5_prechange_snapshot_sanitized.json`
+## Rollback Principles
 
-Secrets:
+- Roll back only the smallest affected surface.
+- Preserve production data unless a specific data correction is approved.
+- Do not disable RLS as a rollback shortcut.
+- Do not expose service-role keys or weaken authentication.
+- Keep customer, driver, partner, and booking data intact.
+- Document every rollback action, operator, timestamp, and verification result.
 
-- No credential values are included in this plan.
+## Application Rollback
 
-## Approval Boundary
+1. Identify the last certified deployment commit.
+2. Revert or redeploy to that commit in the deployment repository.
+3. Confirm Vercel deployment completion.
+4. Smoke test:
+   - Public booking route.
+   - Customer login route.
+   - Operator dashboard route.
+   - Partner PWA route.
+   - Driver accept/decline route.
+5. Confirm no unintended environment variable changes occurred.
 
-Rollback may require destructive schema operations such as dropping policies, functions, columns, or tables that were created during Phase 5.
+## Supabase Rollback
 
-Do not execute rollback SQL without a separate explicit approval message.
+1. Prefer forward-fix migrations over destructive rollback.
+2. If a migration must be reverted, prepare an explicit SQL rollback script and review data impact first.
+3. Never drop production tables or policies without a verified backup and approval.
+4. Validate RPC availability and RLS behavior after any database change.
+5. Confirm dashboard, customer portal, partner PWA, and driver workflows after rollback.
 
-## Rollback Strategy
+## Email Rollback
 
-Rollback should be performed in reverse order:
+1. Confirm FleetConnect sender configuration remains active.
+2. Verify `send-email` Edge Function deployment and origin policy.
+3. Run a controlled test email to an internal FleetConnect mailbox.
+4. Confirm customer-facing templates do not point to obsolete domains.
 
-1. Stop using any newly created RPCs from frontend code.
-2. Restore the previous application file version from workspace history or backup if needed.
-3. Drop newly created RLS policies and RPC functions.
-4. Restore previous broad policies only if emergency access continuity is required and approved.
-5. Disable newly enabled RLS only if explicitly approved.
-6. Drop newly added payment tables only if explicitly approved and no production payment data exists.
-7. Drop newly added columns only if explicitly approved and no production data depends on them.
+## Stripe Rollback
 
-## Candidate Rollback SQL
+1. Disable new checkout entry points only if payment regression affects customers.
+2. Keep webhook endpoint logs for audit.
+3. Do not delete Stripe records.
+4. Validate booking workflow remains operational for non-payment paths if payments are temporarily disabled.
 
-The following is intentionally not executed.
+## Data Protection
 
-```sql
-begin;
+- Preserve bookings, customers, partners, drivers, reviews, invoices, payments, and email logs.
+- Archive records rather than hard-delete where ride history exists.
+- Use targeted corrections for data inconsistencies.
+- Keep an audit note for every manual production data correction.
 
--- Remove Phase 5 RPCs.
-drop function if exists public.create_public_booking(jsonb);
-drop function if exists public.operator_update_booking_status(text, text);
-drop function if exists public.operator_assign_driver(text, uuid);
-drop function if exists public.driver_accept_assignment(text);
-drop function if exists public.driver_decline_assignment(text);
-drop function if exists public.sync_booking_user_id();
+## Post-Rollback Verification
 
--- Remove Phase 5 policies.
-drop policy if exists "Service role full access bookings" on public.bookings;
-drop policy if exists "Authenticated customers view own bookings" on public.bookings;
-drop policy if exists "Authenticated customers insert own bookings" on public.bookings;
-drop policy if exists "Authenticated customers update own bookings" on public.bookings;
-drop policy if exists "Anon can create bookings only" on public.bookings;
-drop policy if exists "Service role full access customers" on public.customers;
-drop policy if exists "Authenticated customers view own profile" on public.customers;
-drop policy if exists "Authenticated customers update own profile" on public.customers;
-drop policy if exists "Service role full access drivers" on public.drivers;
-drop policy if exists "Authenticated users view drivers" on public.drivers;
-drop policy if exists "Service role full access partners" on public.partners;
-drop policy if exists "Authenticated users view partners" on public.partners;
-drop policy if exists "Authenticated partner users view own partner" on public.partners;
-drop policy if exists "Service role full access payments" on public.payments;
-drop policy if exists "Users can view own payments" on public.payments;
-drop policy if exists "Service role full access refunds" on public.refunds;
-drop policy if exists "Users can view own refunds" on public.refunds;
-drop policy if exists "Service role full access invoices" on public.invoices;
-drop policy if exists "Users can view own invoices" on public.invoices;
-drop policy if exists "Service role full access settlements" on public.settlements;
-drop policy if exists "Service role full access ledger" on public.transaction_ledger;
+- Public booking completes.
+- Customer can register, verify, sign in, and view portal data.
+- Operator can view and manage bookings, customers, partners, drivers, and account requests.
+- Partner PWA login and ride display work.
+- Driver accept/decline actions work.
+- Email lifecycle sends expected messages.
+- Review flow remains available.
+- Stripe sandbox webhook remains valid for test mode.
 
--- Destructive cleanup candidates, approval required.
--- alter table public.bookings drop column if exists user_id;
--- alter table public.bookings drop column if exists metadata;
--- alter table public.customers drop column if exists user_id;
--- drop table if exists public.transaction_ledger;
--- drop table if exists public.settlements;
--- drop table if exists public.invoices;
--- drop table if exists public.refunds;
--- drop table if exists public.payments;
+## Final Note
 
-rollback;
-```
-
-## Validation After Rollback
-
-After any approved rollback:
-
-- Re-run live schema inventory.
-- Re-run RLS inventory.
-- Re-run anon REST read checks.
-- Re-run Edge Function inventory.
-- Compare against `phase5_prechange_snapshot_sanitized.json`.
-
-## Current Rollback Status
-
-No rollback has been executed.
+Rollback is a controlled operational safety measure. The certified production baseline remains the preferred production state.

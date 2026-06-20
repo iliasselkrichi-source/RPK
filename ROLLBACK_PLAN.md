@@ -1,63 +1,80 @@
-﻿# Rollback Plan
+# FleetConnect Rollback Plan
 
-Date: 2026-06-19
+## Executive Summary
 
-## Scope
+This rollback plan supports the certified FleetConnect production baseline. It is intended for controlled operational rollback if a future deployment introduces a regression.
 
-Rollback applies to the final certification sprint fixes:
+**Current certified state:** FLEETCONNECT PRODUCTION CERTIFIED
 
-- `PV/register.html`
-- `Paneel/onderaannemerA.html`
-- `supabase/migrations/20260619190000_fix_dashboard_update_rpc_returns.sql`
-- Live Supabase RPC replacements applied during this sprint.
+## Repositories
 
-## Git Rollback
+| Purpose | Repository |
+| --- | --- |
+| Primary repository | `Javalin13/FleetConnect` |
+| Deployment repository | `iliasselkrichi-source/RPK` |
 
-If the sprint commit causes a frontend regression:
+## Rollback Principles
 
-```bash
-git revert <sprint_commit_hash>
-git push origin final-certification-sprint-2026-06-19
-```
+- Roll back only the smallest affected surface.
+- Preserve production data unless a specific data correction is approved.
+- Do not disable RLS as a rollback shortcut.
+- Do not expose service-role keys or weaken authentication.
+- Keep customer, driver, partner, and booking data intact.
+- Document every rollback action, operator, timestamp, and verification result.
 
-If merged to main:
+## Application Rollback
 
-```bash
-git checkout main
-git pull origin main
-git revert <merge_commit_or_sprint_commit>
-git push origin main
-```
+1. Identify the last certified deployment commit.
+2. Revert or redeploy to that commit in the deployment repository.
+3. Confirm Vercel deployment completion.
+4. Smoke test:
+   - Public booking route.
+   - Customer login route.
+   - Operator dashboard route.
+   - Partner PWA route.
+   - Driver accept/decline route.
+5. Confirm no unintended environment variable changes occurred.
 
 ## Supabase Rollback
 
-The live migrations are mostly `create or replace function` and additive `add column if not exists`. A destructive rollback is not recommended.
+1. Prefer forward-fix migrations over destructive rollback.
+2. If a migration must be reverted, prepare an explicit SQL rollback script and review data impact first.
+3. Never drop production tables or policies without a verified backup and approval.
+4. Validate RPC availability and RLS behavior after any database change.
+5. Confirm dashboard, customer portal, partner PWA, and driver workflows after rollback.
 
-If a new RPC version causes regression, restore the previous function body from the prior migration file and run it through Supabase SQL Editor or the approved database connection.
+## Email Rollback
 
-Affected live RPCs:
+1. Confirm FleetConnect sender configuration remains active.
+2. Verify `send-email` Edge Function deployment and origin policy.
+3. Run a controlled test email to an internal FleetConnect mailbox.
+4. Confirm customer-facing templates do not point to obsolete domains.
 
-- `create_operator_partner(jsonb)`
-- `delete_operator_partner(integer)`
-- `operator_bulk_assign_bookings(text[], integer, uuid)`
-- `update_account_request(uuid, text, text, text, text, text, text, jsonb)`
-- `update_customer(text, text, text, text, boolean, boolean)`
-- `update_driver(uuid, text, text, text, text, text, text, boolean, boolean)`
-- `update_booking(text, text, text, numeric, text, uuid, integer)`
+## Stripe Rollback
 
-## Operational Rollback
+1. Disable new checkout entry points only if payment regression affects customers.
+2. Keep webhook endpoint logs for audit.
+3. Do not delete Stripe records.
+4. Validate booking workflow remains operational for non-payment paths if payments are temporarily disabled.
 
-- Route partner users through canonical `https://partners.fleetconnect.be/` or fallback `https://www.fleetconnect.be/partner-app`. Do not publish deprecated `https://partner.fleetconnect.be/`.
-- Keep Stripe in sandbox/test mode until the final deployed browser pass is complete. Before real payments, replace sandbox Stripe keys with live keys and repeat checkout/webhook validation.
-- Keep cash/manual booking flow available only if operations accepts manual confirmation.
+## Data Protection
 
-## Data Cleanup
+- Preserve bookings, customers, partners, drivers, reviews, invoices, payments, and email logs.
+- Archive records rather than hard-delete where ride history exists.
+- Use targeted corrections for data inconsistencies.
+- Keep an audit note for every manual production data correction.
 
-Test rows created during certification were deleted:
+## Post-Rollback Verification
 
-- `cert-rest-test@example.com` booking
-- `CUST-cert-profile-test` customer
+- Public booking completes.
+- Customer can register, verify, sign in, and view portal data.
+- Operator can view and manage bookings, customers, partners, drivers, and account requests.
+- Partner PWA login and ride display work.
+- Driver accept/decline actions work.
+- Email lifecycle sends expected messages.
+- Review flow remains available.
+- Stripe sandbox webhook remains valid for test mode.
 
-## Rollback Verdict
+## Final Note
 
-Rollback is straightforward for frontend code. Supabase rollback should be function-body restoration only; do not drop columns or tables.
+Rollback is a controlled operational safety measure. The certified production baseline remains the preferred production state.

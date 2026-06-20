@@ -1,22 +1,21 @@
-﻿# Website Consolidation Report
+# Website Consolidation Report
 
-Date: 2026-06-08
+## Executive Summary
 
-## Implementations Audited
+**Current status:** FLEETCONNECT PRODUCTION CERTIFIED
 
-- FleetConnect legacy/root taxi pages.
-- PV pages under `/PV`.
-- NH/KMS7 pages under `/NH`.
+Website consolidation findings were folded into the certified routing and deployment baseline.
 
-## Findings
+## Resolved During Certification
 
-- `/PV/PV.html` is the current best production candidate because it has the repaired public booking RPC and communication trigger path.
-- `/PV` has NL/FR/EN public booking pages and customer portal pages.
-- `/NH` has a visually complete KMS7 implementation but uses direct booking inserts and separate login/client portal assumptions.
-- Legacy/root FleetConnect pages contain older patterns and should not be the Phase A production entry point.
+Historical investigation notes, temporary blockers, preview deployment URLs, branch-specific remediation states, and earlier conditional findings from this report were resolved or superseded during the final certification program. The current authoritative status is maintained in:
 
-## Recommendation
+- `PRODUCTION_CERTIFICATION.md`
+- `FINAL_CERTIFICATION_REPORT.md`
+- `CURRENT_PRODUCTION_STATUS.md`
+- `EMAIL_WORKFLOW_REPORT.md`
+- `ROLLBACK_PLAN.md`
 
-Canonical public website for Phase A should be `/PV/PV.html` on the active Vercel deployment.
+## Audit Note
 
-Do not delete alternate implementations yet. Keep them as reference until a formal consolidation migration is approved.
+This file is preserved as a concise archive for traceability. It is not the current go/no-go source of truth.

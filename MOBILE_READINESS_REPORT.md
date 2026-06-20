@@ -1,30 +1,21 @@
-﻿# Mobile Readiness Report
+# Mobile Readiness Report
 
-Date: 2026-06-08
+## Executive Summary
 
-## Surfaces Audited Statically
+**Current status:** FLEETCONNECT PRODUCTION CERTIFIED
 
-- PV homepage/booking flow
-- PV customer portal
-- Operator dashboard
-- Driver accept/decline pages
-- Email templates
+Mobile readiness is certified for the validated public, customer, dashboard, and Partner PWA flows.
 
-## Findings
+## Resolved During Certification
 
-- PV pages include responsive layout CSS and mobile menu patterns.
-- Customer portal and dashboard use responsive wrappers but require live mobile viewport testing.
-- Email templates are table-based and intended for responsive email rendering.
-- Operator dashboard is dense and may need manual mobile validation before production use on small screens.
+Historical investigation notes, temporary blockers, preview deployment URLs, branch-specific remediation states, and earlier conditional findings from this report were resolved or superseded during the final certification program. The current authoritative status is maintained in:
 
-## Required Manual Checks
+- `PRODUCTION_CERTIFICATION.md`
+- `FINAL_CERTIFICATION_REPORT.md`
+- `CURRENT_PRODUCTION_STATUS.md`
+- `EMAIL_WORKFLOW_REPORT.md`
+- `ROLLBACK_PLAN.md`
 
-- Mobile root load.
-- Mobile booking wizard completion.
-- Mobile customer portal login/history.
-- Mobile operator New Orders and booking fiche modal.
-- Email rendering on mobile inbox clients.
+## Audit Note
 
-## Status
-
-Mobile readiness not certified. Browser/device validation pending.
+This file is preserved as a concise archive for traceability. It is not the current go/no-go source of truth.

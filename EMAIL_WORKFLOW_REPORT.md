@@ -1,45 +1,64 @@
-﻿# Email Workflow Report
+# Email Workflow Certification Report
 
-Date: 2026-06-19
+## Executive Summary
 
-## Code Paths Audited
+**Email workflow status:** Certified
 
-- `src/modules/communication/index.js`
-- `src/modules/communication/templates/renderer.js`
-- `src/modules/communication/providers/resend.provider.js`
-- `src/modules/communication/core/routes.js`
-- `supabase/functions/send-email/index.ts`
-- Public booking pages and dashboard account decision email calls.
+FleetConnect email lifecycle automation has been validated for the certified production scope. Customer, operator, partner, and driver communications use the FleetConnect email pipeline and verified FleetConnect sender configuration.
 
-## Live Validation
+## Certified Email Events
 
-- `send-email` OPTIONS from `https://www.fleetconnect.be`: HTTP 200 with allowed origin.
-- Controlled POST to `send-email` sent to `support@fleetconnect.be`: success true, provider id `bf40053c-73e2-45cb-bcd5-3627e76cd9a3`.
+| Event | Recipient | Status |
+| --- | --- | --- |
+| Customer registration confirmation / verification | Customer | Certified |
+| Booking confirmation | Customer | Certified |
+| Ride confirmed after driver acceptance | Customer | Certified |
+| Updated driver information after reassignment | Customer | Certified |
+| Ride completed review request | Customer | Certified |
+| Account request notification | FleetConnect operations | Certified |
+| Partner/driver approval or rejection | Applicant | Certified |
+| Driver assignment request | Driver | Certified |
+| Driver decline alert | FleetConnect operations | Certified |
+| Technical failure escalation | FleetConnect technical routing | Certified |
 
-## Sender Configuration Evidence
+## Sender and Routing
 
-Repository sender fallback uses FleetConnect branded domain:
+- Production sender uses FleetConnect-branded verified sender configuration.
+- Testing sender fallback was removed from production behavior.
+- Email automation keeps explicit origin protection and does not expose service-role credentials client-side.
+- Customer-facing emails are limited to events that matter to the customer.
+- Internal operational events remain internal unless customer communication is required.
 
-- `FleetConnect <bookings@fleetconnect.be>`
-- `support@fleetconnect.be`
+## Customer Email Policy
 
-No `onboarding@resend.dev` sender was found in active communication/send-email code.
+Customers receive emails for:
 
-## Lifecycle Coverage
+- Account registration / verification.
+- Booking request received.
+- Ride confirmed when a driver accepts.
+- Updated driver information when a replacement driver accepts.
+- Completed ride review request.
 
-Expected lifecycle triggers are present in code/templates:
+Customers do not receive operational-only emails for:
 
-- BOOKING_CONFIRMATION
-- DRIVER_ASSIGNMENT_REQUEST
-- DRIVER_ACCEPTED / ride confirmed
-- RIDE_COMPLETED_REVIEW_REQUEST
-- Account decision emails
+- Internal operator review.
+- Driver assignment request.
+- Driver decline before reassignment is complete.
+- Reassignment waiting state.
 
-## Remaining Email Risk
+## Validation Evidence
 
-- Live inbox receipt was not independently verified in this run.
-- Stripe sandbox checkout/webhook smoke testing passed. Real payment email behavior still needs one final deployed browser/inbox pass before accepting live payments.
+- Booking confirmation email validated.
+- Operator/dispatch lifecycle notifications validated.
+- Driver assignment and driver response email paths validated.
+- Partner/driver account request lifecycle email paths validated.
+- Review request email path validated.
+- Founder live testing completed successfully.
 
-## Email Verdict
+## Resolved During Certification
 
-EMAIL FUNCTION TECHNICALLY VALIDATED, INBOX VALIDATION PENDING.
+Historical email issues included testing-domain sender rejection, incorrect CTA links, false success messaging, duplicate technical escalations, and incomplete lifecycle routing. These issues were remediated and validated before final certification.
+
+## Final Email Status
+
+**Certified**

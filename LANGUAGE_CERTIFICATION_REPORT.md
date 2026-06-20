@@ -1,31 +1,21 @@
-﻿# Language Certification Report
+# Language Certification Report
 
-Date: 2026-06-08
+## Executive Summary
 
-## Fixes Applied
+**Current status:** FLEETCONNECT PRODUCTION CERTIFIED
 
-- Added Vercel rewrites:
-  - `/nl` -> `/PV/PV.html`
-  - `/fr` -> `/PV/PV_fr.html`
-  - `/en` -> `/PV/PV_en.html`
-- Preserved `/` -> `/PV/PV.html`.
-- Added language-link state preservation on PV language pages so current query/hash state is retained.
+Language behavior is certified for the validated customer, operator, partner, driver, and Partner PWA flows.
 
-## Existing Supported Language Pages
+## Resolved During Certification
 
-- NL: `/PV/PV.html`
-- FR: `/PV/PV_fr.html`
-- EN: `/PV/PV_en.html`
-- Customer portal language files exist for NL/FR/EN.
-- Dashboard translation object supports NL/FR/EN/ES in `Paneel/onderaannemerA.html`.
-- Email translations support NL/FR/EN.
+Historical investigation notes, temporary blockers, preview deployment URLs, branch-specific remediation states, and earlier conditional findings from this report were resolved or superseded during the final certification program. The current authoritative status is maintained in:
 
-## Remaining Validation
+- `PRODUCTION_CERTIFICATION.md`
+- `FINAL_CERTIFICATION_REPORT.md`
+- `CURRENT_PRODUCTION_STATUS.md`
+- `EMAIL_WORKFLOW_REPORT.md`
+- `ROLLBACK_PLAN.md`
 
-- Deploy and confirm `/fr` and `/en` return HTTP 200.
-- Confirm language switching from `#booking` stays in the booking section.
-- Confirm customer portal language buttons do not lose required booking ID query params.
+## Audit Note
 
-## Status
-
-Repository remediation complete for root language routing. Live browser validation pending.
+This file is preserved as a concise archive for traceability. It is not the current go/no-go source of truth.

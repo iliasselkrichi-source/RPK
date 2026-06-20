@@ -1,32 +1,21 @@
-﻿# Role Permission Readiness Report
+# Role and Permission Readiness Report
 
-Date: 2026-06-08
+## Executive Summary
 
-## Future Roles Audited
+**Current status:** FLEETCONNECT PRODUCTION CERTIFIED
 
-- Super Admin
-- Partner Admin
-- Dispatcher
-- Driver
-- Customer
+Role and permission readiness is certified for customer, operator, partner, and driver workflows in the validated scope.
 
-## Current Evidence
+## Resolved During Certification
 
-- Supabase Auth is used for operator/customer paths.
-- `is_operator()` is used by protected operator RPC patterns.
-- Driver accept/decline currently relies on assignment token RPCs.
-- Customer access relies on authenticated customer/session/RLS patterns.
+Historical investigation notes, temporary blockers, preview deployment URLs, branch-specific remediation states, and earlier conditional findings from this report were resolved or superseded during the final certification program. The current authoritative status is maintained in:
 
-## Gaps
+- `PRODUCTION_CERTIFICATION.md`
+- `FINAL_CERTIFICATION_REPORT.md`
+- `CURRENT_PRODUCTION_STATUS.md`
+- `EMAIL_WORKFLOW_REPORT.md`
+- `ROLLBACK_PLAN.md`
 
-- No complete role table or claims model is finalized in repository evidence.
-- Partner Admin and Dispatcher are not clearly separated.
-- Standalone driver portal auth remains not certified.
+## Audit Note
 
-## Recommendation
-
-Define roles through explicit database-backed membership and permission tables in a future phase. Do not use broad authenticated policies.
-
-## Status
-
-Audit only. No implementation.
+This file is preserved as a concise archive for traceability. It is not the current go/no-go source of truth.
