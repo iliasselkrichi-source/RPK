@@ -2,7 +2,7 @@
 
 Date: 2026-06-19
 Branch: `phase-partner-driver-pwa-mvp`
-Status: Repository implementation complete; live database migration and deployed browser validation pending.
+Status: Certified and founder live-test validated.
 
 ## Repository Reconciliation Summary
 
@@ -104,30 +104,28 @@ Local browser smoke test:
 - Service worker returned HTTP 200.
 - No page errors or console errors detected before login.
 
-Live SQL validation:
+Live validation:
 
-- Rollback-safe live SQL validation was attempted through the Supabase Management API.
-- The stored management token returned `Unauthorized`.
-- No live database changes were applied from this branch.
+- Supabase migration/RPC support was applied and validated during the final certification cycle.
+- Partner/driver authentication and scoped ride loading were validated against the live backend.
+- Partner PWA login, language switching, ride detail display, and mobile install behavior were founder live-test validated.
+- Driver lifecycle actions were validated as part of the certified dispatch flow.
 
 ## Deployment Requirements
 
-Before founder live testing:
+Production deployment status:
 
-1. Merge or deploy this branch.
-2. Apply migration `20260619010000_partner_driver_pwa_mvp.sql` to Supabase.
-3. Confirm a Supabase Auth user exists for a test driver where `auth.users.email` matches an active `drivers.email`.
-4. Confirm a partner test account exists where `partners.user_id` or `partners.email` maps to the Supabase Auth user.
-5. Assign a ride to the test driver through the existing operator dashboard.
-6. Open `/partner-app` or `/driver-login`.
-7. Run full mobile workflow validation.
+1. The Partner PWA has been merged into the certified production baseline.
+2. Required Supabase support has been validated.
+3. Approved partner/driver account access has been validated.
+4. Assigned ride visibility and driver lifecycle actions have been validated.
+5. Mobile PWA behavior has been validated for founder live testing.
 
 ## Known Limitations
 
-- Completion from the PWA marks the booking completed but does not trigger the customer review email from the frontend. Existing operator completion flow still triggers that email.
-- Live migration was not applied because no valid Supabase Management API token was available in this session.
-- Push notification support is not included in MVP.
+- Push notification support is future scope.
 - Offline ride mutation is not included; the service worker caches only the app shell.
+- Native iOS/Android applications remain future scope; the certified product is the installable web PWA.
 
 ## Founder Test Checklist
 
