@@ -139,6 +139,18 @@
         // ============ Verify on load ============
         async function verify() {
             try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const authCode = urlParams.get('code');
+                if (authCode) {
+                    const { error: codeError } = await supabase.auth.exchangeCodeForSession(window.location.href);
+                    if (codeError) {
+                        $('errorTitle').textContent = 'Verification failed';
+                        $('errorMessage').textContent = humanizeError(codeError.message || String(codeError));
+                        show('error');
+                        return;
+                    }
+                }
+
                 // Wait for Supabase to finish processing URL hash (if any)
                 await new Promise(r => setTimeout(r, 200));
 
@@ -174,8 +186,8 @@
                         try {
                             const { error } = await supabase.auth.resend({ type: 'signup', email: queryEmail, options: { emailRedirectTo: window.location.origin + '/PV/verificatiepv.html?email=' + encodeURIComponent(queryEmail) + '&lang=' + encodeURIComponent(queryLang) } });
                             if (error) throw error;
-                            $('resendLink').textContent = '✓ Verstuurd — controleer uw inbox';
-                            setTimeout(() => { $('resendLink').textContent = 'Verstuur opnieuw'; }, 4000);
+                            $('resendLink').textContent = 'Sent - check your inbox';
+                            setTimeout(() => { $('resendLink').textContent = 'Resend'; }, 4000);
                         } catch (err) {
                             $('resendLink').textContent = 'Fout: ' + err.message;
                         }

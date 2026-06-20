@@ -170,7 +170,7 @@
             <input type="password" id="passInput" placeholder="wachtwoord">
         </div>
 
-        <button class="btn-login" id="loginBtn">
+        <button type="button" class="btn-login" id="loginBtn">
             <i class="fas fa-sign-in-alt"></i> <span id="loginBtnText">Sign in</span>
         </button>
 
@@ -486,7 +486,7 @@
         }
 
         // Event listeners
-        loginBtn.addEventListener('click', handleLogin);
+        loginBtn.addEventListener('click', (e) => { e.preventDefault(); handleLogin(); });
         
         emailInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleLogin();
