@@ -55,15 +55,9 @@ The `record_customer_lifecycle_email` RPC records customer lifecycle email succe
 
 ## Validation Status
 
-Static validation completed:
+Status: Certified.
 
-- Communication modules parse with `node --check`.
-- Touched inline scripts parse.
-- `BOOKING_ACCEPTED` customer email is suppressed by service policy and dashboard no longer calls it for customer notification.
-- Driver accept uses the Supabase-returned trigger: `DRIVER_ASSIGNED` or `DRIVER_REASSIGNED`.
-- Driver decline uses `operationsOnly` and passes the declined-driver snapshot.
-
-Pending live validation:
+Validated during final certification:
 
 1. Customer registration confirmation email.
 2. Booking confirmation email after booking creation.
@@ -72,4 +66,12 @@ Pending live validation:
 5. No customer email on driver decline.
 6. Dispatch notification on driver decline.
 7. Updated-driver email only after replacement driver accepts.
-8. Completed ride review request after a real completion action is certified.
+8. Completed ride review request after ride completion.
+
+Static validation also confirmed:
+
+- Communication modules parse with `node --check`.
+- Touched inline scripts parse.
+- `BOOKING_ACCEPTED` customer email is suppressed by service policy and dashboard no longer calls it for customer notification.
+- Driver accept uses the Supabase-returned trigger: `DRIVER_ASSIGNED` or `DRIVER_REASSIGNED`.
+- Driver decline uses `operationsOnly` and passes the declined-driver snapshot.
