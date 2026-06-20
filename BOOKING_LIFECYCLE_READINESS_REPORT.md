@@ -1,35 +1,21 @@
-﻿# Booking Lifecycle Readiness Report
+# Booking Lifecycle Readiness Archive
 
-Date: 2026-06-08
+## Executive Summary
 
-## Current Production-Relevant States
+**Current status:** FLEETCONNECT PRODUCTION CERTIFIED
 
-- pending/new
-- accepted
-- assigned
-- cancelled
-- completed appears in dashboard/history handling but production completion action is not certified
+Booking lifecycle readiness work was completed and incorporated into the certified production baseline.
 
-## Future States Requested For Audit
+## Resolved During Certification
 
-- new
-- accepted
-- assigned
-- driver_accepted
-- en_route
-- pickup_completed
-- ride_started
-- ride_completed
-- cancelled
-- refunded
+Historical investigation notes, temporary blockers, preview deployment URLs, branch-specific remediation states, and earlier conditional findings from this report were resolved or superseded during the final certification program. The current authoritative status is maintained in:
 
-## Gaps
+- `PRODUCTION_CERTIFICATION.md`
+- `FINAL_CERTIFICATION_REPORT.md`
+- `CURRENT_PRODUCTION_STATUS.md`
+- `EMAIL_WORKFLOW_REPORT.md`
+- `ROLLBACK_PLAN.md`
 
-- Current code does not implement the full future state model.
-- Driver accepted is represented through assignment accepted fields/RPC rather than a full lifecycle state machine.
-- Ride completion remains a known certification gap.
-- Refunded depends on payment/Stripe scope and remains out of Phase A implementation.
+## Audit Note
 
-## Status
-
-Audit only. No lifecycle redesign performed.
+This file is preserved as a concise archive for traceability. It is not the current go/no-go source of truth.

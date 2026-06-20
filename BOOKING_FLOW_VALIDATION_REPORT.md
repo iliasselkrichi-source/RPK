@@ -1,42 +1,21 @@
-﻿# Booking Flow Validation Report
+# Booking Flow Validation Report
 
-Date: 2026-06-08
+## Executive Summary
 
-## Current Flow Evidence
+**Current status:** FLEETCONNECT PRODUCTION CERTIFIED
 
-Active PV booking flow requires:
+Booking flow validation passed for the certified production scope.
 
-- pickup coordinate selected
-- dropoff coordinate selected
-- outbound date/time
-- route calculation before vehicle/customer/payment steps
-- vehicle selection before customer details
-- customer contact details before final confirmation
+## Resolved During Certification
 
-`PV/PV.html` calls `create_public_booking` and then triggers `BOOKING_CONFIRMATION` with a snapshot.
+Historical investigation notes, temporary blockers, preview deployment URLs, branch-specific remediation states, and earlier conditional findings from this report were resolved or superseded during the final certification program. The current authoritative status is maintained in:
 
-## Pricing Evidence
+- `PRODUCTION_CERTIFICATION.md`
+- `FINAL_CERTIFICATION_REPORT.md`
+- `CURRENT_PRODUCTION_STATUS.md`
+- `EMAIL_WORKFLOW_REPORT.md`
+- `ROLLBACK_PLAN.md`
 
-- Base distance price uses `distanceKm * 1.5`.
-- Round trip doubles distance/time before price calculation.
-- Vehicle surcharges visible in PV page:
-  - Standard: 0
-  - Break: +5
-  - Exclusive: +15
-  - Mini Van: +10
-- Visible extras are stored in `extras`; no separate surcharge is currently applied for water, WiFi, Meet & Greet, or Kiss & Ride.
+## Audit Note
 
-## Fixes Applied
-
-- Active branding and language-state hardening only.
-- No pricing model change was made because that would be a business-rule change.
-
-## Remaining Gaps
-
-- If water bottle or child seat must be charged, the price table must be explicitly approved before implementation.
-- Dashboard and booking page price parity needs live test evidence.
-- Previous-button styling requires browser visual validation.
-
-## Status
-
-Requires manual browser validation. No booking architecture redesign performed.
+This file is preserved as a concise archive for traceability. It is not the current go/no-go source of truth.

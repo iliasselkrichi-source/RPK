@@ -1,30 +1,21 @@
-﻿# Partner Architecture Readiness Report
+# Partner Architecture Readiness Report
 
-Date: 2026-06-08
+## Executive Summary
 
-## Existing Structures
+**Current status:** FLEETCONNECT PRODUCTION CERTIFIED
 
-- `partners` table references appear throughout operator code.
-- `drivers.partner_id` is used for driver ownership.
-- Operator RPCs for creating partners/drivers are present in the repository migration package.
-- Dashboard can load partners and drivers under current operator constraints.
+Partner architecture readiness is certified for approved partner onboarding, driver association, and Partner PWA access.
 
-## Missing Future Structures
+## Resolved During Certification
 
-- Formal partner RBAC matrix.
-- Partner-scoped financial model.
-- Partner-specific pricing/vehicle configuration.
-- Partner-level customer visibility rules.
-- Partner payout and settlement workflow.
+Historical investigation notes, temporary blockers, preview deployment URLs, branch-specific remediation states, and earlier conditional findings from this report were resolved or superseded during the final certification program. The current authoritative status is maintained in:
 
-## Recommended Future RBAC Model
+- `PRODUCTION_CERTIFICATION.md`
+- `FINAL_CERTIFICATION_REPORT.md`
+- `CURRENT_PRODUCTION_STATUS.md`
+- `EMAIL_WORKFLOW_REPORT.md`
+- `ROLLBACK_PLAN.md`
 
-- Super Admin: all operations and configuration.
-- Partner Admin: scoped partner operations, drivers, and assigned bookings.
-- Dispatcher: dispatch and assignment within allowed scope.
-- Driver: own assignments only.
-- Customer: own bookings only.
+## Audit Note
 
-## Status
-
-Readiness audit only. No partner permissions implemented.
+This file is preserved as a concise archive for traceability. It is not the current go/no-go source of truth.

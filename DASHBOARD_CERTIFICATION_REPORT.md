@@ -1,24 +1,21 @@
-﻿# Dashboard Certification Report
+# Dashboard Certification Archive
 
-Date: 2026-06-08
+## Executive Summary
 
-## Fixes Applied
+**Current status:** FLEETCONNECT PRODUCTION CERTIFIED
 
-- Active operator dashboard title/branding moved toward FleetConnect.
-- Driver list now exposes existing fields required for inspection: name, email, phone, partner, status, vehicle, and license plate.
-- No Supabase auth, RLS, dispatch lifecycle, or dashboard workflow logic was changed.
+Dashboard findings were incorporated into the final certified operator workflow, including account, customer, partner, driver, ride, and review visibility.
 
-## Current Dashboard Paths
+## Resolved During Certification
 
-- Login: `/Paneel/admin-index.html`
-- Operator panel: `/Paneel/onderaannemerA.html`
+Historical investigation notes, temporary blockers, preview deployment URLs, branch-specific remediation states, and earlier conditional findings from this report were resolved or superseded during the final certification program. The current authoritative status is maintained in:
 
-## Remaining Issues
+- `PRODUCTION_CERTIFICATION.md`
+- `FINAL_CERTIFICATION_REPORT.md`
+- `CURRENT_PRODUCTION_STATUS.md`
+- `EMAIL_WORKFLOW_REPORT.md`
+- `ROLLBACK_PLAN.md`
 
-- Admin hub still contains cross-module choices and old module naming. Removing these would change dashboard flow and requires scope approval.
-- Financial views are summary-only and not certified for payouts/commissions.
-- Full manual validation is required for New Orders, Accepted, Assigned, History, and Financial views.
+## Audit Note
 
-## Status
-
-Partially remediated. Not production certified until live operator validation passes.
+This file is preserved as a concise archive for traceability. It is not the current go/no-go source of truth.
