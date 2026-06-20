@@ -242,6 +242,17 @@
     .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
     .actions .wide { grid-column: 1 / -1; }
     .link-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+    .partner-panel { margin-bottom: 18px; }
+    .panel-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .panel-title h3 { margin: 0; font-size: 1rem; color: var(--ink); }
+    .driver-grid { display: grid; gap: 10px; }
+    .driver-card { border: 1px solid rgba(148,163,184,.28); border-radius: 18px; padding: 12px; background: #fff; }
+    .driver-card.inactive { opacity: .65; background: #f8fafc; }
+    .driver-card h4 { margin: 0 0 4px; font-size: .98rem; }
+    .driver-card p { margin: 2px 0; color: var(--muted); font-size: .86rem; overflow-wrap: anywhere; }
+    .driver-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .driver-actions button { padding: 8px 10px; border-radius: 12px; min-height: 38px; }
+    .driver-request { display: grid; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(148,163,184,.22); }
     .loading { display: grid; place-items: center; min-height: 220px; color: var(--muted); gap: 10px; }
     .spinner { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -323,6 +334,14 @@
             <label for="requestCompany" data-i18n="companyName"></label>
             <input id="requestCompany" type="text" autocomplete="organization">
           </div>
+          <div class="field hidden" id="partnerSelectField">
+            <label for="requestPartnerId" data-i18n="partnerAssignment"></label>
+            <select id="requestPartnerId"></select>
+          </div>
+          <div class="field hidden" id="manualPartnerField">
+            <label for="requestPartnerManual" data-i18n="manualPartnerCompany"></label>
+            <input id="requestPartnerManual" type="text" autocomplete="organization">
+          </div>
           <div class="field">
             <label for="requestEmail" data-i18n="email"></label>
             <input id="requestEmail" type="email" autocomplete="email" required>
@@ -334,6 +353,10 @@
           <div class="field">
             <label for="requestVehicle" data-i18n="vehicleType"></label>
             <input id="requestVehicle" type="text" required>
+          </div>
+          <div class="field">
+            <label for="requestPlate" data-i18n="licensePlate"></label>
+            <input id="requestPlate" type="text" autocomplete="off">
           </div>
           <div class="field">
             <label for="requestRegion" data-i18n="operatingArea"></label>
@@ -388,6 +411,48 @@
         </div>
       </section>
 
+      <section id="partnerBusinessPanel" class="panel partner-panel hidden">
+        <div class="panel-title">
+          <h3 data-i18n="partnerBusiness"></h3>
+          <span id="partnerDriverCount" class="status assigned">0</span>
+        </div>
+        <div id="partnerSummary" class="info-grid"></div>
+        <div class="panel-title" style="margin-top:16px;">
+          <h3 data-i18n="linkedDrivers"></h3>
+        </div>
+        <div id="partnerDriverList" class="driver-grid"></div>
+        <form id="partnerDriverRequestForm" class="driver-request">
+          <h3 data-i18n="addDriver"></h3>
+          <div class="field">
+            <label for="newDriverName" data-i18n="fullName"></label>
+            <input id="newDriverName" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="newDriverEmail" data-i18n="email"></label>
+            <input id="newDriverEmail" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="newDriverPhone" data-i18n="phone"></label>
+            <input id="newDriverPhone" type="tel" autocomplete="tel" required>
+          </div>
+          <div class="field">
+            <label for="newDriverVehicle" data-i18n="vehicleType"></label>
+            <input id="newDriverVehicle" type="text" required>
+          </div>
+          <div class="field">
+            <label for="newDriverPlate" data-i18n="licensePlate"></label>
+            <input id="newDriverPlate" type="text">
+          </div>
+          <div class="field">
+            <label for="newDriverNotes" data-i18n="notesOptional"></label>
+            <textarea id="newDriverNotes" rows="2"></textarea>
+          </div>
+          <button id="newDriverSubmit" class="primary-btn full" type="submit"><i class="fas fa-user-plus"></i><span data-i18n="submitDriverRequest"></span></button>
+          <div id="partnerActionNotice" class="notice hidden"></div>
+          <div id="partnerActionError" class="error hidden"></div>
+        </form>
+      </section>
+
       <nav class="tabs" id="tabs"></nav>
       <div class="toolbar">
         <input id="searchInput" type="search" autocomplete="off">
@@ -430,7 +495,8 @@
         call: 'Bellen', whatsapp: 'WhatsApp', navPickup: 'Navigatie ophaaladres', navDropoff: 'Navigatie bestemming', accept: 'Accepteren', decline: 'Weigeren', onWay: 'Onderweg', arrived: 'Aangekomen', finish: 'Voltooien', close: 'Sluiten',
         status_assignment_sent: 'Te accepteren', status_assigned: 'Toegewezen', status_accepted: 'Geaccepteerd', status_completed: 'Voltooid', status_cancelled: 'Geannuleerd', status_reassignment_needed: 'Opnieuw toewijzen', status_pending: 'In behandeling',
         progress_on_the_way: 'Onderweg', progress_arrived: 'Aangekomen', progress_completed: 'Voltooid', actionSuccess: 'Actie opgeslagen', authError: 'Inloggen geweigerd of geen gekoppeld chauffeur-/partnerprofiel gevonden.', actionError: 'Actie mislukt', confirmDecline: 'Deze rit weigeren?', confirmComplete: 'Deze rit als voltooid markeren?',
-        role_driver: 'Chauffeur', role_partner: 'Partner', role_driver_partner: 'Chauffeur / Partner', logout: 'Uitloggen'
+        role_driver: 'Chauffeur', role_partner: 'Partner', role_driver_partner: 'Chauffeur / Partner', logout: 'Uitloggen',
+        partnerAssignment: 'Partnertoewijzing', manualPartnerCompany: 'Partnerbedrijf niet in de lijst', licensePlate: 'Nummerplaat', partnerBusiness: 'Partneroverzicht', linkedDrivers: 'Gekoppelde chauffeurs', addDriver: 'Chauffeur aanvragen', submitDriverRequest: 'Chauffeursaanvraag versturen', driverRequestSent: 'Chauffeursaanvraag verstuurd voor validatie.', editDriver: 'Bewerken', archiveDriver: 'Archiveren', saveDriver: 'Opslaan', cancelEdit: 'Annuleren', driverArchived: 'Chauffeur gearchiveerd', driverUpdated: 'Chauffeur bijgewerkt', confirmArchiveDriver: 'Deze chauffeur archiveren?', inactiveDriver: 'Gearchiveerd', noDrivers: 'Geen gekoppelde chauffeurs.', partnerRides: 'Partnerritten', rideVolume: 'Ritvolume', acceptanceStatus: 'Acceptatiestatus'
       },
       fr: {
         appName: 'FleetConnect Partner', appSubtitle: 'Gestion mobile des courses', loginTab: 'Connexion', registerTab: 'Créer un compte', loginTitle: 'Connexion partenaire', loginText: 'Connectez-vous avec votre compte chauffeur ou partenaire FleetConnect.', registerTitle: 'Créer un compte partenaire / chauffeur', registerText: 'Envoyez votre demande. FleetConnect validera votre profil avant tout accès aux courses.', email: 'Adresse e-mail', password: 'Mot de passe', loginButton: 'Se connecter',
@@ -441,7 +507,8 @@
         call: 'Appeler', whatsapp: 'WhatsApp', navPickup: 'Itinéraire départ', navDropoff: 'Itinéraire destination', accept: 'Accepter', decline: 'Refuser', onWay: 'En route', arrived: 'Arrivé', finish: 'Terminer', close: 'Fermer',
         status_assignment_sent: 'À accepter', status_assigned: 'Assignée', status_accepted: 'Acceptée', status_completed: 'Terminée', status_cancelled: 'Annulée', status_reassignment_needed: 'Réaffectation', status_pending: 'En attente',
         progress_on_the_way: 'En route', progress_arrived: 'Arrivé', progress_completed: 'Terminée', actionSuccess: 'Action enregistrée', authError: 'Connexion refusée ou profil chauffeur/partenaire non lié.', actionError: 'Action impossible', confirmDecline: 'Refuser cette course ?', confirmComplete: 'Marquer cette course comme terminée ?',
-        role_driver: 'Chauffeur', role_partner: 'Partenaire', role_driver_partner: 'Chauffeur / Partenaire', logout: 'Déconnexion'
+        role_driver: 'Chauffeur', role_partner: 'Partenaire', role_driver_partner: 'Chauffeur / Partenaire', logout: 'Déconnexion',
+        partnerAssignment: 'Affectation partenaire', manualPartnerCompany: 'Société partenaire non listée', licensePlate: 'Plaque', partnerBusiness: 'Vue partenaire', linkedDrivers: 'Chauffeurs liés', addDriver: 'Demander un chauffeur', submitDriverRequest: 'Envoyer la demande chauffeur', driverRequestSent: 'Demande chauffeur envoyée pour validation.', editDriver: 'Modifier', archiveDriver: 'Archiver', saveDriver: 'Enregistrer', cancelEdit: 'Annuler', driverArchived: 'Chauffeur archivé', driverUpdated: 'Chauffeur mis à jour', confirmArchiveDriver: 'Archiver ce chauffeur ?', inactiveDriver: 'Archivé', noDrivers: 'Aucun chauffeur lié.', partnerRides: 'Courses partenaire', rideVolume: 'Volume de courses', acceptanceStatus: 'Statut d’acceptation'
       },
       en: {
         appName: 'FleetConnect Partner', appSubtitle: 'Mobile ride management', loginTab: 'Sign in', registerTab: 'Create account', loginTitle: 'Partner sign in', loginText: 'Sign in with your FleetConnect driver or partner account.', registerTitle: 'Create partner / driver account', registerText: 'Send your request. FleetConnect will validate your profile before any ride access.', email: 'Email address', password: 'Password', loginButton: 'Sign in',
@@ -452,7 +519,8 @@
         call: 'Call', whatsapp: 'WhatsApp', navPickup: 'Navigate pickup', navDropoff: 'Navigate destination', accept: 'Accept', decline: 'Decline', onWay: 'On the way', arrived: 'Arrived', finish: 'Complete', close: 'Close',
         status_assignment_sent: 'To accept', status_assigned: 'Assigned', status_accepted: 'Accepted', status_completed: 'Completed', status_cancelled: 'Cancelled', status_reassignment_needed: 'Reassignment', status_pending: 'Pending',
         progress_on_the_way: 'On the way', progress_arrived: 'Arrived', progress_completed: 'Completed', actionSuccess: 'Action saved', authError: 'Sign in failed or no linked driver/partner profile was found.', actionError: 'Action failed', confirmDecline: 'Decline this ride?', confirmComplete: 'Mark this ride completed?',
-        role_driver: 'Driver', role_partner: 'Partner', role_driver_partner: 'Driver / Partner', logout: 'Sign out'
+        role_driver: 'Driver', role_partner: 'Partner', role_driver_partner: 'Driver / Partner', logout: 'Sign out',
+        partnerAssignment: 'Partner assignment', manualPartnerCompany: 'Partner company not listed', licensePlate: 'License plate', partnerBusiness: 'Partner overview', linkedDrivers: 'Linked drivers', addDriver: 'Request driver', submitDriverRequest: 'Send driver request', driverRequestSent: 'Driver request sent for validation.', editDriver: 'Edit', archiveDriver: 'Archive', saveDriver: 'Save', cancelEdit: 'Cancel', driverArchived: 'Driver archived', driverUpdated: 'Driver updated', confirmArchiveDriver: 'Archive this driver?', inactiveDriver: 'Archived', noDrivers: 'No linked drivers.', partnerRides: 'Partner rides', rideVolume: 'Ride volume', acceptanceStatus: 'Acceptance status'
       },
       es: {
         appName: 'FleetConnect Partner', appSubtitle: 'Gestión móvil de viajes', loginTab: 'Acceso', registerTab: 'Crear cuenta', loginTitle: 'Acceso de socio', loginText: 'Inicie sesión con su cuenta de conductor o socio FleetConnect.', registerTitle: 'Crear cuenta de socio / conductor', registerText: 'Envíe su solicitud. FleetConnect validará su perfil antes de dar acceso a viajes.', email: 'Correo electrónico', password: 'Contraseña', loginButton: 'Iniciar sesión',
@@ -463,7 +531,8 @@
         call: 'Llamar', whatsapp: 'WhatsApp', navPickup: 'Ruta a recogida', navDropoff: 'Ruta a destino', accept: 'Aceptar', decline: 'Rechazar', onWay: 'En camino', arrived: 'Llegué', finish: 'Completar', close: 'Cerrar',
         status_assignment_sent: 'Por aceptar', status_assigned: 'Asignado', status_accepted: 'Aceptado', status_completed: 'Completado', status_cancelled: 'Cancelado', status_reassignment_needed: 'Reasignación', status_pending: 'Pendiente',
         progress_on_the_way: 'En camino', progress_arrived: 'Llegué', progress_completed: 'Completado', actionSuccess: 'Acción guardada', authError: 'Acceso rechazado o perfil de conductor/socio no vinculado.', actionError: 'Acción fallida', confirmDecline: '¿Rechazar este viaje?', confirmComplete: '¿Marcar este viaje como completado?',
-        role_driver: 'Conductor', role_partner: 'Socio', role_driver_partner: 'Conductor / Socio', logout: 'Cerrar sesión'
+        role_driver: 'Conductor', role_partner: 'Socio', role_driver_partner: 'Conductor / Socio', logout: 'Cerrar sesión',
+        partnerAssignment: 'Asignación de socio', manualPartnerCompany: 'Empresa asociada no listada', licensePlate: 'Matrícula', partnerBusiness: 'Vista de socio', linkedDrivers: 'Conductores vinculados', addDriver: 'Solicitar conductor', submitDriverRequest: 'Enviar solicitud de conductor', driverRequestSent: 'Solicitud de conductor enviada para validación.', editDriver: 'Editar', archiveDriver: 'Archivar', saveDriver: 'Guardar', cancelEdit: 'Cancelar', driverArchived: 'Conductor archivado', driverUpdated: 'Conductor actualizado', confirmArchiveDriver: '¿Archivar este conductor?', inactiveDriver: 'Archivado', noDrivers: 'No hay conductores vinculados.', partnerRides: 'Viajes del socio', rideVolume: 'Volumen de viajes', acceptanceStatus: 'Estado de aceptación'
       },
       ar: {
         appName: 'FleetConnect Partner', appSubtitle: 'إدارة الرحلات عبر الهاتف', loginTab: 'تسجيل الدخول', registerTab: 'إنشاء حساب', loginTitle: 'تسجيل دخول الشريك', loginText: 'سجّل الدخول بحساب سائق أو شريك FleetConnect.', registerTitle: 'إنشاء حساب شريك / سائق', registerText: 'أرسل طلبك. ستقوم FleetConnect بالتحقق من الملف قبل إتاحة الوصول إلى الرحلات.', email: 'البريد الإلكتروني', password: 'كلمة المرور', loginButton: 'تسجيل الدخول',
@@ -474,14 +543,21 @@
         call: 'اتصال', whatsapp: 'واتساب', navPickup: 'الملاحة إلى الانطلاق', navDropoff: 'الملاحة إلى الوجهة', accept: 'قبول', decline: 'رفض', onWay: 'في الطريق', arrived: 'وصلت', finish: 'إنهاء', close: 'إغلاق',
         status_assignment_sent: 'للقبول', status_assigned: 'مخصصة', status_accepted: 'مقبولة', status_completed: 'مكتملة', status_cancelled: 'ملغاة', status_reassignment_needed: 'إعادة تخصيص', status_pending: 'قيد الانتظار',
         progress_on_the_way: 'في الطريق', progress_arrived: 'وصلت', progress_completed: 'مكتملة', actionSuccess: 'تم حفظ الإجراء', authError: 'فشل الدخول أو لا يوجد ملف سائق/شريك مرتبط.', actionError: 'تعذر تنفيذ الإجراء', confirmDecline: 'رفض هذه الرحلة؟', confirmComplete: 'وضع الرحلة كمكتملة؟',
-        role_driver: 'سائق', role_partner: 'شريك', role_driver_partner: 'سائق / شريك', logout: 'تسجيل الخروج'
+        role_driver: 'سائق', role_partner: 'شريك', role_driver_partner: 'سائق / شريك', logout: 'تسجيل الخروج',
+        partnerAssignment: 'تعيين الشريك', manualPartnerCompany: 'شركة شريكة غير مدرجة', licensePlate: 'لوحة السيارة', partnerBusiness: 'نظرة الشريك', linkedDrivers: 'السائقون المرتبطون', addDriver: 'طلب سائق', submitDriverRequest: 'إرسال طلب السائق', driverRequestSent: 'تم إرسال طلب السائق للتحقق.', editDriver: 'تعديل', archiveDriver: 'أرشفة', saveDriver: 'حفظ', cancelEdit: 'إلغاء', driverArchived: 'تمت أرشفة السائق', driverUpdated: 'تم تحديث السائق', confirmArchiveDriver: 'أرشفة هذا السائق؟', inactiveDriver: 'مؤرشف', noDrivers: 'لا يوجد سائقون مرتبطون.', partnerRides: 'رحلات الشريك', rideVolume: 'حجم الرحلات', acceptanceStatus: 'حالة القبول'
       }
     };
 
+    const supportedLanguages = ['en', 'fr', 'nl', 'es', 'ar'];
+    const browserLanguage = (navigator.language || '').slice(0, 2).toLowerCase();
+    const savedLanguage = localStorage.getItem('fc_partner_lang');
+
     const state = {
-      lang: localStorage.getItem('fc_partner_lang') || 'en',
+      lang: supportedLanguages.includes(savedLanguage) ? savedLanguage : (supportedLanguages.includes(browserLanguage) ? browserLanguage : 'en'),
       context: null,
       rides: [],
+      partnerDrivers: [],
+      partnerOptions: [],
       activeTab: 'all',
       selectedRide: null,
       deferredInstallPrompt: null,
@@ -494,6 +570,8 @@
     const phoneHref = (phone) => phone ? `tel:${String(phone).replace(/[^+\d]/g, '')}` : null;
     const whatsappHref = (phone) => phone ? `https://wa.me/${String(phone).replace(/[^\d]/g, '')}` : null;
     const mapsHref = (address) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || '')}`;
+    const isPartnerRole = () => ['partner', 'driver_partner'].includes(state.context?.role);
+    const isDriverRole = () => ['driver', 'driver_partner'].includes(state.context?.role);
 
     function applyLanguage() {
       document.documentElement.lang = state.lang;
@@ -507,6 +585,7 @@
       renderTabs();
       renderBottomNav();
       renderRides();
+      renderPartnerBusiness();
       if (state.selectedRide) renderDetail(state.selectedRide);
     }
 
@@ -569,15 +648,26 @@
           <option value="es">Español</option>
           <option value="ar">العربية</option>
         `;
-        langSelect.value = ['nl', 'fr', 'en', 'es', 'ar'].includes(currentLang) ? currentLang : state.lang;
+        langSelect.value = supportedLanguages.includes(currentLang) ? currentLang : state.lang;
+      }
+      const partnerSelect = $('requestPartnerId');
+      if (partnerSelect) {
+        const currentPartner = partnerSelect.value || '';
+        const partnerOptions = state.partnerOptions.map(partner => `<option value="${escapeHtml(partner.id)}">${escapeHtml(partner.name)}</option>`).join('');
+        partnerSelect.innerHTML = `<option value="">${escapeHtml(t('manualPartnerCompany'))}</option>${partnerOptions}`;
+        partnerSelect.value = currentPartner;
       }
       updateCompanyRequirement();
     }
 
     function updateCompanyRequirement() {
       const isPartner = $('requestType')?.value !== 'Driver';
+      const hasSelectedPartner = Boolean($('requestPartnerId')?.value);
       if ($('requestCompany')) $('requestCompany').required = isPartner;
       if ($('companyField')) $('companyField').classList.toggle('hidden', !isPartner);
+      if ($('partnerSelectField')) $('partnerSelectField').classList.toggle('hidden', isPartner);
+      if ($('manualPartnerField')) $('manualPartnerField').classList.toggle('hidden', isPartner || hasSelectedPartner);
+      if ($('requestPartnerManual')) $('requestPartnerManual').required = !isPartner && !hasSelectedPartner;
     }
 
     async function login(email, password) {
@@ -595,15 +685,30 @@
       }
     }
 
+    async function loadPartnerOptions() {
+      try {
+        const { data, error } = await supabase.rpc('partner_pwa_public_partner_options');
+        if (error) throw error;
+        state.partnerOptions = Array.isArray(data) ? data : [];
+        renderRegistrationOptions();
+      } catch (err) {
+        state.partnerOptions = [];
+        console.warn('Partner options unavailable:', err.message || err);
+      }
+    }
+
     async function submitRegistrationRequest() {
       $('authError').classList.add('hidden');
       $('authNotice').classList.add('hidden');
       const accountType = $('requestType').value;
       const name = $('requestName').value.trim();
       const company = $('requestCompany').value.trim();
+      const selectedPartnerId = $('requestPartnerId')?.value || '';
+      const manualPartnerCompany = $('requestPartnerManual')?.value.trim() || '';
       const email = $('requestEmail').value.trim().toLowerCase();
       const phone = $('requestPhone').value.trim();
       const vehicleType = $('requestVehicle').value.trim();
+      const licensePlate = $('requestPlate').value.trim();
       const operatingArea = $('requestRegion').value.trim();
       const preferredLanguage = $('requestPreferredLanguage').value;
       const password = $('requestPassword').value;
@@ -611,6 +716,10 @@
       const notes = $('requestNotes').value.trim();
 
       if (accountType === 'Partner' && !company) {
+        showAuthError(t('companyRequired'));
+        return;
+      }
+      if (accountType === 'Driver' && !selectedPartnerId && !manualPartnerCompany) {
         showAuthError(t('companyRequired'));
         return;
       }
@@ -649,7 +758,7 @@
           throw signUpResult.error;
         }
 
-        const { error } = await supabase.rpc('submit_account_request', {
+        const { error } = await supabase.rpc('partner_pwa_submit_account_request', {
           payload: {
             name,
             email,
@@ -661,6 +770,9 @@
             source: 'partner-pwa-registration',
             user_agent: navigator.userAgent,
             vehicle_type: vehicleType,
+            license_plate: licensePlate,
+            partner_id: selectedPartnerId,
+            partner_company_name: manualPartnerCompany,
             operating_area: operatingArea,
             preferred_language: preferredLanguage,
             requested_portal: 'partner-app'
@@ -691,9 +803,21 @@
         const { data, error } = await supabase.rpc('partner_pwa_rides');
         if (error) throw error;
         state.context = data?.context || null;
+        const preferredLanguage = state.context?.preferred_language;
+        if (supportedLanguages.includes(preferredLanguage) && preferredLanguage !== state.lang) {
+          state.lang = preferredLanguage;
+          localStorage.setItem('fc_partner_lang', state.lang);
+          applyLanguage();
+        }
         state.rides = Array.isArray(data?.rides) ? data.rides : [];
+        if (isPartnerRole()) {
+          await loadPartnerDrivers();
+        } else {
+          state.partnerDrivers = [];
+        }
         renderProfile();
         renderStats();
+        renderPartnerBusiness();
         renderTabs();
         renderBottomNav();
         renderRides();
@@ -702,6 +826,17 @@
         showAuthError(err.message || t('authError'));
       } finally {
         setBusy(false);
+      }
+    }
+
+    async function loadPartnerDrivers() {
+      try {
+        const { data, error } = await supabase.rpc('partner_pwa_partner_drivers');
+        if (error) throw error;
+        state.partnerDrivers = Array.isArray(data?.drivers) ? data.drivers : [];
+      } catch (err) {
+        state.partnerDrivers = [];
+        console.warn('Partner driver list unavailable:', err.message || err);
       }
     }
 
@@ -734,6 +869,54 @@
       $('statActive').textContent = assigned;
       $('statCompleted').textContent = completed;
       $('statTotal').textContent = state.rides.length;
+    }
+
+    function renderPartnerBusiness() {
+      const panel = $('partnerBusinessPanel');
+      if (!panel) return;
+      panel.classList.toggle('hidden', !isPartnerRole());
+      if (!isPartnerRole()) return;
+
+      const partner = state.context?.partner || {};
+      const activeDrivers = state.partnerDrivers.filter(driver => driver.is_active !== false && !driver.archived_at);
+      $('partnerDriverCount').textContent = activeDrivers.length;
+      $('partnerSummary').innerHTML = `
+        ${infoBox(t('partner'), partner.name || '-')}
+        ${infoBox(t('email'), partner.email || state.context?.email || '-')}
+        ${infoBox(t('phone'), partner.phone || '-')}
+        ${infoBox(t('rideVolume'), String(state.rides.length))}
+        ${infoBox(t('acceptanceStatus'), `${state.rides.filter(isPendingRide).length} ${t('pending')}`)}
+        ${infoBox(t('completed'), String(state.rides.filter(isCompletedRide).length))}
+      `;
+      renderPartnerDrivers();
+    }
+
+    function renderPartnerDrivers() {
+      const list = $('partnerDriverList');
+      if (!list) return;
+      if (!state.partnerDrivers.length) {
+        list.innerHTML = `<div class="empty"><i class="fas fa-id-card"></i><h3>${escapeHtml(t('noDrivers'))}</h3></div>`;
+        return;
+      }
+      list.innerHTML = state.partnerDrivers.map(driver => {
+        const inactive = driver.is_active === false || Boolean(driver.archived_at);
+        return `<article class="driver-card ${inactive ? 'inactive' : ''}" data-driver-id="${escapeHtml(driver.id)}">
+          <h4>${escapeHtml(driver.name || '-')} ${inactive ? `<span class="status cancelled">${escapeHtml(t('inactiveDriver'))}</span>` : ''}</h4>
+          <p>${escapeHtml(driver.email || '-')} · ${escapeHtml(driver.phone || '-')}</p>
+          <p>${escapeHtml(driver.vehicle || '-')} · ${escapeHtml(driver.license_plate || '-')}</p>
+          <div class="driver-actions">
+            <button class="secondary-btn" type="button" data-driver-action="edit"><i class="fas fa-pen"></i>${escapeHtml(t('editDriver'))}</button>
+            <button class="danger-btn" type="button" data-driver-action="archive" ${inactive ? 'disabled' : ''}><i class="fas fa-box-archive"></i>${escapeHtml(t('archiveDriver'))}</button>
+          </div>
+        </article>`;
+      }).join('');
+      list.querySelectorAll('[data-driver-action]').forEach(btn => btn.addEventListener('click', () => {
+        const card = btn.closest('[data-driver-id]');
+        const driver = state.partnerDrivers.find(item => item.id === card?.dataset.driverId);
+        if (!driver) return;
+        if (btn.dataset.driverAction === 'edit') editPartnerDriver(driver);
+        if (btn.dataset.driverAction === 'archive') archivePartnerDriver(driver);
+      }));
     }
 
     function tabs() {
@@ -873,6 +1056,79 @@
       return `<div class="info-box"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
     }
 
+    function showPartnerNotice(message) {
+      $('partnerActionNotice').textContent = message;
+      $('partnerActionNotice').classList.remove('hidden');
+      $('partnerActionError').classList.add('hidden');
+    }
+
+    function showPartnerError(message) {
+      $('partnerActionError').textContent = message;
+      $('partnerActionError').classList.remove('hidden');
+      $('partnerActionNotice').classList.add('hidden');
+    }
+
+    async function submitPartnerDriverRequest() {
+      $('partnerActionError').classList.add('hidden');
+      $('partnerActionNotice').classList.add('hidden');
+      $('newDriverSubmit').disabled = true;
+      try {
+        const payload = {
+          name: $('newDriverName').value.trim(),
+          email: $('newDriverEmail').value.trim().toLowerCase(),
+          phone: $('newDriverPhone').value.trim(),
+          vehicle_type: $('newDriverVehicle').value.trim(),
+          license_plate: $('newDriverPlate').value.trim(),
+          preferred_language: state.lang,
+          notes: $('newDriverNotes').value.trim()
+        };
+        const { error } = await supabase.rpc('partner_pwa_request_driver', { payload });
+        if (error) throw error;
+        $('partnerDriverRequestForm').reset();
+        showPartnerNotice(t('driverRequestSent'));
+      } catch (err) {
+        showPartnerError(`${t('requestFailed')} ${err.message || ''}`.trim());
+      } finally {
+        $('newDriverSubmit').disabled = false;
+      }
+    }
+
+    async function editPartnerDriver(driver) {
+      const name = prompt(t('fullName'), driver.name || '');
+      if (name === null) return;
+      const phone = prompt(t('phone'), driver.phone || '');
+      if (phone === null) return;
+      const vehicle = prompt(t('vehicleType'), driver.vehicle || '');
+      if (vehicle === null) return;
+      const licensePlate = prompt(t('licensePlate'), driver.license_plate || '');
+      if (licensePlate === null) return;
+      try {
+        const { error } = await supabase.rpc('partner_pwa_update_driver', {
+          p_driver_id: driver.id,
+          payload: { name, phone, vehicle, license_plate: licensePlate }
+        });
+        if (error) throw error;
+        await loadPartnerDrivers();
+        renderPartnerBusiness();
+        showPartnerNotice(t('driverUpdated'));
+      } catch (err) {
+        showPartnerError(`${t('actionError')}: ${err.message || ''}`.trim());
+      }
+    }
+
+    async function archivePartnerDriver(driver) {
+      if (!confirm(t('confirmArchiveDriver'))) return;
+      try {
+        const { error } = await supabase.rpc('partner_pwa_archive_driver', { p_driver_id: driver.id });
+        if (error) throw error;
+        await loadPartnerDrivers();
+        renderPartnerBusiness();
+        showPartnerNotice(t('driverArchived'));
+      } catch (err) {
+        showPartnerError(`${t('actionError')}: ${err.message || ''}`.trim());
+      }
+    }
+
     async function handleRideAction(action, ride) {
       if (action === 'close') {
         closeDetail();
@@ -948,6 +1204,11 @@
     $('showLoginBtn').addEventListener('click', () => setAuthMode('login'));
     $('showRegisterBtn').addEventListener('click', () => setAuthMode('register'));
     $('requestType').addEventListener('change', updateCompanyRequirement);
+    $('requestPartnerId').addEventListener('change', updateCompanyRequirement);
+    $('partnerDriverRequestForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      submitPartnerDriverRequest();
+    });
     $('logoutBtn').addEventListener('click', async () => {
       await supabase.auth.signOut();
       state.context = null;
@@ -967,6 +1228,7 @@
     }
 
     setupIosHint();
+    loadPartnerOptions();
     applyLanguage();
     loadApp();
   </script>
