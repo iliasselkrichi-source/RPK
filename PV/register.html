@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,10 +23,20 @@
         .footer-link { display: inline-block; margin-top: 24px; font-size: 0.85rem; color: var(--primary); text-decoration: none; font-weight: 600; }
         .error-msg { background: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px; display: none; text-align: left; }
         .success-msg { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px; display: none; text-align: left; }
+        .language-switch { display:flex; justify-content:center; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+        .language-switch button { border:1px solid #e2edf7; background:#fff; color:#1a2a3a; border-radius:999px; padding:6px 10px; font-weight:700; font-size:.75rem; cursor:pointer; }
+        .language-switch button.active { background:var(--primary); border-color:var(--primary); color:#fff; }
     </style>
 </head>
 <body>
     <div class="card">
+        <div class="language-switch" aria-label="Language">
+            <button type="button" data-lang="en">EN</button>
+            <button type="button" data-lang="fr">FR</button>
+            <button type="button" data-lang="nl">NL</button>
+            <button type="button" data-lang="es">ES</button>
+            <button type="button" data-lang="ar">AR</button>
+        </div>
         <i class="fas fa-user-plus" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 16px;"></i>
         <h1 data-i18n="auth_register_title">Account aanmaken</h1>
         <p data-i18n="auth_register_subtitle">Registreer voor een snellere boekingervaring</p>
@@ -34,7 +44,7 @@
         <div id="errorBox" class="error-msg"></div>
         <div id="successBox" class="success-msg"></div>
         <div id="addressHint" class="address-hint" style="display:none; background:#fef3c7; color:#92400e; padding:10px 14px; border-radius:10px; font-size:0.8rem; margin-bottom:18px; text-align:left; border:1px solid #fde68a;">
-            <i class="fas fa-info-circle"></i> <strong>Adres automatisch aanvullen niet beschikbaar.</strong> Geen probleem — typ uw adres handmatig in (straat + nummer + stad). Minimaal 3 tekens.
+            <i class="fas fa-info-circle"></i> <strong>Adres automatisch aanvullen niet beschikbaar.</strong> Geen probleem - typ uw adres handmatig in (straat + nummer + stad). Minimaal 3 tekens.
         </div>
 
         <form id="registerForm" novalidate>
@@ -71,7 +81,7 @@
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-        // comms is optional — wrap import in try/catch so registration still works
+        // comms is optional - wrap import in try/catch so registration still works
         // even if the communication module fails to load
         let comms = null;
         try {
@@ -84,7 +94,7 @@
                 sendAccountWelcome: async () => ({ success: false, error: 'comms module unavailable' })
             };
         }
-     
+
         const SUPABASE_URL = 'https://rreqjjrmvytnwnsidmqi.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZXFqanJtdnl0bnduc2lkbXFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MjAxMzcsImV4cCI6MjA5Mzk5NjEzN30.q4M3A6Dix3F_9Im2pw8DUIeE4C-INtUlvImRDM58MTA';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -96,6 +106,42 @@
         const registerParams = new URLSearchParams(window.location.search);
         const requestedBookingId = registerParams.get('booking') || registerParams.get('booking_id') || registerParams.get('id') || '';
         const requestedEmail = registerParams.get('email') || '';
+        const LANGUAGE_ORDER = ['en', 'fr', 'nl', 'es', 'ar'];
+        const currentLang = LANGUAGE_ORDER.includes(registerParams.get('lang'))
+            ? registerParams.get('lang')
+            : (LANGUAGE_ORDER.includes(localStorage.getItem('fleetconnect_language')) ? localStorage.getItem('fleetconnect_language') : 'en');
+        localStorage.setItem('fleetconnect_language', currentLang);
+        const REGISTER_UI = {
+            en: { title: 'Create account', subtitle: 'Register for a faster booking experience', fullName: 'Full name', email: 'Email address', phone: 'Phone number', pickup: 'Default pickup address', password: 'Password', repeat: 'Repeat password', submit: 'Register', footer: 'Already have an account? Sign in' },
+            fr: { title: 'Cr\u00e9er un compte', subtitle: 'Inscrivez-vous pour r\u00e9server plus rapidement', fullName: 'Nom complet', email: 'Adresse e-mail', phone: 'T\u00e9l\u00e9phone', pickup: 'Adresse de prise en charge par d\u00e9faut', password: 'Mot de passe', repeat: 'R\u00e9p\u00e9ter le mot de passe', submit: 'Cr\u00e9er le compte', footer: 'Vous avez d\u00e9j\u00e0 un compte ? Connexion' },
+            nl: { title: 'Account aanmaken', subtitle: 'Registreer voor een snellere boekingervaring', fullName: 'Volledige naam', email: 'E-mailadres', phone: 'Telefoonnummer', pickup: 'Standaard ophaallocatie', password: 'Wachtwoord', repeat: 'Herhaal wachtwoord', submit: 'Registreren', footer: 'Heeft u al een account? Inloggen' },
+            es: { title: 'Crear cuenta', subtitle: 'Reg\u00edstrese para reservar m\u00e1s r\u00e1pido', fullName: 'Nombre completo', email: 'Correo electr\u00f3nico', phone: 'Tel\u00e9fono', pickup: 'Direcci\u00f3n de recogida predeterminada', password: 'Contrase\u00f1a', repeat: 'Repetir contrase\u00f1a', submit: 'Registrar', footer: '\u00bfYa tiene cuenta? Iniciar sesi\u00f3n' },
+            ar: { title: '\u0625\u0646\u0634\u0627\u0621 \u062d\u0633\u0627\u0628', subtitle: '\u0633\u062c\u0644 \u0644\u062d\u062c\u0632 \u0623\u0633\u0631\u0639', fullName: '\u0627\u0644\u0627\u0633\u0645 \u0627\u0644\u0643\u0627\u0645\u0644', email: '\u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a', phone: '\u0631\u0642\u0645 \u0627\u0644\u0647\u0627\u062a\u0641', pickup: '\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0627\u0646\u0637\u0644\u0627\u0642 \u0627\u0644\u0627\u0641\u062a\u0631\u0627\u0636\u064a', password: '\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631', repeat: '\u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631', submit: '\u062a\u0633\u062c\u064a\u0644', footer: '\u0647\u0644 \u0644\u062f\u064a\u0643 \u062d\u0633\u0627\u0628\u061f \u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644' }
+        };
+        function applyRegisterLanguage() {
+            const t = REGISTER_UI[currentLang] || REGISTER_UI.en;
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.querySelector('[data-i18n="auth_register_title"]').textContent = t.title;
+            document.querySelector('[data-i18n="auth_register_subtitle"]').textContent = t.subtitle;
+            document.querySelector('[data-i18n="auth_fullname"]').textContent = t.fullName;
+            document.querySelector('[data-i18n="auth_email"]').textContent = t.email;
+            document.querySelector('[data-i18n="auth_phone"]').textContent = t.phone;
+            document.querySelector('[data-i18n="portal_label_pickup"]').textContent = t.pickup;
+            document.querySelector('[data-i18n="auth_password"]').textContent = t.password;
+            document.querySelectorAll('.field label')[5].textContent = t.repeat;
+            document.getElementById('regBtn').textContent = t.submit;
+            document.querySelector('[data-i18n="auth_already_account"]').textContent = t.footer;
+            document.querySelectorAll('[data-lang]').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
+        }
+        document.querySelectorAll('[data-lang]').forEach(btn => btn.addEventListener('click', () => {
+            localStorage.setItem('fleetconnect_language', btn.dataset.lang);
+            const params = new URLSearchParams(window.location.search);
+            params.set('lang', btn.dataset.lang);
+            window.location.href = window.location.pathname + '?' + params.toString();
+        }));
+
+        applyRegisterLanguage();
 
         if (requestedEmail) {
             document.getElementById('emailInput').value = requestedEmail;
@@ -151,7 +197,7 @@
             // Set a watchdog: if no Pac container appears after 1.5s, the API is broken
             setTimeout(() => {
                 if (document.querySelectorAll('.pac-container').length === 0) {
-                    // No autocomplete dropdown appeared — Places isn't working
+                    // No autocomplete dropdown appeared - Places is not working
                     if (hint) hint.style.display = 'block';
                 }
             }, 1500);
@@ -191,6 +237,7 @@
             params.set('reason', 'registered');
             if (requestedBookingId) params.set('booking', requestedBookingId);
             if (email) params.set('email', email);
+            params.set('lang', currentLang);
             return params.toString() ? `/PV/index.html?${params.toString()}` : '/PV/index.html';
         }
 
@@ -261,7 +308,7 @@
 
             try {
                 regBtn.disabled = true;
-                regBtn.textContent = 'Registratie wordt verwerkt...';
+                regBtn.textContent = ({ en: 'Creating account...', fr: 'Cr\u00e9ation du compte...', nl: 'Registratie wordt verwerkt...', es: 'Registrando...', ar: '\u062c\u0627\u0631\u064a \u0627\u0644\u062a\u0633\u062c\u064a\u0644...' }[currentLang]) || 'Creating account...';
                 // 1. Sign up user
                 const wwwOrigin = window.location.hostname.startsWith('www.')
                     ? window.location.origin
@@ -270,7 +317,7 @@
                     email,
                     password,
                     options: {
-                        data: { full_name: fullName, phone: phone },
+                        data: { full_name: fullName, phone: phone, preferred_language: currentLang },
                         // FIX Issue 3 (2026-06-16 cert cycle 5): send the user to the
                         // verification page (which shows the success message and then
                         // redirects to the login page with reason=verified). Previously
@@ -290,6 +337,19 @@
                 });
 
                 if (signUpError) throw signUpError;
+                try {
+                    const resendParams = new URLSearchParams();
+                    if (requestedBookingId) resendParams.set('booking', requestedBookingId);
+                    resendParams.set('email', email);
+                    resendParams.set('lang', currentLang);
+                    await supabase.auth.resend({
+                        type: 'signup',
+                        email,
+                        options: { emailRedirectTo: `${wwwOrigin}/PV/verificatiepv.html?${resendParams.toString()}` }
+                    });
+                } catch (resendErr) {
+                    console.warn('Verification email resend skipped:', resendErr.message);
+                }
 
                 if (data.user) {
                     // 2. Create customer record through a constrained RPC. Link user_id now only when a verified session exists.
@@ -301,7 +361,8 @@
                             name: fullName,
                             email: email,
                             phone: phone,
-                            default_pickup_address: pickup
+                            default_pickup_address: pickup,
+                            preferred_language: currentLang
                             }
                         });
 
@@ -330,7 +391,7 @@
                     }
 
                     try {
-                        await (coms?.sendAccountWelcome ? comms.sendAccountWelcome({
+                        await (comms?.sendAccountWelcome ? comms.sendAccountWelcome({
                             id: customerId,
                             name: fullName,
                             email,
@@ -340,7 +401,7 @@
                         console.warn('Welcome email skipped:', welcomeErr.message);
                     }
 
-                    showSuccess('✓ Account aangemaakt. We hebben u een verificatiemail gestuurd. Klik op de link in die email om uw account te bevestigen — daarna kunt u inloggen.');
+                    showSuccess(({ en: 'Account created. We sent you a verification email. Confirm your email address, then sign in.', fr: 'Compte cr\u00e9\u00e9. Nous vous avons envoy\u00e9 un e-mail de v\u00e9rification. Confirmez votre adresse e-mail, puis connectez-vous.', nl: 'Account aangemaakt. We hebben u een verificatiemail gestuurd. Bevestig uw e-mailadres en log daarna in.', es: 'Cuenta creada. Le enviamos un correo de verificaci\u00f3n. Confirme su correo y luego inicie sesi\u00f3n.', ar: '\u062a\u0645 \u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u062d\u0633\u0627\u0628. \u0623\u0631\u0633\u0644\u0646\u0627 \u0644\u0643 \u0631\u0633\u0627\u0644\u0629 \u062a\u062d\u0642\u0642. \u064a\u0631\u062c\u0649 \u062a\u0623\u0643\u064a\u062f \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u062b\u0645 \u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644.' }[currentLang]) || 'Account created. We sent you a verification email. Confirm your email address, then sign in.');
                     setTimeout(() => {
                         window.location.href = loginUrl(email);
                     }, 1800);
@@ -349,7 +410,7 @@
                 showError(err.message);
             } finally {
                 regBtn.disabled = false;
-                regBtn.textContent = 'Registreren';
+                regBtn.textContent = (REGISTER_UI[currentLang] || REGISTER_UI.en).submit;
             }
         });
     </script>

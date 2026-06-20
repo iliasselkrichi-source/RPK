@@ -105,12 +105,12 @@ export class DataNormalizer {
                     booking.metadata?.route_duration_min ||
                     0
                 ),
-                preferred_language: booking.preferred_language || customer?.preferred_language || 'nl',
+                preferred_language: booking.preferred_language || customer?.preferred_language || 'en',
                 customer: customer ? {
                     name: customer.full_name || customer.name || booking.name,
                     email: customer.email || booking.email,
                     phone: customer.phone || booking.phone,
-                    preferred_language: customer.preferred_language || 'nl'
+                    preferred_language: customer.preferred_language || 'en'
                 } : {
                     name: booking.name,
                     email: booking.email,

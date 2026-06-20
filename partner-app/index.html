@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -279,9 +279,9 @@
         </div>
         <div class="top-actions">
           <select id="languageSelect" class="lang-select" aria-label="Language">
-            <option value="nl">NL</option>
-            <option value="fr">FR</option>
             <option value="en">EN</option>
+            <option value="fr">FR</option>
+            <option value="nl">NL</option>
             <option value="es">ES</option>
             <option value="ar">AR</option>
           </select>
@@ -479,7 +479,7 @@
     };
 
     const state = {
-      lang: localStorage.getItem('fc_partner_lang') || 'fr',
+      lang: localStorage.getItem('fc_partner_lang') || 'en',
       context: null,
       rides: [],
       activeTab: 'all',
@@ -489,7 +489,7 @@
     };
 
     const $ = (id) => document.getElementById(id);
-    const t = (key) => translations[state.lang][key] || translations.fr[key] || key;
+    const t = (key) => translations[state.lang][key] || translations.en[key] || key;
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const phoneHref = (phone) => phone ? `tel:${String(phone).replace(/[^+\d]/g, '')}` : null;
     const whatsappHref = (phone) => phone ? `https://wa.me/${String(phone).replace(/[^\d]/g, '')}` : null;
@@ -563,9 +563,9 @@
       if (langSelect) {
         const currentLang = langSelect.value || state.lang;
         langSelect.innerHTML = `
-          <option value="nl">Nederlands</option>
-          <option value="fr">Français</option>
           <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="nl">Nederlands</option>
           <option value="es">Español</option>
           <option value="ar">العربية</option>
         `;
