@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -128,6 +128,10 @@
         const show = name => { ['loading', 'success', 'sent', 'error'].forEach(s => $(`state-${s}`).classList.toggle('hidden', s !== name)); };
 
         const queryEmail = new URLSearchParams(window.location.search).get('email') || '';
+        const queryLang = new URLSearchParams(window.location.search).get('lang') || localStorage.getItem('fleetconnect_language') || 'en';
+        localStorage.setItem('fleetconnect_language', queryLang);
+        document.documentElement.lang = queryLang;
+        document.documentElement.dir = queryLang === 'ar' ? 'rtl' : 'ltr';
         const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
         const hashError = hashParams.get('error_description') || hashParams.get('error') || '';
         const hashAccessToken = hashParams.get('access_token') || '';
@@ -168,7 +172,7 @@
                     $('resendLink').onclick = async (e) => {
                         e.preventDefault();
                         try {
-                            const { error } = await supabase.auth.resend({ type: 'signup', email: queryEmail, options: { emailRedirectTo: window.location.origin + '/PV/verificatiepv.html?email=' + encodeURIComponent(queryEmail) } });
+                            const { error } = await supabase.auth.resend({ type: 'signup', email: queryEmail, options: { emailRedirectTo: window.location.origin + '/PV/verificatiepv.html?email=' + encodeURIComponent(queryEmail) + '&lang=' + encodeURIComponent(queryLang) } });
                             if (error) throw error;
                             $('resendLink').textContent = '✓ Verstuurd — controleer uw inbox';
                             setTimeout(() => { $('resendLink').textContent = 'Verstuur opnieuw'; }, 4000);
@@ -195,6 +199,7 @@
             const params = new URLSearchParams();
             params.set('reason', 'verified');
             if (queryEmail) params.set('email', queryEmail);
+            params.set('lang', queryLang);
             return '/PV/index.html?' + params.toString();
         }
 

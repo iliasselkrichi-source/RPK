@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -147,9 +147,16 @@
 <body>
 
     <div class="login-card">
+        <div class="language-switch" aria-label="Language">
+            <button type="button" data-lang="en">EN</button>
+            <button type="button" data-lang="fr">FR</button>
+            <button type="button" data-lang="nl">NL</button>
+            <button type="button" data-lang="es">ES</button>
+            <button type="button" data-lang="ar">AR</button>
+        </div>
         <i class="fas fa-car" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 16px;"></i>
         <h1>FleetConnect</h1>
-        <p>Professioneel taxivervoer in België</p>
+        <p id="subtitleText">Professional taxi transport in Belgium</p>
 
         <div id="errorBox" class="error-msg"></div>
         <div id="infoBox" class="info-msg"></div>
@@ -164,7 +171,7 @@
         </div>
 
         <button class="btn-login" id="loginBtn">
-            <i class="fas fa-sign-in-alt"></i> Inloggen
+            <i class="fas fa-sign-in-alt"></i> <span id="loginBtnText">Sign in</span>
         </button>
 
         <div class="info-text">
@@ -189,6 +196,23 @@
         const requestedBookingId = loginParams.get('booking') || loginParams.get('booking_id') || loginParams.get('id') || '';
         const requestedEmail = loginParams.get('email') || '';
         const loginReason = loginParams.get('reason') || '';
+        const LANGUAGE_ORDER = ['en', 'fr', 'nl', 'es', 'ar'];
+        const UI = {
+            en: { subtitle: 'Professional taxi transport in Belgium', email: 'Email address', emailPlaceholder: 'you@email.com', password: 'Password', passwordPlaceholder: 'password', login: 'Sign in', helper: 'Sign in with your FleetConnect customer account.', register: 'Create account', registered: 'Account successfully created. We sent you a verification email. Please confirm your email address, then sign in to the customer portal.', verified: 'Email successfully verified. You can now sign in.', pending: 'Your account is awaiting approval.', profile: 'Your customer profile is not linked yet. Sign in again after verification or contact support.', session: 'Sign in to open the customer portal.', checking: 'Your email is confirmed. We are checking your customer access.', verifyFailed: 'Verification could not be completed. Try again or contact support@fleetconnect.be.', fillCredentials: 'Enter both email address and password.', noSession: 'No valid session found.', loginBusy: 'Signing in...', invalid: 'Invalid login details. Try again.', notConfirmed: 'Your email address is not confirmed yet. Check your verification email.', resend: 'Resend verification email', resendSent: 'Verification email sent again. Please check your inbox and spam folder.', resendFailed: 'Verification email could not be resent.' },
+            fr: { subtitle: 'Transport taxi professionnel en Belgique', email: 'Adresse e-mail', emailPlaceholder: 'vous@email.com', password: 'Mot de passe', passwordPlaceholder: 'mot de passe', login: 'Connexion', helper: 'Connectez-vous avec votre compte client FleetConnect.', register: 'Créer un compte', registered: 'Compte créé avec succès. Nous vous avons envoyé un e-mail de vérification. Confirmez votre adresse e-mail, puis connectez-vous au portail client.', verified: 'Adresse e-mail vérifiée. Vous pouvez maintenant vous connecter.', pending: 'Votre compte est en attente de validation.', profile: 'Votre profil client n’est pas encore lié. Reconnectez-vous après vérification ou contactez le support.', session: 'Connectez-vous pour ouvrir le portail client.', checking: 'Votre e-mail est confirmé. Nous vérifions votre accès client.', verifyFailed: 'La vérification n’a pas pu être terminée. Réessayez ou contactez support@fleetconnect.be.', fillCredentials: 'Saisissez l’adresse e-mail et le mot de passe.', noSession: 'Aucune session valide trouvée.', loginBusy: 'Connexion...', invalid: 'Identifiants invalides. Réessayez.', notConfirmed: 'Votre adresse e-mail n’est pas encore confirmée. Vérifiez votre e-mail de confirmation.', resend: 'Renvoyer l’e-mail de vérification', resendSent: 'E-mail de vérification renvoyé. Vérifiez votre boîte de réception et vos spams.', resendFailed: 'L’e-mail de vérification n’a pas pu être renvoyé.' },
+            nl: { subtitle: 'Professioneel taxivervoer in België', email: 'E-mailadres', emailPlaceholder: 'uw@email.be', password: 'Wachtwoord', passwordPlaceholder: 'wachtwoord', login: 'Inloggen', helper: 'Log in met uw FleetConnect klantaccount.', register: 'Account aanmaken', registered: 'Account succesvol aangemaakt. We hebben u een verificatiemail gestuurd. Bevestig uw e-mailadres en log daarna in op het klantportaal.', verified: 'E-mailadres succesvol bevestigd. U kunt nu inloggen.', pending: 'Uw account wacht nog op goedkeuring.', profile: 'Uw klantprofiel is nog niet gekoppeld. Log opnieuw in na verificatie of contacteer support.', session: 'Log in om het klantportaal te openen.', checking: 'Uw e-mailadres is bevestigd. We controleren nu uw klanttoegang.', verifyFailed: 'Verificatie kon niet worden afgerond. Probeer opnieuw of contacteer support@fleetconnect.be.', fillCredentials: 'Vul zowel e-mailadres als wachtwoord in.', noSession: 'Geen geldige sessie gevonden.', loginBusy: 'Inloggen...', invalid: 'Ongeldige inloggegevens. Probeer opnieuw.', notConfirmed: 'Uw e-mailadres is nog niet bevestigd. Controleer uw verificatiemail.', resend: 'Verificatiemail opnieuw versturen', resendSent: 'Verificatiemail opnieuw verstuurd. Controleer uw inbox en spamfolder.', resendFailed: 'Verificatiemail kon niet opnieuw worden verstuurd.' },
+            es: { subtitle: 'Transporte profesional de taxi en Bélgica', email: 'Correo electrónico', emailPlaceholder: 'usted@email.com', password: 'Contraseña', passwordPlaceholder: 'contraseña', login: 'Iniciar sesión', helper: 'Inicie sesión con su cuenta de cliente FleetConnect.', register: 'Crear cuenta', registered: 'Cuenta creada correctamente. Le enviamos un correo de verificación. Confirme su correo y luego inicie sesión.', verified: 'Correo verificado correctamente. Ahora puede iniciar sesión.', pending: 'Su cuenta está pendiente de validación.', profile: 'Su perfil de cliente aún no está vinculado. Inicie sesión de nuevo después de verificar o contacte soporte.', session: 'Inicie sesión para abrir el portal cliente.', checking: 'Su correo está confirmado. Estamos comprobando su acceso.', verifyFailed: 'No se pudo completar la verificación. Inténtelo de nuevo o contacte support@fleetconnect.be.', fillCredentials: 'Introduzca correo electrónico y contraseña.', noSession: 'No se encontró una sesión válida.', loginBusy: 'Iniciando sesión...', invalid: 'Datos de acceso inválidos. Inténtelo de nuevo.', notConfirmed: 'Su correo aún no está confirmado. Revise el correo de verificación.', resend: 'Reenviar correo de verificación', resendSent: 'Correo de verificación reenviado. Revise su bandeja y spam.', resendFailed: 'No se pudo reenviar el correo de verificación.' },
+            ar: { subtitle: 'خدمة تاكسي احترافية في بلجيكا', email: 'البريد الإلكتروني', emailPlaceholder: 'you@email.com', password: 'كلمة المرور', passwordPlaceholder: 'كلمة المرور', login: 'تسجيل الدخول', helper: 'سجّل الدخول بحساب عميل FleetConnect.', register: 'إنشاء حساب', registered: 'تم إنشاء الحساب بنجاح. أرسلنا لك رسالة تحقق. يرجى تأكيد بريدك الإلكتروني ثم تسجيل الدخول.', verified: 'تم تأكيد البريد الإلكتروني. يمكنك تسجيل الدخول الآن.', pending: 'حسابك بانتظار الموافقة.', profile: 'لم يتم ربط ملف العميل بعد. سجّل الدخول مرة أخرى بعد التحقق أو تواصل مع الدعم.', session: 'سجّل الدخول لفتح بوابة العملاء.', checking: 'تم تأكيد بريدك الإلكتروني. نتحقق الآن من صلاحية الوصول.', verifyFailed: 'تعذر إكمال التحقق. حاول مرة أخرى أو تواصل مع support@fleetconnect.be.', fillCredentials: 'أدخل البريد الإلكتروني وكلمة المرور.', noSession: 'لم يتم العثور على جلسة صالحة.', loginBusy: 'جار تسجيل الدخول...', invalid: 'بيانات الدخول غير صحيحة. حاول مرة أخرى.', notConfirmed: 'لم يتم تأكيد بريدك الإلكتروني بعد. تحقق من رسالة التأكيد.', resend: 'إعادة إرسال رسالة التحقق', resendSent: 'تمت إعادة إرسال رسالة التحقق. تحقق من البريد الوارد والرسائل غير المرغوب فيها.', resendFailed: 'تعذر إعادة إرسال رسالة التحقق.' }
+        };
+        function detectLanguage() {
+            const param = loginParams.get('lang');
+            const stored = localStorage.getItem('fleetconnect_language') || localStorage.getItem('fc_partner_lang');
+            const browser = (navigator.language || '').slice(0, 2).toLowerCase();
+            return LANGUAGE_ORDER.includes(param) ? param : (LANGUAGE_ORDER.includes(stored) ? stored : (LANGUAGE_ORDER.includes(browser) ? browser : 'en'));
+        }
+        let currentLang = detectLanguage();
+        const tr = () => UI[currentLang] || UI.en;
+
 
         if (requestedEmail) emailInput.value = requestedEmail;
         const registerLink = document.getElementById('registerLink');
@@ -199,16 +223,39 @@
             registerLink.href = registerParams.toString() ? `/PV/register.html?${registerParams.toString()}` : '/PV/register.html';
         }
 
-        if (loginReason === 'registered') showInfo('Account successfully created. Please verify your email address. After verification you can log in to the customer portal.', true);
-        if (loginReason === 'verified') showInfo('Email successfully verified. You can now log in if your account has been approved.', true);
-        if (loginReason === 'pending') showError('Your account is awaiting approval.', true);
-        if (loginReason === 'profile') showError('Uw klantprofiel is nog niet gekoppeld. Log opnieuw in na verificatie of contacteer support.', true);
-        if (loginReason === 'session') showError('Log in om het klantportaal te openen.', true);
+        function applyLanguage() {
+            localStorage.setItem('fleetconnect_language', currentLang);
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('subtitleText').textContent = tr().subtitle;
+            document.getElementById('emailLabel').innerHTML = `<i class="fas fa-envelope"></i> ${tr().email}`;
+            document.getElementById('passwordLabel').innerHTML = `<i class="fas fa-lock"></i> ${tr().password}`;
+            emailInput.placeholder = tr().emailPlaceholder;
+            passInput.placeholder = tr().passwordPlaceholder;
+            document.getElementById('loginBtnText').textContent = tr().login;
+            document.getElementById('helperText').textContent = tr().helper;
+            registerLink.textContent = tr().register;
+            document.querySelectorAll('[data-lang]').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
+        }
+        document.querySelectorAll('[data-lang]').forEach(btn => btn.addEventListener('click', () => {
+            currentLang = btn.dataset.lang;
+            const params = new URLSearchParams(window.location.search);
+            params.set('lang', currentLang);
+            window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
+            applyLanguage();
+        }));
+        applyLanguage();
+
+        if (loginReason === 'registered') showInfo(tr().registered, true, true);
+        if (loginReason === 'verified') showInfo(tr().verified, true);
+        if (loginReason === 'pending') showError(tr().pending, true);
+        if (loginReason === 'profile') showError(tr().profile, true);
+        if (loginReason === 'session') showError(tr().session, true);
 
         const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
         const queryType = loginParams.get('type') || hashParams.get('type');
         if (queryType === 'signup' || hashParams.get('access_token')) {
-            showInfo('Email successfully verified. You can now log in if your account has been approved.', true);
+            showInfo(tr().verified, true);
         }
 
         function portalUrl() {
@@ -228,8 +275,17 @@
             }
         }
 
-        function showInfo(msg, persist = false) {
+        function showInfo(msg, persist = false, allowResend = false) {
             infoBox.innerText = msg;
+            if (allowResend && emailInput.value.trim()) {
+                const resend = document.createElement('button');
+                resend.type = 'button';
+                resend.className = 'inline-action';
+                resend.textContent = tr().resend;
+                resend.onclick = resendVerificationEmail;
+                infoBox.appendChild(document.createElement('br'));
+                infoBox.appendChild(resend);
+            }
             infoBox.style.display = 'block';
             errorBox.style.display = 'none';
             if (!persist) {
@@ -237,6 +293,19 @@
                     infoBox.style.display = 'none';
                 }, 5000);
             }
+        }
+
+        async function resendVerificationEmail() {
+            const email = emailInput.value.trim();
+            if (!email) { showError(tr().fillCredentials, true); return; }
+            const params = new URLSearchParams();
+            if (requestedBookingId) params.set('booking', requestedBookingId);
+            params.set('email', email);
+            params.set('lang', currentLang);
+            const redirectTo = window.location.origin + '/PV/verificatiepv.html?' + params.toString();
+            const { error } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: redirectTo } });
+            if (error) showError(tr().resendFailed + ' ' + error.message, true);
+            else showInfo(tr().resendSent, true);
         }
 
         async function getRequestStatus(email) {
@@ -251,13 +320,13 @@
         }
 
         async function canOpenPortal(user) {
-            if (!user?.email) return { allowed: false, message: 'Geen geldige sessie gevonden.' };
+            if (!user?.email) return { allowed: false, message: tr().noSession };
 
             try {
                 const { data: access, error: accessError } = await supabase.rpc('get_customer_portal_access');
                 if (!accessError && access) {
                     if (access.allowed) return { allowed: true };
-                    if (access.state === 'pending') return { allowed: false, message: 'Your account is awaiting approval.' };
+                    if (access.state === 'pending') return { allowed: false, message: tr().pending };
                     if (access.state === 'rejected') return { allowed: false, message: 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.' };
                     if (access.message) return { allowed: false, message: access.message };
                 }
@@ -267,7 +336,7 @@
 
             const status = await getRequestStatus(user.email);
             if (status?.found && status.status === 'pending' && status.request_scope !== 'customer') {
-                return { allowed: false, message: 'Your account is awaiting approval.' };
+                return { allowed: false, message: tr().pending };
             }
             if (status?.found && status.status === 'rejected' && status.request_scope !== 'customer') {
                 return { allowed: false, message: 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.' };
@@ -351,13 +420,13 @@
             try {
                 const { error: codeError } = await supabase.auth.exchangeCodeForSession(window.location.href);
                 if (codeError) {
-                    showError('Verificatie kon niet worden afgerond: ' + codeError.message, true);
+                    showError(tr().verifyFailed + ' ' + codeError.message, true);
                 } else {
-                    showInfo('Uw e-mailadres is bevestigd. We controleren nu uw klanttoegang.', true);
+                    showInfo(tr().checking, true);
                     window.history.replaceState({}, document.title, `/PV/index.html${requestedBookingId ? `?booking=${encodeURIComponent(requestedBookingId)}` : ''}`);
                 }
             } catch (codeExchangeError) {
-                showError('Verificatie kon niet worden afgerond. Probeer opnieuw of contacteer support@fleetconnect.be.', true);
+                showError(tr().verifyFailed, true);
                 console.warn('Supabase verification exchange failed:', codeExchangeError.message);
             }
         }
@@ -374,13 +443,13 @@
             const password = passInput.value.trim();
 
             if (!email || !password) {
-                showError('Vul zowel e-mailadres als wachtwoord in.');
+                showError(tr().fillCredentials);
                 return;
             }
 
             loginBtn.disabled = true;
             const originalText = loginBtn.innerHTML;
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inloggen...';
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + tr().loginBusy;
 
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -396,7 +465,7 @@
 
                 window.location.href = portalUrl();
             } catch (err) {
-                let message = err.message || 'Ongeldige inloggegevens. Probeer opnieuw.';
+                let message = err.message || tr().invalid;
                 const requestStatus = await getRequestStatus(email);
                 if (requestStatus?.found && requestStatus.status === 'pending') {
                     message = 'Uw accountaanvraag wacht nog op goedkeuring door FleetConnect.';
@@ -405,7 +474,7 @@
                 } else if (requestStatus?.found && requestStatus.status === 'rejected') {
                     message = 'Uw accountaanvraag werd niet goedgekeurd. Neem contact op met support@fleetconnect.be.';
                 } else if (String(message).toLowerCase().includes('email not confirmed')) {
-                    message = 'Uw e-mailadres is nog niet bevestigd. Controleer uw verificatiemail.';
+                    message = tr().notConfirmed;
                 }
                 showError(message, true);
                 passInput.value = '';

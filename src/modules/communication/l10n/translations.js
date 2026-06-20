@@ -205,3 +205,93 @@ export const EmailTranslations = {
         }
     }
 };
+
+EmailTranslations.es = {
+    ...EmailTranslations.en,
+    subjects: {
+        ...EmailTranslations.en.subjects,
+        BOOKING_CONFIRMATION: 'Hemos recibido su reserva FleetConnect',
+        DRIVER_ASSIGNMENT_REQUEST: 'Nueva misión de viaje disponible',
+        DRIVER_ASSIGNED: 'Su viaje está confirmado',
+        DRIVER_REASSIGNED: 'Su conductor ha sido actualizado',
+        DRIVER_DECLINED: 'El conductor rechazó la misión',
+        BOOKING_CANCELLED: 'Confirmación de cancelación',
+        BOOKING_REJECTED: 'No pudimos aceptar su solicitud de reserva',
+        RIDE_COMPLETED_REVIEW_REQUEST: 'Gracias por viajar con FleetConnect',
+        CUSTOMER_REGISTRATION_CONFIRMATION: 'Su cuenta FleetConnect ha sido creada'
+    },
+    labels: {
+        ...EmailTranslations.en.labels,
+        bookingReference: 'Número de reserva',
+        dateTime: 'Fecha y hora',
+        pickup: 'Recogida',
+        destination: 'Destino',
+        vehicle: 'Vehículo',
+        driver: 'Su conductor',
+        plate: 'Matrícula',
+        phone: 'Teléfono',
+        price: 'Precio total',
+        payment: 'Método de pago',
+        distance: 'Distancia',
+        duration: 'Duración',
+        support: 'Atención al cliente',
+        viewBooking: 'Ver reserva',
+        bookNew: 'Reservar otro viaje',
+        writeReview: 'Escribir una reseña',
+        confirmRegistration: 'Confirmar registro',
+        titleUpdate: 'Actualización FleetConnect',
+        valuedCustomer: 'Cliente',
+        greeting: (name) => `Estimado/a ${name},`,
+        confirmationBody: 'hemos recibido su reserva. Nuestro equipo está procesando su solicitud.',
+        rideConfirmedBody: 'su viaje está confirmado. Su conductor ha aceptado el viaje y los detalles están abajo.',
+        assignmentRequestBody: 'ha sido seleccionado para una nueva misión. Revise los detalles y confirme si puede realizarla.',
+        registrationConfirmationBody: 'su cuenta FleetConnect ha sido creada. Puede iniciar sesión en el portal cliente y añadir viajes con su número de reserva.',
+        footerTagline: 'Servicios premium de chófer y transporte ejecutivo',
+        copyright: 'Todos los derechos reservados.'
+    }
+};
+
+EmailTranslations.ar = {
+    ...EmailTranslations.en,
+    subjects: {
+        ...EmailTranslations.en.subjects,
+        BOOKING_CONFIRMATION: 'تم استلام حجزك في FleetConnect',
+        DRIVER_ASSIGNMENT_REQUEST: 'مهمة رحلة جديدة متاحة',
+        DRIVER_ASSIGNED: 'تم تأكيد رحلتك',
+        DRIVER_REASSIGNED: 'تم تحديث بيانات السائق',
+        DRIVER_DECLINED: 'رفض السائق مهمة الرحلة',
+        BOOKING_CANCELLED: 'تأكيد الإلغاء',
+        BOOKING_REJECTED: 'تعذر قبول طلب الحجز',
+        RIDE_COMPLETED_REVIEW_REQUEST: 'شكرا لاستخدامك FleetConnect',
+        CUSTOMER_REGISTRATION_CONFIRMATION: 'تم إنشاء حساب FleetConnect الخاص بك'
+    },
+    labels: {
+        ...EmailTranslations.en.labels,
+        bookingReference: 'رقم الحجز',
+        dateTime: 'التاريخ والوقت',
+        pickup: 'نقطة الانطلاق',
+        destination: 'الوجهة',
+        vehicle: 'المركبة',
+        driver: 'السائق',
+        plate: 'رقم اللوحة',
+        phone: 'الهاتف',
+        price: 'السعر الإجمالي',
+        payment: 'طريقة الدفع',
+        distance: 'المسافة',
+        duration: 'المدة',
+        support: 'خدمة العملاء',
+        viewBooking: 'عرض الحجز',
+        bookNew: 'حجز رحلة جديدة',
+        writeReview: 'اكتب تقييما',
+        confirmRegistration: 'تأكيد التسجيل',
+        titleUpdate: 'تحديث FleetConnect',
+        valuedCustomer: 'عميلنا العزيز',
+        greeting: (name) => `مرحبا ${name}،`,
+        confirmationBody: 'لقد استلمنا حجزك. يقوم فريقنا حاليا بمعالجة الطلب.',
+        rideConfirmedBody: 'تم تأكيد رحلتك. قبل السائق الرحلة وتجد التفاصيل أدناه.',
+        assignmentRequestBody: 'تم اختيارك لمهمة رحلة جديدة. يرجى مراجعة التفاصيل وتأكيد إمكانية تنفيذها.',
+        registrationConfirmationBody: 'تم إنشاء حساب FleetConnect الخاص بك. يمكنك تسجيل الدخول إلى بوابة العملاء وإضافة الرحلات باستخدام رقم الحجز.',
+        footerTagline: 'خدمات سائق مميزة ونقل تنفيذي',
+        copyright: 'جميع الحقوق محفوظة.'
+    }
+};

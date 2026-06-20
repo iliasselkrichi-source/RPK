@@ -35,7 +35,7 @@ export class LanguageEngine {
      * Get trilingual subject (Belgian Fallback).
      */
     static getTrilingualSubject(trigger) {
-        const order = CommunicationConfig.settings.trilingualOrder || ['nl', 'fr', 'en'];
+        const order = CommunicationConfig.settings.trilingualOrder || ['en', 'fr', 'nl', 'es', 'ar'];
         return order
             .map(lang => {
                 const set = EmailTranslations[lang] || {};
