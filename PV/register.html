@@ -44,7 +44,7 @@
         <div id="errorBox" class="error-msg"></div>
         <div id="successBox" class="success-msg"></div>
         <div id="addressHint" class="address-hint" style="display:none; background:#fef3c7; color:#92400e; padding:10px 14px; border-radius:10px; font-size:0.8rem; margin-bottom:18px; text-align:left; border:1px solid #fde68a;">
-            <i class="fas fa-info-circle"></i> <strong>Adres automatisch aanvullen niet beschikbaar.</strong> Geen probleem - typ uw adres handmatig in (straat + nummer + stad). Minimaal 3 tekens.
+            <i class="fas fa-info-circle"></i> U kunt uw standaard ophaallocatie nu invullen of later toevoegen in het klantportaal.
         </div>
 
         <form id="registerForm" novalidate>
@@ -160,9 +160,7 @@
             const hint = document.getElementById('addressHint');
             if (hint) hint.style.display = 'block';
             const pickupInput = document.getElementById('pickupInput');
-            if (pickupInput) {
-                pickupInput.placeholder = 'Bijv.: Stationsstraat 1, 1000 Brussel';
-            }
+            if (pickupInput) pickupInput.placeholder = 'Straat 1, Stad';
             console.warn('Registration address autocomplete unavailable; manual address entry remains enabled.', reason || 'unknown');
         }
 
@@ -269,34 +267,33 @@
             const repeatPassword = document.getElementById('repeatPassInput').value;
 
             if (!fullName || !email || !phone || !password || !repeatPassword) {
-                showError('Vul alle verplichte velden in.');
+                showError(({ en: 'Complete all required fields.', fr: 'Complétez tous les champs obligatoires.', nl: 'Vul alle verplichte velden in.', es: 'Complete todos los campos obligatorios.', ar: 'أكمل جميع الحقول الإلزامية.' }[currentLang]) || 'Complete all required fields.');
                 return;
             }
 
             if (!document.getElementById('emailInput').checkValidity()) {
-                showError('Vul een geldig e-mailadres in.');
+                showError(({ en: 'Enter a valid email address.', fr: 'Saisissez une adresse e-mail valide.', nl: 'Vul een geldig e-mailadres in.', es: 'Introduzca un correo electrónico válido.', ar: 'أدخل بريدا إلكترونيا صالحا.' }[currentLang]) || 'Enter a valid email address.');
                 return;
             }
 
             if (password.length < 6) {
-                showError('Kies een wachtwoord van minimaal 6 tekens.');
-                return;
-            }
-
-            if (!pickup || pickup.length < 3) {
-                showError('Vul een ophaaladres in van minimaal 3 tekens. Google suggesties zijn niet verplicht.');
+                showError(({ en: 'Choose a password of at least 6 characters.', fr: 'Choisissez un mot de passe d’au moins 6 caractères.', nl: 'Kies een wachtwoord van minimaal 6 tekens.', es: 'Elija una contraseña de al menos 6 caracteres.', ar: 'اختر كلمة مرور من 6 أحرف على الأقل.' }[currentLang]) || 'Choose a password of at least 6 characters.');
                 return;
             }
 
             if (password !== repeatPassword) {
-                showError('De wachtwoorden komen niet overeen.');
+                showError(({ en: 'Passwords do not match.', fr: 'Les mots de passe ne correspondent pas.', nl: 'De wachtwoorden komen niet overeen.', es: 'Las contraseñas no coinciden.', ar: 'كلمتا المرور غير متطابقتين.' }[currentLang]) || 'Passwords do not match.');
                 return;
             }
 
             // DEDUP CHECK: same email cannot register twice
+            let dedupData = null;
             try {
                 const dedup = await supabase.rpc('check_duplicate_registration', { p_email: email });
-                if (dedup?.data && dedup.data.exists) {
+                dedupData = dedup?.data || null;
+                const blockingKinds = ['customer_profile', 'unverified_user'];
+                const blockingScope = !dedup?.data?.request_scope || dedup.data.request_scope === 'customer';
+                if (dedup?.data && dedup.data.exists && blockingKinds.includes(dedup.data.kind) && blockingScope) {
                     const reason = dedup.data.reason || 'Dit e-mailadres is al geregistreerd.';
                     showError(reason + ' Ga naar de inlogpagina of gebruik een ander e-mailadres.');
                     return;
@@ -309,6 +306,17 @@
             try {
                 regBtn.disabled = true;
                 regBtn.textContent = ({ en: 'Creating account...', fr: 'Cr\u00e9ation du compte...', nl: 'Registratie wordt verwerkt...', es: 'Registrando...', ar: '\u062c\u0627\u0631\u064a \u0627\u0644\u062a\u0633\u062c\u064a\u0644...' }[currentLang]) || 'Creating account...';
+                const existingCrossScopeAccount = ['partner_profile', 'driver_profile', 'verified_user'].includes(dedupData?.kind);
+                if (existingCrossScopeAccount) {
+                    const customerId = `CUST-${email.replace(/[^a-z0-9]/gi, '').substring(0,30)}`;
+                    const { error: profileError } = await supabase.rpc('create_customer_registration_profile', {
+                        payload: { id: customerId, name: fullName, email, phone, default_pickup_address: pickup, preferred_language: currentLang }
+                    });
+                    if (profileError) throw profileError;
+                    showSuccess(({ en: 'Customer profile created. Sign in with your existing FleetConnect account.', fr: 'Profil client créé. Connectez-vous avec votre compte FleetConnect existant.', nl: 'Klantprofiel aangemaakt. Log in met uw bestaande FleetConnect-account.', es: 'Perfil de cliente creado. Inicie sesión con su cuenta FleetConnect existente.', ar: '\u062a\u0645 \u0625\u0646\u0634\u0627\u0621 \u0645\u0644\u0641 \u0627\u0644\u0639\u0645\u064a\u0644. \u0633\u062c\u0644 \u0627\u0644\u062f\u062e\u0648\u0644 \u0628\u062d\u0633\u0627\u0628 FleetConnect \u0627\u0644\u062d\u0627\u0644\u064a.' }[currentLang]) || 'Customer profile created. Sign in with your existing FleetConnect account.');
+                    setTimeout(() => { window.location.href = loginUrl(email); }, 1200);
+                    return;
+                }
                 // 1. Sign up user
                 const wwwOrigin = window.location.hostname.startsWith('www.')
                     ? window.location.origin
@@ -331,8 +339,8 @@
                         // the hash, and the verification would silently fail.
                         // We force the www subdomain to avoid the redirect entirely.
                         emailRedirectTo: requestedBookingId
-                            ? `${wwwOrigin}/PV/verificatiepv.html?booking=${encodeURIComponent(requestedBookingId)}&email=${encodeURIComponent(email)}`
-                            : `${wwwOrigin}/PV/verificatiepv.html?email=${encodeURIComponent(email)}`
+                            ? `${wwwOrigin}/PV/verificatiepv.html?booking=${encodeURIComponent(requestedBookingId)}&email=${encodeURIComponent(email)}&lang=${encodeURIComponent(currentLang)}`
+                            : `${wwwOrigin}/PV/verificatiepv.html?email=${encodeURIComponent(email)}&lang=${encodeURIComponent(currentLang)}`
                     }
                 });
 
@@ -416,4 +424,3 @@
     </script>
 </body>
 </html>
-

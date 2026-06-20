@@ -623,7 +623,10 @@
       try {
         const { data: duplicate, error: duplicateError } = await supabase.rpc('check_duplicate_registration', { p_email: email });
         if (duplicateError) console.warn('Duplicate registration check unavailable:', duplicateError.message);
-        if (!duplicateError && duplicate?.exists) throw new Error(duplicate.reason || t('requestFailed'));
+        const samePartnerScope = duplicate?.kind === 'partner_profile'
+          || duplicate?.kind === 'driver_profile'
+          || (duplicate?.kind === 'account_request' && duplicate?.request_scope !== 'customer');
+        if (!duplicateError && duplicate?.exists && samePartnerScope) throw new Error(duplicate.reason || t('requestFailed'));
 
         const redirectTo = `${window.location.origin}/partner-app/`;
         const signUpResult = await supabase.auth.signUp({
